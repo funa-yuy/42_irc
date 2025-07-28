@@ -33,7 +33,7 @@ int	main() {
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
 	socklen_t	client_addr_len = sizeof(client_addr);
-	char	buffer[1024];
+	char	read_buffer[1024];
 	int	port = 6667;
 
 	//ソケット生成
@@ -76,17 +76,29 @@ int	main() {
 	//読み取り todo: 課題ではreadは使用してはいけないので修正が必要
 	while (true)
 	{
-		memset(&buffer, 0, sizeof(buffer));//ヌル埋め
+		memset(&read_buffer, 0, sizeof(read_buffer));//ヌル埋め
 		//clientからのメッセージを読む
-		ssize_t	bytes_read = read(client_fd, buffer, sizeof(buffer) - 1);
+		ssize_t	bytes_read = read(client_fd, read_buffer, sizeof(read_buffer) - 1);
 		if (bytes_read < 0) {
 			perror("read error");
 			close(client_fd);
 			close(server_fd);
 			return (EXIT_FAILURE);
 		}
-		buffer[bytes_read] = '\0';
-		std::cout << "受信メッセージ: " << buffer << std::endl;
+		read_buffer[bytes_read] = '\0';
+		std::cout << "受信メッセージ: " << read_buffer << std::endl;
+
+		//clientからのメッセージを読む
+		std::string	send_buffer;
+		if (getline(std::cin, send_buffer)) {
+			send_buffer += "\n";
+			if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
+				perror("send error");
+				close(client_fd);
+				close(server_fd);
+				return (EXIT_FAILURE);
+			}
+		}
 	}
 
 	// ソケット切断
