@@ -43,7 +43,7 @@
 #original
 *.pdf
 **/.DS_Store
-vscode/
+.vscode/
 bin/
 mfunakos/
 ircserv

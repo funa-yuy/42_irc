@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/07/27 19:59:09 by miyuu            ###   ########.fr        #
+#    Updated: 2025/07/29 14:00:48 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,8 +18,8 @@ HEADERS = \
 
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-OBJ_DIR = bin
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic
+OBJ_DIR = obj
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
 .PHONY: all clean fclean re

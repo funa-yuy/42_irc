@@ -34,6 +34,7 @@ int	main() {
 	struct sockaddr_in	client_addr;
 	socklen_t	client_addr_len = sizeof(client_addr);
 	char	read_buffer[1024];
+	std::string	send_buffer;
 	int	port = 6667;
 
 	//ソケット生成
@@ -86,19 +87,43 @@ int	main() {
 			return (EXIT_FAILURE);
 		}
 		read_buffer[bytes_read] = '\0';
-		std::cout << "受信メッセージ: " << read_buffer << std::endl;
+		// std::cout << "受信メッセージ: " << read_buffer << std::endl;
 
-		//clientからのメッセージを読む
-		std::string	send_buffer;
-		if (getline(std::cin, send_buffer)) {
-			send_buffer += "\n";
-			if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
-				perror("send error");
-				close(client_fd);
-				close(server_fd);
-				return (EXIT_FAILURE);
-			}
+		if (strstr(read_buffer, "CAP LS") != NULL) {
+			std::cout << "CAP * LS :\r\n" << read_buffer << std::endl;
+			send_buffer = ":irc.example.com Hi! CAP!\r\n";
 		}
+		else if (strcmp(read_buffer, "NICK") == 0) {
+			std::cout << "受信メッセージ NICK: " << read_buffer << std::endl;
+			send_buffer = ":irc.example.com Hi! NICK!\r\n";
+		}
+		else if (strcmp(read_buffer, "USER") == 0) {
+			std::cout << "受信メッセージ USER: " << read_buffer << std::endl;
+			send_buffer = ":irc.example.com Hi! USER!\r\n";
+		}
+		else if (strcmp(read_buffer, "QUIT") == 0) {
+			std::cout << "受信メッセージ QUIT: " << read_buffer << std::endl;
+			break ;
+		}
+		else {
+			std::cout << "受信メッセージ: " << read_buffer << std::endl;
+			send_buffer = ":irc.example.com What???\r\n";
+		}
+		if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
+			perror("send error");
+			close(client_fd);
+			close(server_fd);
+			return (EXIT_FAILURE);
+		}
+		// if (getline(std::cin, send_buffer)) {
+		// 	send_buffer += "\n";
+		// 	if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
+		// 		perror("send error");
+		// 		close(client_fd);
+		// 		close(server_fd);
+		// 		return (EXIT_FAILURE);
+		// 	}
+		// }
 	}
 
 	// ソケット切断
