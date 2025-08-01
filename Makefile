@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/02 00:51:13 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/02 01:15:12 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ SRC					:= \
 					Server.cpp \
 
 HEADERS				:= \
-					includes/Server.hpp \
+					Server.hpp \
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \
@@ -62,7 +62,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(OBJ) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(INC_DIR)/$(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) -c $< -o $@
 
