@@ -3,28 +3,67 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/07/29 14:00:48 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/02 00:17:34 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = ircserv
-SRCS = \
-		main.cpp \
-
-HEADERS = \
+# **************************************************************************** #
+# VARIABLES
 
 
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic
-OBJ_DIR = obj
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
+NAME				:= ircserv
 
-.PHONY: all clean fclean re
+CXX					:= c++
+CXX_FLAGS			:= -Wall -Wextra -Werror -std=c++98
+
+SRC_DIR				:= src
+OBJ_DIR				:= obj
+
+
+# **************************************************************************** #
+# SOURCES
+
+
+SRC					:= \
+					main.cpp \
+					Server.cpp \
+					
+
+OBJ					:= \
+					$(addprefix $(OBJ_DIR)/, \
+					$(SRC:.cpp=.o))
+
+
+# **************************************************************************** #
+# LIBRARIES & FRAMEWORKS
+
+
+
+
+
+# **************************************************************************** #
+# INCLUDES
+
+
+INC_DIR			:= includes
+INCLUDES		:= -I$(INC_DIR)
+
+
+# **************************************************************************** #
+# RULES
+
 
 all: $(NAME)
+
+$(NAME): $(OBJ)
+	$(CXX) $(CXX_FLAGS) $(OBJ) -o $@
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXX_FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	$(RM) -r $(OBJ_DIR)
@@ -34,13 +73,9 @@ fclean: clean
 
 re: fclean all
 
-# ========== File Dependency ========== #
 
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+# **************************************************************************** #
+# PHONY
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)/%.o: %.cpp $(HEADERS) | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+.PHONY: all clean fclean re
