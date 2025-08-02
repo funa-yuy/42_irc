@@ -27,6 +27,32 @@
 // /connect 127.0.0.1 6667
 // ```
 
+std::string	handleInput(char* input) {
+	std::string	send_buffer;
+
+
+	if (strstr(input, "CAP LS") != NULL) {
+
+		send_buffer = ":servername 001 testnick :Welcome to the IRC server\r\n";
+	}
+	else if (strstr(input, "NICK") != NULL) {
+		send_buffer = ":servername Hi! NICK!\r\n";
+	}
+	else if (strstr(input, "USER") != NULL) {
+		send_buffer = ":servername Hi! USER!\r\n";
+	}
+	else if (strstr(input, "PING") != NULL) {
+		send_buffer = "PONG servername\r\n";
+	}
+	else if (strstr(input, "QUIT") != NULL) {
+		send_buffer = ":servername Hi! QUIT!\r\n";
+	}
+	else {
+		send_buffer = ":servername What???\r\n";
+	}
+	return (send_buffer);
+}
+
 int	main() {
 	int	server_fd;
 	int	client_fd;
@@ -87,43 +113,17 @@ int	main() {
 			return (EXIT_FAILURE);
 		}
 		read_buffer[bytes_read] = '\0';
-		// std::cout << "受信メッセージ: " << read_buffer << std::endl;
 
-		if (strstr(read_buffer, "CAP LS") != NULL) {
-			std::cout << "CAP * LS :\r\n" << read_buffer << std::endl;
-			send_buffer = ":irc.example.com Hi! CAP!\r\n";
-		}
-		else if (strcmp(read_buffer, "NICK") == 0) {
-			std::cout << "受信メッセージ NICK: " << read_buffer << std::endl;
-			send_buffer = ":irc.example.com Hi! NICK!\r\n";
-		}
-		else if (strcmp(read_buffer, "USER") == 0) {
-			std::cout << "受信メッセージ USER: " << read_buffer << std::endl;
-			send_buffer = ":irc.example.com Hi! USER!\r\n";
-		}
-		else if (strcmp(read_buffer, "QUIT") == 0) {
-			std::cout << "受信メッセージ QUIT: " << read_buffer << std::endl;
-			break ;
-		}
-		else {
-			std::cout << "受信メッセージ: " << read_buffer << std::endl;
-			send_buffer = ":irc.example.com What???\r\n";
-		}
+		std::cout << "受信メッセージ: " << read_buffer << std::endl;
+		send_buffer = handleInput(read_buffer);
+
+		std::cout << "送信メッセージ: " << send_buffer << std::endl;
 		if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
 			perror("send error");
 			close(client_fd);
 			close(server_fd);
 			return (EXIT_FAILURE);
 		}
-		// if (getline(std::cin, send_buffer)) {
-		// 	send_buffer += "\n";
-		// 	if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
-		// 		perror("send error");
-		// 		close(client_fd);
-		// 		close(server_fd);
-		// 		return (EXIT_FAILURE);
-		// 	}
-		// }
 	}
 
 	// ソケット切断
