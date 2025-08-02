@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
+#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/02 01:15:12 by keishii          ###   ########.fr        #
+#    Updated: 2025/08/02 21:23:17 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@
 NAME				:= ircserv
 
 CXX					:= c++
-CXX_FLAGS			:= -Wall -Wextra -Werror -std=c++98
+CXX_FLAGS			:= -Wall -Wextra -Werror -std=c++98 -pedantic
 
 SRC_DIR				:= src
 OBJ_DIR				:= obj
