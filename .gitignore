@@ -44,7 +44,6 @@
 *.pdf
 **/.DS_Store
 .vscode/
-bin/
 mfunakos/
 keishii/
 ircserv
