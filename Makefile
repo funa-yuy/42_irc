@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/02 21:59:28 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/02 22:23:26 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,10 +26,9 @@ OBJ_DIR				:= obj
 # **************************************************************************** #
 # SOURCES
 
-
 SRC					:= \
 					main.cpp \
-					Server.cpp \
+					Server.cpp
 
 HEADERS				:= \
 					Server.hpp \
@@ -37,9 +36,7 @@ HEADERS				:= \
 					NickCommand.hpp
 
 OBJ					:= \
-					$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC))
-# $(addprefix $(OBJ_DIR)/, \
-# $(SRC:.cpp=.o))
+					$(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 
 
 # **************************************************************************** #
@@ -65,7 +62,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(OBJ) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(INC_DIR)/$(HEADERS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(addprefix $(INC_DIR)/, $(HEADERS))
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) -c $< -o $@
 
