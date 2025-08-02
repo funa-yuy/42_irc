@@ -8,6 +8,8 @@
 
 #include <iostream> //cout
 
+#include "../includes/NickCommand.hpp"
+
 
 /* server */
 // ```bash
@@ -30,13 +32,13 @@
 std::string	handleInput(char* input) {
 	std::string	send_buffer;
 
-
 	if (strstr(input, "CAP LS") != NULL) {
 
 		send_buffer = ":servername 001 testnick :Welcome to the IRC server\r\n";
 	}
 	else if (strstr(input, "NICK") != NULL) {
-		send_buffer = ":servername Hi! NICK!\r\n";
+		Command* cmd = new NickCommand();
+		send_buffer = cmd->execute(input);
 	}
 	else if (strstr(input, "USER") != NULL) {
 		send_buffer = ":servername Hi! USER!\r\n";

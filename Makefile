@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/02 18:39:35 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/02 21:59:28 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,10 +33,13 @@ SRC					:= \
 
 HEADERS				:= \
 					Server.hpp \
+					Command.hpp \
+					NickCommand.hpp
 
 OBJ					:= \
-					$(addprefix $(OBJ_DIR)/, \
-					$(SRC:.cpp=.o))
+					$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC))
+# $(addprefix $(OBJ_DIR)/, \
+# $(SRC:.cpp=.o))
 
 
 # **************************************************************************** #

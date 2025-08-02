@@ -1,26 +1,29 @@
-#ifndef COMMAND_HPP
-# define COMMAND_HPP
+#ifndef NICKCOMMAND_HPP
+# define NICKCOMMAND_HPP
 
 // ------------------------------------------------
 // include
 // ------------------------------------------------
 
 #include <iostream>
+#include "Command.hpp"
 
 // ------------------------------------------------
 // class
 // ------------------------------------------------
 
-class NickCommand {
+class NickCommand : public Command {
 	public:
+		NickCommand();
 		~NickCommand();
 
-		void	execute(std::string input) const;
+		std::string	execute(char* input) const {
+			return (":servername Hi! NICK!\r\n");
+		}
 
 	protected:
 
 	private:
-		NickCommand();
 		NickCommand& operator=(const NickCommand& copy);
 		NickCommand(const NickCommand& copy);
 };

@@ -15,7 +15,7 @@ class Command {
 	public:
 		virtual ~Command() = 0;//純粋仮想関数
 
-		virtual void	execute(std::string input) const = 0; //純粋仮想関数
+		virtual std::string	execute(char* input) const = 0; //純粋仮想関数
 
 	protected:
 
