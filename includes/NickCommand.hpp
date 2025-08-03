@@ -24,8 +24,6 @@ class NickCommand : public Command {
 		}
 
 	private:
-		NickCommand& operator=(const NickCommand& copy);
-		NickCommand(const NickCommand& copy);
 };
 
 // ------------------------------------------------
