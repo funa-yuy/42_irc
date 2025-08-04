@@ -9,6 +9,8 @@
 #include <iostream> //cout
 
 #include "../includes/NickCommand.hpp"
+#include "../includes/UserCommand.hpp"
+#include "../includes/PassCommand.hpp"
 
 
 /* server */
@@ -33,25 +35,30 @@ std::string	handleInput(char* input) {
 	std::string	send_buffer;
 
 	if (strstr(input, "CAP LS") != NULL) {
-
 		send_buffer = ":servername 001 testnick :Welcome to the IRC server\r\n";
 	}
 	else if (strstr(input, "NICK") != NULL) {
 		Command* cmd = new NickCommand();
-		send_buffer = cmd->execute(input);
+		send_buffer = cmd->execute(input).msg;
 	}
 	else if (strstr(input, "USER") != NULL) {
-		send_buffer = ":servername Hi! USER!\r\n";
+		Command* cmd = new UserCommand();
+		send_buffer = cmd->execute(input).msg;
+	}
+	else if (strstr(input, "PASS") != NULL) {
+		Command* cmd = new PassCommand();
+		send_buffer = cmd->execute(input).msg;
 	}
 	else if (strstr(input, "PING") != NULL) {
 		send_buffer = "PONG servername\r\n";
 	}
-	else if (strstr(input, "QUIT") != NULL) {
-		send_buffer = ":servername Hi! QUIT!\r\n";
-	}
 	else {
 		send_buffer = ":servername What???\r\n";
 	}
+
+	//todo: 本来はここでexecute関数を呼び出す。
+	// send_buffer = cmd->execute(input).msg;
+
 	return (send_buffer);
 }
 

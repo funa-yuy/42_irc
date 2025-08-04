@@ -1,5 +1,5 @@
-#ifndef NICKCOMMAND_HPP
-# define NICKCOMMAND_HPP
+#ifndef USERCOMMAND_HPP
+# define USERCOMMAND_HPP
 
 // ------------------------------------------------
 // include
@@ -13,10 +13,10 @@
 // class
 // ------------------------------------------------
 
-class NickCommand : public Command {
+class UserCommand : public Command {
 	public:
-		NickCommand();
-		~NickCommand();
+		UserCommand();
+		~UserCommand();
 
 		const t_response	execute(char* input) const;
 };
@@ -24,6 +24,5 @@ class NickCommand : public Command {
 // ------------------------------------------------
 // function
 // ------------------------------------------------
-
 
 #endif

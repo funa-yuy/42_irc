@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/02 22:23:26 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/04 10:43:15 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,12 +28,21 @@ OBJ_DIR				:= obj
 
 SRC					:= \
 					main.cpp \
-					Server.cpp
+					Server.cpp \
+					Command.cpp \
+					NickCommand.cpp \
+					PassCommand.cpp \
+					UserCommand.cpp
 
 HEADERS				:= \
 					Server.hpp \
+					Channel.hpp \
+					Client.hpp \
+					Database.hpp \
 					Command.hpp \
-					NickCommand.hpp
+					NickCommand.hpp \
+					PassCommand.hpp \
+					UserCommand.hpp
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
