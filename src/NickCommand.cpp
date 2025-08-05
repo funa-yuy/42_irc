@@ -13,7 +13,6 @@ NickCommand::~NickCommand() {}
 // 	target.setNickname = input.nick;
 // }
 
-
 const t_response	NickCommand::execute(char* input) const {
 	(void)input;
 	t_response	res;

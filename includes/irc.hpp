@@ -1,32 +1,31 @@
-#ifndef COMMAND_HPP
-# define COMMAND_HPP
+#ifndef IRC_HPP
+# define IRC_HPP
 
 // ------------------------------------------------
 // include
 // ------------------------------------------------
 
 #include <iostream>
-#include "irc.hpp"
 
 // ------------------------------------------------
 // struct
 // ------------------------------------------------
 
+typedef struct	s_response
+{
+	std::string	msg;
+	int			*fds;
+	int			send_flag;
+}				t_response;
 
+//todo: 一時的に作成。本来はぬすさんが定義したものを使用する
+typedef struct	s_parserd
+{
+	char*	input;
 
-// ------------------------------------------------
-// class
-// ------------------------------------------------
+	// int		client_fd;
+}				t_parserd;
 
-
-class Command {
-	public:
-		Command();
-		virtual ~Command() = 0;//純粋仮想関数
-
-		virtual const t_response	execute(t_parserd input) const = 0; //純粋仮想関数
-
-};
 
 // ------------------------------------------------
 // function
