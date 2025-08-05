@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/02 22:37:23 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/05 13:11:42 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@
 NAME				:= ircserv
 
 CXX					:= c++
-CXX_FLAGS			:= -Wall -Wextra -Werror -std=c++98
+CXX_FLAGS			:= -Wall -Wextra -Werror -std=c++98 -pedantic
 
 SRC_DIR				:= src
 OBJ_DIR				:= obj
