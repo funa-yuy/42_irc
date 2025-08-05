@@ -19,6 +19,9 @@ class NickCommand : public Command {
 		~NickCommand();
 
 		const t_response	execute(char* input) const;
+
+	private:
+
 };
 
 // ------------------------------------------------

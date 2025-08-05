@@ -9,6 +9,7 @@
 #include "Client.hpp"
 #include <vector>
 
+
 // ------------------------------------------------
 // class
 // ------------------------------------------------
@@ -21,18 +22,11 @@ class Channel {
 		std::string	getTopic() const;
 
 	private:
-		std::string				name;
-		std::vector<Client *>	clients;
-		Client*					channelOperator;
-		std::string				topic;
+		std::string				_name;
+		std::vector<Client *>	_clients;
+		Client*					_channelOperator;
+		std::string				_topic;
 	// ...他に必要に応じて（モードや制限など）
-
-
-	//未使用の関数
-	Channel();
-	Channel& operator=(const Channel& copy);
-	Channel(const Channel& copy);
-	~Channel();
 };
 
 // ------------------------------------------------

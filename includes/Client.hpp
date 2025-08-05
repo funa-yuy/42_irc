@@ -20,18 +20,11 @@ class Client {
 		bool	getIsOperator() const;
 
 	private:
-		int			fd;
-		std::string	nickname;
-		std::string	username;
-		bool		isOperator;
+		int			_fd;
+		std::string	_nickname;
+		std::string	_username;
+		bool		_isOperator;
 	// ...他に必要に応じて（モードや制限など）
-
-
-	//未使用の関数
-	Client();
-	Client& operator=(const Client& copy);
-	Client(const Client& copy);
-	~Client();
 };
 
 // ------------------------------------------------
