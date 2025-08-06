@@ -8,10 +8,10 @@
 
 #include <iostream> //cout
 
-#include "../includes/NickCommand.hpp"
-#include "../includes/UserCommand.hpp"
-#include "../includes/PassCommand.hpp"
-#include "../includes/Server.hpp"
+#include "NickCommand.hpp"
+#include "UserCommand.hpp"
+#include "PassCommand.hpp"
+#include "Server.hpp"
 
 int	main(int argc, char *argv[])
 {

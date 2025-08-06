@@ -1,10 +1,9 @@
 #include <iostream> //cout
 
-#include "../includes/PassCommand.hpp"
-#include "../includes/NickCommand.hpp"
-#include "../includes/UserCommand.hpp"
-#include "../includes/Server.hpp"
-
+#include "PassCommand.hpp"
+#include "NickCommand.hpp"
+#include "UserCommand.hpp"
+#include "Server.hpp"
 
 t_response	handleInput(const t_parserd& input) {
 	Command* cmd = NULL;

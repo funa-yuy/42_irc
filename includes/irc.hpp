@@ -21,7 +21,6 @@ typedef struct	s_response
 
 typedef struct	s_parserd
 {
-	// char*	msg; //一時的に、recv()で受け取ったものそのままを格納。
 	std::string					cmd;
 	int							sender_fd;
 	std::vector<std::string>	option;
