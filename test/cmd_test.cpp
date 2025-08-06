@@ -5,6 +5,11 @@
 #include "UserCommand.hpp"
 #include "Server.hpp"
 
+// ```bash
+// make re MAIN=cmd_test.cpp
+// valgrind ./test_irc
+// ```
+
 t_response	handleInput(const t_parserd& input) {
 	Command* cmd = NULL;
 
@@ -49,7 +54,7 @@ int	main() {
 	inputs[3].sender_fd = 0;
 	inputs[3].option.push_back("test");
 
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < n; ++i)
 	{
 		t_response res = handleInput(inputs[i]);
 		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
