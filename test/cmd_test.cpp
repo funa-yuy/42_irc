@@ -19,7 +19,6 @@ t_response	handleInput(const t_parserd& input) {
 		cmd = new UserCommand();
 	}
 	else {
-		std::cout << "Unknown command: " << input.cmd << std::endl;
 		t_response res;
 		res.reply = "Unknown command\n";
 		res.target_fds = NULL;
@@ -27,7 +26,7 @@ t_response	handleInput(const t_parserd& input) {
 		return (res);
 	}
 	t_response	res = cmd->execute(input);
-
+	delete	cmd;
 	return (res);
 }
 
@@ -37,25 +36,24 @@ int	main() {
 
 	inputs[0].cmd = "PASS";
 	inputs[0].sender_fd = 0;
-	inputs[0].option.push_back("nemui");
+	inputs[0].option.push_back("test");
 
 	inputs[1].cmd = "NICK";
 	inputs[1].sender_fd = 0;
-	inputs[1].option.push_back("nemui");
+	inputs[1].option.push_back("test");
 
-	inputs[2].cmd = "USRE";
+	inputs[2].cmd = "USER";
 	inputs[2].sender_fd = 0;
-	inputs[2].option.push_back("nemui");
+	inputs[2].option.push_back("test");
 
 	inputs[3].cmd = "NOEXSIT";
 	inputs[3].sender_fd = 0;
-	inputs[3].option.push_back("nemui");
-
+	inputs[3].option.push_back("test");
 
 	for (int i = 0; i < n; i++)
 	{
 		t_response res = handleInput(inputs[i]);
-		std::cout << "input: " << inputs[i].cmd << " → response: " << res.reply << std::endl;
+		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
 	}
 
 	return (EXIT_SUCCESS);
