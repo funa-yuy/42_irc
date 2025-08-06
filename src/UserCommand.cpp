@@ -12,14 +12,14 @@ UserCommand::~UserCommand() {}
 // 	target.setUsername = input.name;
 // }
 
-const t_response	UserCommand::execute(char* input) const {
+const t_response	UserCommand::execute(const t_parserd& input) const {
 	(void)input;
 	t_response	res;
 
 	//todo: Databaseクラスを更新する処理を書く
 	// updateDatabase(input);
 
-	res.msg = ":servername Hi! USER!!!\r\n";
+	res.reply = ":servername Hi! USER!!!\r\n";
 
 	//todo: メッセージ送信対象のClientのfdを格納する
 	// res.fds = ~~;

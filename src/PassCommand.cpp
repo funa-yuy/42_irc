@@ -4,7 +4,7 @@ PassCommand::PassCommand() {}
 
 PassCommand::~PassCommand() {}
 
-const t_response	PassCommand::execute(char* input) const {
+const t_response	PassCommand::execute(const t_parserd& input) const {
 	(void)input;
 	t_response	res;
 	// Database	data;
@@ -13,7 +13,7 @@ const t_response	PassCommand::execute(char* input) const {
 	// if (data.getPassword == input.msg)
 	// 	res.msg = ":servername Hi! PASS!!!OK!\r\n";
 	// else
-		res.msg = ":servername Hi! PASS!!!NG!\r\n";
+		res.reply = ":servername Hi! PASS!!!NG!\r\n";
 
 
 	//todo: PASSコマンドに関しては、送信元のClientのみ返信でいいのでは？

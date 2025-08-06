@@ -50,36 +50,36 @@ int	main(int argc, char *argv[])
 // ```
 
 
-std::string	handleInput(char* input) {
-	std::string	send_buffer;
+// std::string	handleInput(char* input) {
+// 	std::string	send_buffer;
 
-	if (strstr(input, "CAP LS") != NULL) {
-		send_buffer = ":servername 001 testnick :Welcome to the IRC server\r\n";
-	}
-	else if (strstr(input, "NICK") != NULL) {
-		Command* cmd = new NickCommand();
-		send_buffer = cmd->execute(input).msg;
-	}
-	else if (strstr(input, "USER") != NULL) {
-		Command* cmd = new UserCommand();
-		send_buffer = cmd->execute(input).msg;
-	}
-	else if (strstr(input, "PASS") != NULL) {
-		Command* cmd = new PassCommand();
-		send_buffer = cmd->execute(input).msg;
-	}
-	else if (strstr(input, "PING") != NULL) {
-		send_buffer = "PONG servername\r\n";
-	}
-	else {
-		send_buffer = ":servername What???\r\n";
-	}
+// 	if (strstr(input, "CAP LS") != NULL) {
+// 		send_buffer = ":servername 001 testnick :Welcome to the IRC server\r\n";
+// 	}
+// 	else if (strstr(input, "NICK") != NULL) {
+// 		Command* cmd = new NickCommand();
+// 		send_buffer = cmd->execute(input).msg;
+// 	}
+// 	else if (strstr(input, "USER") != NULL) {
+// 		Command* cmd = new UserCommand();
+// 		send_buffer = cmd->execute(input).msg;
+// 	}
+// 	else if (strstr(input, "PASS") != NULL) {
+// 		Command* cmd = new PassCommand();
+// 		send_buffer = cmd->execute(input).msg;
+// 	}
+// 	else if (strstr(input, "PING") != NULL) {
+// 		send_buffer = "PONG servername\r\n";
+// 	}
+// 	else {
+// 		send_buffer = ":servername What???\r\n";
+// 	}
 
-	//todo: 本来はここでexecute関数を呼び出す。
-	// send_buffer = cmd->execute(input).msg;
+// 	//todo: 本来はここでexecute関数を呼び出す。
+// 	// send_buffer = cmd->execute(input).msg;
 
-	return (send_buffer);
-}
+// 	return (send_buffer);
+// }
 
 // int	main() {
 // 	int	server_fd;

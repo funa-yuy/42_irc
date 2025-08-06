@@ -13,17 +13,17 @@
 
 typedef struct	s_response
 {
-	std::string	msg;
-	int			*fds;
+	std::string	reply;
+	int			*target_fds;
 	int			send_flag;
 }				t_response;
 
-//todo: 一時的に作成。本来はぬすさんが定義したものを使用する
 typedef struct	s_parserd
 {
-	char*	input;
-
-	// int		client_fd;
+	// char*	msg; //一時的に、recv()で受け取ったものそのままを格納。
+	std::string					cmd;
+	int							sender_fd;
+	std::vector<std::string>	option;
 }				t_parserd;
 
 

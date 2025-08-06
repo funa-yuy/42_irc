@@ -22,7 +22,7 @@ class Command {
 		Command();
 		virtual ~Command() = 0;//純粋仮想関数
 
-		virtual const t_response	execute(t_parserd input) const = 0; //純粋仮想関数
+		virtual const t_response	execute(const t_parserd& input) const = 0; //純粋仮想関数
 };
 
 // ------------------------------------------------

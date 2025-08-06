@@ -13,14 +13,14 @@ NickCommand::~NickCommand() {}
 // 	target.setNickname = input.nick;
 // }
 
-const t_response	NickCommand::execute(char* input) const {
+const t_response	NickCommand::execute(const t_parserd& input) const {
 	(void)input;
 	t_response	res;
 
 	//todo: Databaseクラスを更新する処理を書く
 	// updateDatabase(input);
 
-	res.msg = ":servername Hi! NICK!!!\r\n";
+	res.reply = ":servername Hi! NICK!!!\r\n";
 
 	//todo: メッセージ送信対象のClientのfdを格納する
 	// res.fds = ~~;

@@ -18,7 +18,7 @@ class PassCommand : public Command {
 		PassCommand();
 		~PassCommand();
 
-		const t_response	execute(char* input) const;
+		const t_response	execute(const t_parserd& input) const;
 };
 
 // ------------------------------------------------
