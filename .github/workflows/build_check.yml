@@ -4,7 +4,8 @@ name: Build Check
 # Controls when the workflow will run
 on:
   push:
-  pull_request:
+    branches:
+      - "**"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,4 +24,4 @@ jobs:
 
       # Compile the project using the make command
       - name: build
-        run: make all
+        run: make
