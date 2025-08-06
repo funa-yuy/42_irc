@@ -16,8 +16,6 @@
 
 class Database {
 	public:
-		~Database();
-
 		Client*	getClient(int fd) const;
 		Channel*	getChannel(std::string &name) const;
 

@@ -8,9 +8,6 @@
 
 #include <iostream> //cout
 
-#include "NickCommand.hpp"
-#include "UserCommand.hpp"
-#include "PassCommand.hpp"
 #include "Server.hpp"
 
 int	main(int argc, char *argv[])
@@ -30,7 +27,6 @@ int	main(int argc, char *argv[])
 }
 
 
-
 /* server */
 // ```bash
 // make
@@ -48,38 +44,6 @@ int	main(int argc, char *argv[])
 // irssi
 // /connect 127.0.0.1 6667
 // ```
-
-
-// std::string	handleInput(char* input) {
-// 	std::string	send_buffer;
-
-// 	if (strstr(input, "CAP LS") != NULL) {
-// 		send_buffer = ":servername 001 testnick :Welcome to the IRC server\r\n";
-// 	}
-// 	else if (strstr(input, "NICK") != NULL) {
-// 		Command* cmd = new NickCommand();
-// 		send_buffer = cmd->execute(input).msg;
-// 	}
-// 	else if (strstr(input, "USER") != NULL) {
-// 		Command* cmd = new UserCommand();
-// 		send_buffer = cmd->execute(input).msg;
-// 	}
-// 	else if (strstr(input, "PASS") != NULL) {
-// 		Command* cmd = new PassCommand();
-// 		send_buffer = cmd->execute(input).msg;
-// 	}
-// 	else if (strstr(input, "PING") != NULL) {
-// 		send_buffer = "PONG servername\r\n";
-// 	}
-// 	else {
-// 		send_buffer = ":servername What???\r\n";
-// 	}
-
-// 	//todo: 本来はここでexecute関数を呼び出す。
-// 	// send_buffer = cmd->execute(input).msg;
-
-// 	return (send_buffer);
-// }
 
 // int	main() {
 // 	int	server_fd;
@@ -128,33 +92,57 @@ int	main(int argc, char *argv[])
 // 	}
 // 	std::cout << "Client connected." << std::endl;
 
+// 	//読み取り todo: 課題ではreadは使用してはいけないので修正が必要
+// 	while (true)
+// 	{
+// 		memset(&read_buffer, 0, sizeof(read_buffer));//ヌル埋め
+// 		//clientからのメッセージを読む
+// 		ssize_t	bytes_read = read(client_fd, read_buffer, sizeof(read_buffer) - 1);
+// 		if (bytes_read < 0) {
+// 			perror("read error");
+// 			close(client_fd);
+// 			close(server_fd);
+// 			return (EXIT_FAILURE);
+// 		}
+// 		read_buffer[bytes_read] = '\0';
+// 		// std::cout << "受信メッセージ: " << read_buffer << std::endl;
 
-// //読み取り todo: 課題ではreadは使用してはいけないので修正が必要
-// while (true)
-// {
-// 	memset(&read_buffer, 0, sizeof(read_buffer));//ヌル埋め
-// 	//clientからのメッセージを読む
-// 	ssize_t	bytes_read = read(client_fd, read_buffer, sizeof(read_buffer) - 1);
-// 	if (bytes_read < 0) {
-// 		perror("read error");
-// 		close(client_fd);
-// 		close(server_fd);
-// 		return (EXIT_FAILURE);
+// 		if (strstr(read_buffer, "CAP LS") != NULL) {
+// 			std::cout << "CAP * LS :\r\n" << read_buffer << std::endl;
+// 			send_buffer = ":irc.example.com Hi! CAP!\r\n";
+// 		}
+// 		else if (strcmp(read_buffer, "NICK") == 0) {
+// 			std::cout << "受信メッセージ NICK: " << read_buffer << std::endl;
+// 			send_buffer = ":irc.example.com Hi! NICK!\r\n";
+// 		}
+// 		else if (strcmp(read_buffer, "USER") == 0) {
+// 			std::cout << "受信メッセージ USER: " << read_buffer << std::endl;
+// 			send_buffer = ":irc.example.com Hi! USER!\r\n";
+// 		}
+// 		else if (strcmp(read_buffer, "QUIT") == 0) {
+// 			std::cout << "受信メッセージ QUIT: " << read_buffer << std::endl;
+// 			break ;
+// 		}
+// 		else {
+// 			std::cout << "受信メッセージ: " << read_buffer << std::endl;
+// 			send_buffer = ":irc.example.com What???\r\n";
+// 		}
+// 		if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
+// 			perror("send error");
+// 			close(client_fd);
+// 			close(server_fd);
+// 			return (EXIT_FAILURE);
+// 		}
+// 		// if (getline(std::cin, send_buffer)) {
+// 		// 	send_buffer += "\n";
+// 		// 	if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
+// 		// 		perror("send error");
+// 		// 		close(client_fd);
+// 		// 		close(server_fd);
+// 		// 		return (EXIT_FAILURE);
+// 		// 	}
+// 		// }
 // 	}
-// 	read_buffer[bytes_read] = '\0';
-
-// 	std::cout << "受信メッセージ: " << read_buffer << std::endl;
-// 	send_buffer = handleInput(read_buffer);
-
-// 	std::cout << "送信メッセージ: " << send_buffer << std::endl;
-// 	if (send(client_fd, send_buffer.c_str(), send_buffer.length(), 0) < 0) {
-// 		perror("send error");
-// 		close(client_fd);
-// 		close(server_fd);
-// 		return (EXIT_FAILURE);
-// 	}
-// }
-
 
 // 	// ソケット切断
 // 	close(client_fd);
