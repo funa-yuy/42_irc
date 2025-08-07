@@ -7,7 +7,7 @@ class Parser
 {
 	public:
 		Parser();
-		Parser(std::string line);
+		// Parser(std::string line); // インスタンス化しないなら要らん
 		Parser(const Parser& src);
 		Parser& operator=(const Parser& src);
 		~Parser();
@@ -18,7 +18,8 @@ class Parser
 			std::string args;
 			std::string msg;
 		}	t_parsed;
-		t_parsed exec();
+		// t_parsed exec(); // インスタンス化しないなら要らん
+		t_parsed exec(std::string line, int client_fd);
 	private:
 		std::string _line;
 };
