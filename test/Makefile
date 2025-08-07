@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/06 18:23:31 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/07 18:09:59 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,14 +26,14 @@ TEST_DIR			:= .
 # **************************************************************************** #
 # SOURCES
 
-MAIN				?= main.cpp
+MAIN				?=
 
 SRC					:= \
 					Server.cpp \
-					Command.cpp \
-					NickCommand.cpp \
-					PassCommand.cpp \
-					UserCommand.cpp \
+					Command/Command.cpp \
+					Command/NickCommand.cpp \
+					Command/PassCommand.cpp \
+					Command/UserCommand.cpp \
 
 HEADERS				:= \
 					irc.hpp \
@@ -69,7 +69,16 @@ INCLUDES		:= -I$(INC_DIR)
 # RULES
 
 
-all: $(TEST_NAME)
+all: check_main $(TEST_NAME)
+
+check_main:
+ifndef MAIN
+	@echo "--------------------------------------------------------------------------"
+	@echo "Error: main関数が指定されていません。"
+	@echo "make re MAIN=ファイル名 でテストしたいファイルを指定してください。"
+	@echo "--------------------------------------------------------------------------"
+	@exit 1
+endif
 
 $(TEST_NAME): $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(OBJ) -o $@
@@ -95,4 +104,4 @@ re: fclean all
 # PHONY
 
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re check_main

@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/06 23:33:17 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/07 18:00:17 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,10 +30,10 @@ OBJ_DIR				:= obj
 SRC					:= \
 					main.cpp \
 					Server.cpp \
-					Command.cpp \
-					NickCommand.cpp \
-					PassCommand.cpp \
-					UserCommand.cpp
+					Command/Command.cpp \
+					Command/NickCommand.cpp \
+					Command/PassCommand.cpp \
+					Command/UserCommand.cpp
 
 HEADERS				:= \
 					irc.hpp \
