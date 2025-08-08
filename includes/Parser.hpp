@@ -10,8 +10,8 @@
  typedef struct s_parsed
 {
 	int client_fd;
-	std::string command;
-	std::string args;
+	std::string cmd;
+	std::vector<std::string> args;
 	std::string msg;
 }	t_parsed;
 
@@ -29,19 +29,16 @@ typedef enum
 	MODE
 }	cmds_l;
 
+void print_debug(std::string msg);
+
 class Parser
 {
 	public:
 		Parser();
-		// Parser(std::string line); // インスタンス化しないなら要らん
 		Parser(const Parser& src);
 		Parser& operator=(const Parser& src);
 		~Parser();
-		// t_parsed exec(); // インスタンス化しないなら要らん
 		t_parsed exec(std::string line, int client_fd);
-		t_parsed return_parse_err(std::string errmsg);
-		t_parsed split_line(std::string line);
-		std::string pick_cmd(std::string line);
 	private:
 		std::string _line;
 };

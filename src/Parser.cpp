@@ -18,91 +18,95 @@ Parser& Parser::operator=(const Parser& src)
 
 Parser::~Parser() {}
 
+#include <cassert>
 int main()
 {
 	Parser parser;
-	parser.exec("PRIVMSG B :こんにちは\r\n", 4);
+	t_parsed result;
+
+	// test
+	result = parser.exec("PRIVMSG B :こんにちは\r\n", 4);
+	assert(result.cmd == "PRIVMSG");
+	assert();
+	assert(result.msg == "こんにちは");
+
+	result = parser.exec("PASS hunter2\r\n", 4);
+	result = parser.exec("NICK nusu\r\n", 4);
+	result = parser.exec("USER nusu 0 * :Nusu Realname\r\n", 4);
+	result = parser.exec("JOIN #chatroom\r\n", 4);
+	result = parser.exec("PRIVMSG #chatroom :Hello everyone!\r\n", 4);
+	result = parser.exec("OPER admin secretpass\r\n", 4);
+	result = parser.exec("KICK #chatroom user123 :Spamming\r\n", 4);
+	result = parser.exec("INVITE user123 #chatroom\r\n", 4);
+	result = parser.exec("TOPIC #chatroom :New topic here!\r\n", 4);
+	result = parser.exec("MODE #chatroom +o user123\r\n", 4);
+
+	// error
+	result = parser.exec("PRIVMSG B B B B B B B B B B B B B B B B:こんにちは\r\n", 4);
+
+	// 許容する？リファレンス確認
+	result = parser.exec("NICK         nusu\r\n", 4);
+	result = parser.exec("PRIVMSG B :\r\n", 4);
 	return (0);
 }
 
-//TODO 構造体の定義を別の場所にする
-//todo インスタンスにするメリットがないのでサバと相談
 /*
 	メッセージ例）
 	PRIVMSG B :こんにちは\r\n
 */
+// TODO vectorのメモリリークについて調べる
 t_parsed Parser::exec(std::string line, int client_fd)
 {
-	std::string cmd;
-	std::string args;
-	std::string msg;
+	t_parsed parsed;
 	std::stringstream stream(line);
+	std::vector<std::string> v;
+	std::string str;
 
-	std::cout << "line:" << line;
+	// 後ろから:始まりの部分を本文として抜き出す
+	// 本文がないコマンドの場合はどうなる？
+	int pos = line.rfind(":", line.size() - 1);
+	std::cout << "pos " << pos << std::endl;
+	if (pos < 0)
+		parsed.msg = "";
+	else
+	{
+		parsed.msg = line.substr(pos);
+		// trim /r/n && trim :
+		line.erase(pos);
+	}
 
 	// vectorで空白スプリットを保管する
-	std::vector<std::string> v;
-	// std::string word;
-	std::string str;
 	while (getline(stream, str, ' '))
 		v.push_back(str);
 
-		for (const auto& w : v) {
-		std::cout << "[" << w << "]" << std::endl;
+	// 確認用
+	for (int i = 0; i < v.size();i++) {
+		std::cout << "[" << v[i] << "]" << std::endl;
 	}
 
 	// 先頭はコマンド（かプレフィックス）、最後は本文になる
 	// 間の部分をすべて引数としたvectorで流す
+	parsed.cmd = v[0];
+	// vectorの先頭と末尾を削除
+	v.erase(v.end());
+	v.erase(v.begin());
 
-	// stream << line;
-	// std::cout << stream.str() << std::endl;
+	std::cout << "cmd: " << parsed.cmd << std::endl;
+	std::cout << "msg: " << parsed.msg << std::endl;
 
-	// 動的に確保したほうがいい？freeする手間があるので微妙か？
-	t_parsed parsed;
+	// コマンドリスト（enum）と比較　// サーバーで担保する
 
-	// 一行ずつくる
-	// 全長が512文字を超えないことを確認
-	int len = line.size();
-	// irssiでそもそも許容されるのか？
-	// ncコマンドで接続してたら必要そう
-	if (512 < len)
+	// 引数の数は15まで許容する
+	if (15 < v.size())
 	{
-		std::cout << "irc msg length over" << std::endl;
-		return (parsed);
+		print_debug("too many args");
 	}
+	parsed.args = v;
 
-	// コマンド＋引数＋メッセージ本体にわける
-
-	// コマンドリスト（enum）と比較
-	// 存在しないコマンドの場合はDEBUGlogに出力
-
-}
-
-t_parsed Parser::return_parse_err(std::string errmsg)
-{
-	// エラーよけ　そもそも返却する必要あるのか？
-	t_parsed parsed;
-	std::cerr << errmsg << std::endl;
 	return (parsed);
 }
 
 void print_debug(std::string msg)
 {
 	std::cerr << "[DEBUG] " << msg << std::endl;
-}
-
-// lineってここで開放する必要ある？
-t_parsed Parser::split_line(std::string line)
-{
-	t_parsed parsed;
-
-	return (parsed);
-}
-
-std::string Parser::pick_cmd(std::string line)
-{
-	std::string cmd;
-	// 空白で分ける
-
-	return (cmd);
 }
