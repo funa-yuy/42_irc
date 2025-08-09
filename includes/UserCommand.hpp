@@ -1,28 +1,28 @@
-#ifndef COMMAND_HPP
-# define COMMAND_HPP
+#ifndef USERCOMMAND_HPP
+# define USERCOMMAND_HPP
 
 // ------------------------------------------------
 // include
 // ------------------------------------------------
 
 #include <iostream>
-#include "irc.hpp"
+#include "Command.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------
 // class
 // ------------------------------------------------
 
-class Command {
+class UserCommand : public Command {
 	public:
-		Command();
-		virtual ~Command() = 0;
+		UserCommand();
+		~UserCommand();
 
-		virtual const t_response	execute(const t_parserd& input) const = 0;
+		const t_response	execute(const t_parserd& input) const;
 };
 
 // ------------------------------------------------
 // function
 // ------------------------------------------------
-
 
 #endif
