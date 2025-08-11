@@ -25,8 +25,9 @@ public:
 	Client *		addClient(int fd);
 	void			removeClient(int fd);
 
+	Client *		getClient(int fd);
 	Client const *	getClient(int fd) const;
-	Channel const *	getChannel(std::string &name) const;
+	Channel *		getChannel(std::string & name) const;
 
 private:
 
