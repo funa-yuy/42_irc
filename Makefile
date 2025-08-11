@@ -6,7 +6,7 @@
 #    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/11 20:39:29 by keishii          ###   ########.fr        #
+#    Updated: 2025/08/11 21:35:16 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,10 +31,11 @@ SRC					:= \
 					main.cpp \
 					Server.cpp \
 					Client.cpp \
+					Database.cpp \
 					Command/Command.cpp \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
-					Command/UserCommand.cpp
+					Command/UserCommand.cpp \
 
 HEADERS				:= \
 					irc.hpp \
@@ -45,7 +46,7 @@ HEADERS				:= \
 					Command.hpp \
 					NickCommand.hpp \
 					PassCommand.hpp \
-					UserCommand.hpp
+					UserCommand.hpp \
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \
