@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 Server::Server(int port, std::string const & password)
-	: _password(password)
+: _port(port), _password(password)
 {
 	_server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_server_fd < 0)
@@ -41,6 +41,7 @@ Server::~Server()
 void	Server::run(void)
 {
 	std::cout << "Server is running..." << std::endl;
+	std::cout << "Port number: " << _port << ", Password: " << _password << std::endl;
 	while (true)
 	{
 
@@ -81,8 +82,9 @@ void	Server::acceptNewClient(void)
 		return ;
 	}
 
-	Client *	new_client = new Client();
-	new_client->setClientFd(client_fd);
+	Client *	new_client = _db.addClient(client_fd);
+	if (!new_client)
+		return ;
 
 	_poll_fds.push_back(new_client->getPfd());
 	_client_buffers[client_fd] = "";
@@ -139,7 +141,7 @@ void	Server::handleClientInput(int fd)
 		for (size_t i = 0; i < parsed.option.size(); i++)
 			std::cout << i << ": " << parsed.option[i] << std::endl;
 
-		// Command* cmdObj = createCommandObj(cmd);
+		// Command * cmdObj = createCommandObj(cmd);
 		// t_parserd	parsed;
 		// if (cmdObj)
 		// {

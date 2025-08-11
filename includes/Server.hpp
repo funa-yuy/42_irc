@@ -37,6 +37,7 @@ public:
 
 private:
 
+	int							_port;
 	std::string					_password;
 
 	int							_server_fd;
@@ -45,15 +46,19 @@ private:
 	std::vector<struct pollfd>	_poll_fds;
 	std::map<int, std::string>	_client_buffers;
 
+	Database					_db;
+
 	typedef Command*				(*_cmdFunc)();
 	std::map<std::string, _cmdFunc>	_cmd_map;
 
 	void		acceptNewClient(void);
 	void		handleClientInput(int fd);
-	void		broadcast(int sender_fd, std::string const & msg);
 	void		removeClient(int fd);
-	void		exitError(std::string const & error_msg);
+
 	Command *	createCommandObj(std::string cmd_name);
+	
+	void		broadcast(int sender_fd, std::string const & msg);
+	void		exitError(std::string const & error_msg);
 
 };
 
