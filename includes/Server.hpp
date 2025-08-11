@@ -43,17 +43,15 @@ private:
 	int							_server_fd;
 	struct sockaddr_in			_server_addr;
 
-	std::vector<struct pollfd>	_poll_fds;
-	std::map<int, std::string>	_client_buffers;
-
 	Database					_db;
+	std::vector<struct pollfd>	_poll_fds;
 
 	typedef Command*				(*_cmdFunc)();
 	std::map<std::string, _cmdFunc>	_cmd_map;
 
 	void		acceptNewClient(void);
 	void		handleClientInput(int fd);
-	void		removeClient(int fd);
+	void		disconnectClient(int fd);
 
 	Command *	createCommandObj(std::string cmd_name);
 	

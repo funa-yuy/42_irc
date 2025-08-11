@@ -52,7 +52,6 @@ void	Server::run(void)
 			break;
 		}
 
-		
 		for (size_t i = 0; i < _poll_fds.size(); ++i)
 		{
 			if (_poll_fds[i].revents & POLLIN)
@@ -87,7 +86,7 @@ void	Server::acceptNewClient(void)
 		return ;
 
 	_poll_fds.push_back(new_client->getPfd());
-	_client_buffers[client_fd] = "";
+
 	std::cout << "New client connected: " << new_client->getFd() << std::endl;
 	return ;
 }
@@ -100,20 +99,25 @@ void	Server::handleClientInput(int fd)
 	n = recv(fd, buf, BUF_SIZE - 1, 0);
 	if (n <= 0)
 	{
-		removeClient(fd);
+		disconnectClient(fd);
 		return ;
 	}
 	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
 
 	buf[n] = '\0';
-	_client_buffers[fd] += buf; // クライアントfdごとの受信したバイト列を入れておく文字列
+	Client *	client = _db.getClient(fd);
+	if (!client)
+		return ;
+
+	std::string &	clientBuffer = client->getBuffer();
+	clientBuffer += buf;
 
 	size_t pos;
 	// _client_buffers内の最初の改行（'\n'）の位置を取得
-	while ((pos = _client_buffers[fd].find("\r\n")) != std::string::npos)
+	while ((pos = clientBuffer.find("\r\n")) != std::string::npos)
 	{
-		std::string msg = _client_buffers[fd].substr(0, pos + 1); // msgに_client_buffersの先頭から'\n'までを分ける
-		_client_buffers[fd].erase(0, pos + 1); // msgに分けた部分を_client_buffersから削除、次のwhile反復で「次の'\n'」を探せる
+		std::string msg = clientBuffer.substr(0, pos + 1); // msgに_client_buffersの先頭から'\n'までを分ける
+		clientBuffer.erase(0, pos + 1); // msgに分けた部分を_client_buffersから削除、次のwhile反復で「次の'\n'」を探せる
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r')) // msg内の'\n'と'\r'を削除
 			msg.erase(msg.size() - 1);
 
@@ -169,20 +173,23 @@ void	Server::broadcast(int sender_fd, std::string const & msg)
 	return ;
 }
 
-void	Server::removeClient(int fd)
+void	Server::disconnectClient(int fd)
 {
 	std::cout << "Client disconnected: " << fd << std::endl;
 	close(fd);
 
 	for (size_t i = 0; i < _poll_fds.size(); ++i)
 	{
-		if (_poll_fds[i]. fd == fd)
+		if (_poll_fds[i].fd == fd)
 		{
 			_poll_fds.erase(_poll_fds.begin() + i);
 			break ;
 		}
 	}
-	_client_buffers.erase(fd);
+
+	_db.removeClient(fd);
+
+	return ;
 }
 
 Command *	Server::createCommandObj(std::string cmd_name)
