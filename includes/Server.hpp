@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <sys/poll.h>
 
+#include "Client.hpp"
 #include "Database.hpp"
 
 #include "Command.hpp"

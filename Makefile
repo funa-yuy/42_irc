@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/07 18:00:17 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/11 20:39:29 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ OBJ_DIR				:= obj
 SRC					:= \
 					main.cpp \
 					Server.cpp \
+					Client.cpp \
 					Command/Command.cpp \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
