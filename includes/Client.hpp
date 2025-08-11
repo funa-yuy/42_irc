@@ -19,17 +19,23 @@ public:
 	Client();
 	~Client();
 
-	void			setClientFd(int fd);
+	void				initializeClient(int fd);
 
-	int				getFd(void) const;
-	struct pollfd	getPfd(void) const;
-	std::string		getNickname(void) const;
-	std::string		getUsername(void) const;
-	bool			getIsOperator(void) const;
+	int					getFd(void) const;
+	struct pollfd		getPfd(void) const;
+	std::string &		getBuffer(void);
+	std::string const &	getBuffer(void) const;
+
+	std::string			getNickname(void) const;
+	std::string			getUsername(void) const;
+	bool				getIsOperator(void) const;
 
 private:
 
 	struct pollfd	_pfd; // クライアントのfdなどが入っている
+	int				_fd;
+	std::string		_buffer;
+
 	std::string		_nickname;
 	std::string		_username;
 	

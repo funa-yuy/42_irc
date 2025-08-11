@@ -8,18 +8,30 @@ Client::Client()
 
 Client::~Client() {}
 
-void	Client::setClientFd(int fd)
+void	Client::initializeClient(int fd)
 {
 	_pfd.fd = fd;
 	_pfd.events = POLLIN;
+	_fd = fd;
+	_buffer = "";
 }
 
 int	Client::getFd(void) const
 {
-	return (_pfd.fd);
+	return (_fd);
 }
 
 struct pollfd	Client::getPfd(void) const
 {
 	return (_pfd);
+}
+
+std::string &	Client::getBuffer(void)
+{
+	return (_buffer);
+}
+
+std::string const &	Client::getBuffer(void) const
+{
+	return (_buffer);
 }
