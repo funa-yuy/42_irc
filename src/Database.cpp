@@ -12,3 +12,9 @@ Client *	Database::addClient(int fd)
 
 	return (&_clients[fd]);
 }
+
+void	Database::removeClient(int fd)
+{
+	_clients.erase(fd);
+	return ;
+}

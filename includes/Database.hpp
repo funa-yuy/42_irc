@@ -23,6 +23,7 @@ public:
 	~Database();
 
 	Client *		addClient(int fd);
+	void			removeClient(int fd);
 
 	Client const *	getClient(int fd) const;
 	Channel const *	getChannel(std::string &name) const;
