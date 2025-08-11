@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
-Server::Server(int port)
+Server::Server(int port, std::string const & password)
+	: _password(password)
 {
 	_server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_server_fd < 0)
@@ -19,10 +20,17 @@ Server::Server(int port)
 	if (listen(_server_fd, MAX_CLIENTS))
 		exitError("listen: ");
 
-	struct pollfd pfd;
-	pfd.fd = _server_fd;
-	pfd.events = POLLIN;
-	_poll_fds.push_back(pfd);
+	struct pollfd server_pfd;
+	server_pfd.fd = _server_fd;
+	server_pfd.events = POLLIN;
+	_poll_fds.push_back(server_pfd);
+
+	// if (_cmd_map.empty())
+	// {
+	// 	_cmd_map["PASS"] = &PassCommand::createCommand;
+	// 	_cmd_map["NICK"] = &NickCommand::createCommand;
+	// 	_cmd_map["USER"] = &UserCommand::createCommand;
+	// }
 }
 
 Server::~Server()
@@ -73,36 +81,77 @@ void	Server::acceptNewClient(void)
 		return ;
 	}
 
-	struct pollfd pfd;
-	pfd.fd = client_fd;
-	pfd.events = POLLIN;
-	_poll_fds.push_back(pfd);
+	Client *	new_client = new Client();
+	new_client->setClientFd(client_fd);
+
+	_poll_fds.push_back(new_client->getPfd());
 	_client_buffers[client_fd] = "";
-	std::cout << "New client connected: " << client_fd << std::endl;
+	std::cout << "New client connected: " << new_client->getFd() << std::endl;
 	return ;
 }
 
 void	Server::handleClientInput(int fd)
 {
 	char	buf[BUF_SIZE];
+	int		n;
 
-	int		n = recv(fd, buf, BUF_SIZE - 1, 0);
+	n = recv(fd, buf, BUF_SIZE - 1, 0);
 	if (n <= 0)
 	{
 		removeClient(fd);
 		return ;
 	}
+	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
 
 	buf[n] = '\0';
-	_client_buffers[fd] += buf;
+	_client_buffers[fd] += buf; // クライアントfdごとの受信したバイト列を入れておく文字列
 
 	size_t pos;
-	while ((pos = _client_buffers[fd].find('\n')) != std::string::npos)
+	// _client_buffers内の最初の改行（'\n'）の位置を取得
+	while ((pos = _client_buffers[fd].find("\r\n")) != std::string::npos)
 	{
-		std::string msg = _client_buffers[fd].substr(0, pos + 1);
-		_client_buffers[fd].erase(0, pos + 1);
-		broadcast(fd, msg);
+		std::string msg = _client_buffers[fd].substr(0, pos + 1); // msgに_client_buffersの先頭から'\n'までを分ける
+		_client_buffers[fd].erase(0, pos + 1); // msgに分けた部分を_client_buffersから削除、次のwhile反復で「次の'\n'」を探せる
+		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r')) // msg内の'\n'と'\r'を削除
+			msg.erase(msg.size() - 1);
+
+		t_parserd	parsed;
+		parsed.sender_fd = fd;
+		std::cout << "\n[RECV fd=" << parsed.sender_fd << "] " << msg << std::endl;
+
+		// 最初の空白で区切って、コマンドを分ける
+		std::istringstream iss(msg);
+		iss >> parsed.cmd;
+
+		std::cout << "COMMAND: " << std::endl;
+		std::cout << parsed.cmd << std::endl;
+
+		// 小文字でコマンドが送信される可能性もあるため、大文字に変換
+		for (size_t i = 0; i < parsed.cmd.size(); ++i)
+			parsed.cmd[i] = toupper(parsed.cmd[i]);
+
+		// 空白ごとに区切って、コマンド引数を分ける
+		std::string arg;
+		while (iss >> arg)
+			parsed.option.push_back(arg);
+
+		std::cout << "ARGUMENTS: " << std::endl;
+		for (size_t i = 0; i < parsed.option.size(); i++)
+			std::cout << i << ": " << parsed.option[i] << std::endl;
+
+		// Command* cmdObj = createCommandObj(cmd);
+		// t_parserd	parsed;
+		// if (cmdObj)
+		// {
+		// 	cmdObj->execute(parsed);
+		// 	delete cmdObj;
+		// }
+		// else
+		// {
+		// 	// 知らないコマンド
+		// }
 	}
+	std::cout << "\n \033[31m --- Receiving ends --- \033[m" << std::endl;
 	return ;
 }
 
@@ -132,4 +181,12 @@ void	Server::removeClient(int fd)
 		}
 	}
 	_client_buffers.erase(fd);
+}
+
+Command *	Server::createCommandObj(std::string cmd_name)
+{
+	std::map<std::string, _cmdFunc>::iterator it = _cmd_map.find(cmd_name);
+	if (it != _cmd_map.end())
+		return (it->second());
+	return (NULL);
 }
