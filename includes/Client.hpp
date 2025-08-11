@@ -16,6 +16,9 @@ class Client {
 
 public:
 
+	Client();
+	~Client();
+
 	void			setClientFd(int fd);
 
 	int				getFd(void) const;
@@ -29,15 +32,15 @@ private:
 	struct pollfd	_pfd; // クライアントのfdなどが入っている
 	std::string		_nickname;
 	std::string		_username;
-	bool			_isOperator;
-
+	
 	// ...他に必要に応じて（モードや制限など）
 	bool			_passReceived;
 	bool			_nickReceived;
 	bool			_userReceived;
-
+	
 	// 
-	bool			_registered;
+	bool			_isRegistered;
+	bool			_isOperator;
 
 };
 
