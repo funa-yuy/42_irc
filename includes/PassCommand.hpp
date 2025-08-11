@@ -17,6 +17,7 @@ class PassCommand : public Command {
 	public:
 		PassCommand();
 		~PassCommand();
+		Command* createPassCommand() const;
 
 		const t_response	execute(const t_parserd& input) const;
 };
