@@ -12,7 +12,8 @@
 // class
 // ------------------------------------------------
 
-class Client {
+class Client
+{
 
 public:
 
