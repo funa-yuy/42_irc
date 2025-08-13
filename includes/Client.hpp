@@ -18,6 +18,7 @@ class Client {
 		std::string	getNickname() const;
 		std::string	getUsername() const;
 		bool	getIsOperator() const;
+		void	setIsOperator(bool val);
 
 	private:
 		int			_fd;

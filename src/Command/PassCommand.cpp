@@ -14,7 +14,7 @@ void	updataDatabase(const t_parserd& input) {
 	Database	data;
 	Client		sender_client = data.getClient(input.sender_fd);
 
-	sender_client.setIslogin(true);
+	sender_client.setIsOperator(true);
 }
 
 bool	is_validCmd(const t_parserd& input, t_response* res) {
@@ -24,15 +24,15 @@ bool	is_validCmd(const t_parserd& input, t_response* res) {
 	if (input.option.size() < 1)//引数が無効
 	{
 		//ERR_NEEDMOREPARAMS 461
-		res->reply = ":servername Hi! PASS!!!NG!\r\n";
+		res->reply = ":servername 461 :Not enough parameters\r\n";
 		res->target_fds[0] = input.sender_fd;
 		res->send_flag = 0;
 		return(false);
 	}
-	else if (sender_client.getIsLogin())//登録済みのクライアントが実行した
+	else if (sender_client.getIsOperator())//登録済みのクライアントが実行した
 	{
-		//ERR_ALREADYREGISTERED 462
-		res->reply = ":servername Hi! PASS!!!NG!\r\n";
+		//ERR_ALREADYREGISTRED 462
+		res->reply = ":servername 462 :Already registered\r\n";
 		res->target_fds[0] = input.sender_fd;
 		res->send_flag = 0;
 		return(false);
@@ -40,7 +40,7 @@ bool	is_validCmd(const t_parserd& input, t_response* res) {
 	else if (data.getPassword() != input.option[0])//パスワードが正しくない
 	{
 		// ERR_PASSWDMISMATCH 464
-		res->reply = ":servername Hi! PASS!!!NG!\r\n";
+		res->reply = ":servername 464 :Password incorrect\r\n";
 		res->target_fds[0] = input.sender_fd;
 		res->send_flag = 0;
 		return(false);
