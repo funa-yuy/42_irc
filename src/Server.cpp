@@ -23,6 +23,7 @@ Server::Server(int port, std::string const & password)
 	struct pollfd server_pfd;
 	server_pfd.fd = _server_fd;
 	server_pfd.events = POLLIN;
+	server_pfd.revents = 0;
 	_poll_fds.push_back(server_pfd);
 
 	// if (_cmd_map.empty())

@@ -1,10 +1,15 @@
 #include "Client.hpp"
 
 Client::Client()
-:	_nickname(""), _username(""),
+:	_fd(0), _buffer(""),
+	_nickname(""), _username(""),
 	_passReceived(false), _nickReceived(false), _userReceived(false),
 	_isRegistered(false), _isOperator(false)
-{}
+{
+	_pfd.fd = 0;
+	_pfd.events = 0;
+	_pfd.revents = 0;
+}
 
 Client::~Client() {}
 
@@ -12,6 +17,7 @@ void	Client::initializeClient(int fd)
 {
 	_pfd.fd = fd;
 	_pfd.events = POLLIN;
+	_pfd.revents = 0;
 	_fd = fd;
 	_buffer = "";
 }
