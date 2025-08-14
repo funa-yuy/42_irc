@@ -8,16 +8,16 @@ Command*	PassCommand::createPassCommand() const {
 	return (new PassCommand());
 }
 
-bool	is_validCmd(const t_parserd& input, t_response* res) {
+bool	is_validCmd(const t_parsed& input, t_response* res) {
 	Database	data;
-	Client*		sender_client = data.getClient(input.sender_fd);
+	Client*		sender_client = data.getClient(input.client_fd);
 
-	if (input.option.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
+	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":servername 461 :Not enough parameters\r\n";
-		res->target_fds[0] = input.sender_fd;
+		res->target_fds[0] = input.client_fd;
 		res->send_flag = 0;
 		return(false);
 	}
@@ -26,16 +26,16 @@ bool	is_validCmd(const t_parserd& input, t_response* res) {
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":servername 462 :Already registered\r\n";
-		res->target_fds[0] = input.sender_fd;
+		res->target_fds[0] = input.client_fd;
 		res->send_flag = 0;
 		return(false);
 	}
-	else if (data.getPassword() != input.option[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
+	else if (data.getPassword() != input.args[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
 	{
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":servername 464 :Password incorrect\r\n";
-		res->target_fds[0] = input.sender_fd;
+		res->target_fds[0] = input.client_fd;
 		res->send_flag = 0;
 		return(false);
 	}
@@ -44,14 +44,14 @@ bool	is_validCmd(const t_parserd& input, t_response* res) {
 
 //updataDatabase()と、is_validCmd()もプライベートな純粋仮想関数にしてもいいのでは？
 //また、数値のエラー検出もメンバ関数にしてもいいかも
-void	updataDatabase(const t_parserd& input) {
+void	updataDatabase(const t_parsed& input) {
 	Database	data;
-	Client*		sender_client = data.getClient(input.sender_fd);
+	Client*		sender_client = data.getClient(input.client_fd);
 
 	sender_client->setIsRegistered(true);
 }
 
-const t_response	PassCommand::execute(const t_parserd& input) const {
+const t_response	PassCommand::execute(const t_parsed& input) const {
 	t_response	res;
 
 	if (!is_validCmd(input, &res))
