@@ -55,7 +55,7 @@ void printTestResult(const std::string& testName, bool passed, const std::string
 void testDatabase() {
     std::cout << "\n" << BOLD << MAGENTA << "=== Databaseクラステスト ===" << RESET << std::endl;
     
-    Database db;
+    Database db("password");
     
     // Test 1: Add client
     Client* client1 = db.addClient(10);
@@ -168,7 +168,7 @@ void testClient() {
 void testDatabaseClientIntegration() {
     std::cout << "\n" << BOLD << MAGENTA << "=== Database-Client統合テスト ===" << RESET << std::endl;
     
-    Database db;
+    Database db("password");
     
     // Test 1: Add client and verify initialization
     Client* client = db.addClient(50);
@@ -211,7 +211,7 @@ void testDatabaseClientIntegration() {
 void testStress() {
     std::cout << "\n" << BOLD << MAGENTA << "=== ストレステスト ===" << RESET << std::endl;
     
-    Database db;
+    Database db("password");
     const int NUM_CLIENTS = 100;
     
     // Test 1: Add many clients
@@ -286,7 +286,7 @@ void testStress() {
 void testEdgeCases() {
     std::cout << "\n" << BOLD << MAGENTA << "=== エッジケーステスト ===" << RESET << std::endl;
     
-    Database db;
+    Database db("password");
     
     // Test 1: Add client with fd 0
     Client* client0 = db.addClient(0);
