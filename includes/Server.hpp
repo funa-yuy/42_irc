@@ -38,7 +38,6 @@ public:
 private:
 
 	int							_port;
-	std::string					_password;
 
 	int							_server_fd;
 	struct sockaddr_in			_server_addr;

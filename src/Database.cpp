@@ -1,6 +1,8 @@
 #include "Database.hpp"
 
-Database::Database() {}
+Database::Database(std::string password)
+: _password(password)
+{}
 
 Database::~Database() {}
 

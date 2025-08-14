@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 Server::Server(int port, std::string const & password)
-: _port(port), _password(password)
+: _port(port), _db(password)
 {
 	_server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_server_fd < 0)
@@ -42,7 +42,7 @@ Server::~Server()
 void	Server::run(void)
 {
 	std::cout << "Server is running..." << std::endl;
-	std::cout << "Port number: " << _port << ", Password: " << _password << std::endl;
+	std::cout << "Port number: " << _port << std::endl;
 	while (true)
 	{
 
