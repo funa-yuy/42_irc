@@ -10,7 +10,7 @@ Command*	PassCommand::createPassCommand() const {
 
 bool	is_validCmd(const t_parserd& input, t_response* res) {
 	Database	data;
-	Client		sender_client = data.getClient(input.sender_fd);
+	Client*		sender_client = data.getClient(input.sender_fd);
 
 	if (input.option.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
@@ -21,7 +21,7 @@ bool	is_validCmd(const t_parserd& input, t_response* res) {
 		res->send_flag = 0;
 		return(false);
 	}
-	else if (sender_client.getIsOperator())//ERR_ALREADYREGISTRED 462 登録済みのクライアントが実行した
+	else if (sender_client->getIsRegistered())//ERR_ALREADYREGISTRED 462 登録済みのクライアントが実行した
 	{
 		res->is_success = false;
 		res->should_send = true;
@@ -46,9 +46,9 @@ bool	is_validCmd(const t_parserd& input, t_response* res) {
 //また、数値のエラー検出もメンバ関数にしてもいいかも
 void	updataDatabase(const t_parserd& input) {
 	Database	data;
-	Client		sender_client = data.getClient(input.sender_fd);
+	Client*		sender_client = data.getClient(input.sender_fd);
 
-	sender_client.setIsOperator(true);
+	sender_client->setIsRegistered(true);
 }
 
 const t_response	PassCommand::execute(const t_parserd& input) const {

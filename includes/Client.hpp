@@ -18,13 +18,15 @@ class Client {
 		std::string	getNickname() const;
 		std::string	getUsername() const;
 		bool	getIsOperator() const;
-		void	setIsOperator(bool val);
+		bool	getIsRegistered() const;
+		void	setIsRegistered(bool val);
 
 	private:
 		int			_fd;
 		std::string	_nickname;
 		std::string	_username;
 		bool		_isOperator;
+		bool		_isRegistered;
 	// ...他に必要に応じて（モードや制限など）
 };
 

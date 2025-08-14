@@ -16,9 +16,9 @@
 
 class Database {
 	public:
-		Client	getClient(int fd) const;
+		Client*	getClient(int fd) const;
 		Channel*	getChannel(std::string &name) const;
-		std::string	getPassword() const;
+		const std::string&	getPassword() const;
 
 	private:
 		std::map<int, Client> _clients;// fd→Client、 ユーザ用のmapコンテナ、fdとClientオブジェクトのセットで管理
