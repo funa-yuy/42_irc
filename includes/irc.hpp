@@ -1,24 +1,31 @@
-#ifndef COMMAND_HPP
-# define COMMAND_HPP
+#ifndef IRC_HPP
+# define IRC_HPP
 
 // ------------------------------------------------
 // include
 // ------------------------------------------------
 
 #include <iostream>
-#include "irc.hpp"
+#include <vector>
 
 // ------------------------------------------------
-// class
+// struct
 // ------------------------------------------------
 
-class Command {
-	public:
-		Command();
-		virtual ~Command() = 0;
+typedef struct	s_response
+{
+	std::string	reply;
+	int			*target_fds;
+	int			send_flag;
+}				t_response;
 
-		virtual const t_response	execute(const t_parserd& input) const = 0;
-};
+typedef struct	s_parserd
+{
+	std::string					cmd;
+	int							sender_fd;
+	std::vector<std::string>	option;
+}				t_parserd;
+
 
 // ------------------------------------------------
 // function

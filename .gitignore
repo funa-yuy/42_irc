@@ -47,3 +47,5 @@
 mfunakos/
 keishii/
 ircserv
+**/obj
+test/test_irc

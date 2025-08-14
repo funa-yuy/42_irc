@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "Command.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------
 // class
@@ -14,16 +15,13 @@
 
 class NickCommand : public Command {
 	public:
-		NickCommand(){};
-		~NickCommand(){};
+		NickCommand();
+		~NickCommand();
 
-		std::string	execute(char* input) const {
-			(void)input;
-			// Todo: ここにコマンドの処理書く
-			return (":servername Hi! NICK!\r\n");
-		}
+		const t_response	execute(const t_parserd& input) const;
 
 	private:
+
 };
 
 // ------------------------------------------------

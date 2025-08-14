@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include "Client.hpp"
+#include <vector>
+
 
 // ------------------------------------------------
 // class

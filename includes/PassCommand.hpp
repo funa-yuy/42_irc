@@ -1,28 +1,28 @@
-#ifndef COMMAND_HPP
-# define COMMAND_HPP
+#ifndef PASSCOMMAND_HPP
+# define PASSCOMMAND_HPP
 
 // ------------------------------------------------
 // include
 // ------------------------------------------------
 
 #include <iostream>
-#include "irc.hpp"
+#include "Command.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------
 // class
 // ------------------------------------------------
 
-class Command {
+class PassCommand : public Command {
 	public:
-		Command();
-		virtual ~Command() = 0;
+		PassCommand();
+		~PassCommand();
 
-		virtual const t_response	execute(const t_parserd& input) const = 0;
+		const t_response	execute(const t_parserd& input) const;
 };
 
 // ------------------------------------------------
 // function
 // ------------------------------------------------
-
 
 #endif
