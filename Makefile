@@ -6,7 +6,7 @@
 #    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/15 18:11:10 by yohatana         ###   ########.fr        #
+#    Updated: 2025/08/15 18:20:31 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,10 +30,12 @@ OBJ_DIR				:= obj
 SRC					:= \
 					main.cpp \
 					Server.cpp \
+					Client.cpp \
+					Database.cpp \
 					Command/Command.cpp \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
-					Command/UserCommand.cpp
+					Command/UserCommand.cpp \
 
 HEADERS				:= \
 					irc.hpp \
@@ -44,7 +46,7 @@ HEADERS				:= \
 					Command.hpp \
 					NickCommand.hpp \
 					PassCommand.hpp \
-					UserCommand.hpp
+					UserCommand.hpp \
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \

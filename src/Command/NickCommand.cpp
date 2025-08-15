@@ -4,7 +4,7 @@ NickCommand::NickCommand() {}
 
 NickCommand::~NickCommand() {}
 
-const t_response	NickCommand::execute(const t_parserd& input) const {
+const t_response	NickCommand::execute(const t_parsed& input) const {
 	(void)input;
 	t_response	res;
 

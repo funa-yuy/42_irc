@@ -9,6 +9,24 @@
 #include <vector>
 
 // ------------------------------------------------
+// enum
+// ------------------------------------------------
+
+typedef enum
+{
+	PASS,
+	NICK,
+	USER,
+	JOIN,
+	PRIVMSG,
+	OPER,
+	KICK,
+	INVITE,
+	TOPIC,
+	MODE
+}	cmds_l;
+
+// ------------------------------------------------
 // struct
 // ------------------------------------------------
 
@@ -19,13 +37,13 @@ typedef struct	s_response
 	int			send_flag;
 }				t_response;
 
-typedef struct	s_parserd
+typedef struct	s_parsed
 {
-	std::string					cmd;
-	int							sender_fd;
-	std::vector<std::string>	option;
-}				t_parserd;
-
+	int client_fd;
+	std::string cmd;
+	std::vector<std::string> args;
+	std::string msg;
+}				t_parsed;
 
 // ------------------------------------------------
 // function
