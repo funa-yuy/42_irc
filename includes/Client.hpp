@@ -6,33 +6,55 @@
 // ------------------------------------------------
 
 #include <iostream>
-
+#include <sys/poll.h>
 
 // ------------------------------------------------
 // class
 // ------------------------------------------------
 
-class Client {
-	public:
-		int	getFd() const;
-		std::string	getNickname() const;
-		std::string	getUsername() const;
-		bool	getIsOperator() const;
-		bool	getIsRegistered() const;
-		void	setIsRegistered(bool val);
+class Client
+{
 
-	private:
-		int			_fd;
-		std::string	_nickname;
-		std::string	_username;
-		bool		_isOperator;
-		bool		_isRegistered;
+public:
+
+	Client();
+	~Client();
+
+	void				initializeClient(int fd);
+
+	int					getFd(void) const;
+	struct pollfd		getPfd(void) const;
+	std::string &		getBuffer(void);
+	std::string const &	getBuffer(void) const;
+
+	std::string			getNickname(void) const;
+	std::string			getUsername(void) const;
+	bool				getIsOperator(void) const;
+	bool	getIsRegistered() const;
+	void	setIsRegistered(bool val);
+
+private:
+
+	struct pollfd	_pfd; // クライアントのfdなどが入っている
+	int				_fd;
+	std::string		_buffer;
+
+	std::string		_nickname;
+	std::string		_username;
+
 	// ...他に必要に応じて（モードや制限など）
+	bool			_passReceived;
+	bool			_nickReceived;
+	bool			_userReceived;
+
+	//
+	bool			_isRegistered;
+	bool			_isOperator;
+
 };
 
 // ------------------------------------------------
 // function
 // ------------------------------------------------
-
 
 #endif

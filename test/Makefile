@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/07 18:09:59 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/12 15:30:18 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,8 @@ MAIN				?=
 
 SRC					:= \
 					Server.cpp \
+					Client.cpp \
+					Database.cpp \
 					Command/Command.cpp \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \

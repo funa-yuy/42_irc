@@ -14,16 +14,29 @@
 // class
 // ------------------------------------------------
 
-class Database {
-	public:
-		Client*	getClient(int fd) const;
-		Channel*	getChannel(std::string &name) const;
-		const std::string&	getPassword() const;
+class Database
+{
 
-	private:
-		std::map<int, Client> _clients;// fd→Client、 ユーザ用のmapコンテナ、fdとClientオブジェクトのセットで管理
-		std::map<std::string, Channel> _channels;// name→Channel、チャンネル用のmapコンテナ、チャンネル名とChannelオブジェクトのセットで管理
-		const	std::string	_password;
+public:
+
+	Database(std::string password);
+	~Database();
+
+	Client *		addClient(int fd);
+	void			removeClient(int fd);
+
+	Client *		getClient(int fd);
+	Client const *	getClient(int fd) const;
+	Channel *		getChannel(std::string & name) const;
+	const std::string&	getPassword() const;
+
+private:
+
+	std::string	_password;
+
+	std::map<int, Client>			_clients;// fd→Client、 ユーザ用のmapコンテナ、fdとClientオブジェクトのセットで管理
+	std::map<std::string, Channel>	_channels;// name→Channel、チャンネル用のmapコンテナ、チャンネル名とChannelオブジェクトのセットで管理
+
 };
 
 // ------------------------------------------------
