@@ -3,7 +3,6 @@
 #include "PassCommand.hpp"
 #include "NickCommand.hpp"
 #include "UserCommand.hpp"
-#include "Server.hpp"
 
 // ```bash
 // make re MAIN=test_cmd.cpp
