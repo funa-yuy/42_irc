@@ -123,9 +123,9 @@ void	Server::handleClientInput(int fd)
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r')) // msg内の'\n'と'\r'を削除
 			msg.erase(msg.size() - 1);
 
-		t_parserd	parsed;
-		parsed.sender_fd = fd;
-		std::cout << "\n[RECV fd=" << parsed.sender_fd << "] " << msg << std::endl;
+		t_parsed	parsed;
+		parsed.client_fd = fd;
+		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << msg << std::endl;
 
 		// 最初の空白で区切って、コマンドを分ける
 		std::istringstream iss(msg);
@@ -139,13 +139,13 @@ void	Server::handleClientInput(int fd)
 			parsed.cmd[i] = toupper(parsed.cmd[i]);
 
 		// 空白ごとに区切って、コマンド引数を分ける
-		std::string arg;
-		while (iss >> arg)
-			parsed.option.push_back(arg);
+		// std::string arg;
+		// while (iss >> arg)
+		// 	parsed.option.push_back(arg);
 
-		std::cout << "ARGUMENTS: " << std::endl;
-		for (size_t i = 0; i < parsed.option.size(); i++)
-			std::cout << i << ": " << parsed.option[i] << std::endl;
+		// std::cout << "ARGUMENTS: " << std::endl;
+		// for (size_t i = 0; i < parsed.option.size(); i++)
+		// 	std::cout << i << ": " << parsed.option[i] << std::endl;
 
 		// Command * cmdObj = createCommandObj(cmd);
 		// t_parserd	parsed;

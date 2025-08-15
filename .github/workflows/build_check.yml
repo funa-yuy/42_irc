@@ -25,3 +25,7 @@ jobs:
       # Compile the project using the make command
       - name: build
         run: make
+
+      # unit test
+      - name: unit test
+        run: make test
