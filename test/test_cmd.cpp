@@ -59,5 +59,5 @@ int	main() {
 		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
 	}
 
-	return (EXIT_SUCCESS);
+	return (0);
 }
