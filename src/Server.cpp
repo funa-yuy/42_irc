@@ -115,7 +115,6 @@ void	Server::handleClientInput(int fd)
 	clientBuffer += buf;
 
 	size_t pos;
-	// _client_buffers内の最初の改行（"\r\n"）の位置を取得
 	while ((pos = clientBuffer.find('\n')) != std::string::npos)
 	{
 		std::string msg = clientBuffer.substr(0, pos + 1); // msgに_client_buffersの先頭から'\n'までを分ける
