@@ -122,11 +122,11 @@ void	Server::handleClientInput(int fd)
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r')) // msg内の'\n'と'\r'を削除
 			msg.erase(msg.size() - 1);
 
-		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << std::endl;
-		std::cout << msg << std::endl;
-
 		t_parsed	parsed;
 		parsed = Parser::exec(msg, fd);
+
+		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << std::endl;
+		std::cout << msg << std::endl;
 
 		std::cout << "COMMAND: " << std::endl;
 		std::cout << parsed.cmd << std::endl;
