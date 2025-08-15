@@ -3,8 +3,8 @@
 CXX="c++"
 CXX_FLAG="-Wall -Wextra -Werror -std=c++98 -pedantic"
 
-SRCS=$(ls ../src/*.cpp | grep -v "main.cpp")
-INC_DIR="../includes"
+SRCS=$(ls src/*.cpp | grep -v "main.cpp")
+INC_DIR="includes"
 INCLUDES="-I$INC_DIR"
 
 # make testで実行する場合
