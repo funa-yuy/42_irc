@@ -37,13 +37,6 @@ typedef struct	s_response
 	int			send_flag;
 }				t_response;
 
-typedef struct	s_parserd
-{
-	std::string					cmd;
-	int							sender_fd;
-	std::vector<std::string>	option;
-}				t_parserd;
-
 typedef struct	s_parsed
 {
 	int client_fd;
