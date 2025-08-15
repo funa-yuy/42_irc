@@ -4,7 +4,7 @@ UserCommand::UserCommand() {}
 
 UserCommand::~UserCommand() {}
 
-const t_response	UserCommand::execute(const t_parserd& input) const {
+const t_response	UserCommand::execute(const t_parsed& input) const {
 	(void)input;
 	t_response	res;
 
