@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "irc.hpp"
+#include "Database.hpp"
 
 // ------------------------------------------------
 // class
