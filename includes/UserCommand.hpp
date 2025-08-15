@@ -18,7 +18,7 @@ class UserCommand : public Command {
 		UserCommand();
 		~UserCommand();
 
-		const t_response	execute(const t_parsed& input, Database db) const;
+		const t_response	execute(const t_parsed& input, Database& db) const;
 };
 
 // ------------------------------------------------
