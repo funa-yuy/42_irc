@@ -17,7 +17,7 @@ class Command {
 		Command();
 		virtual ~Command() = 0;
 
-		virtual const t_response	execute(const t_parsed& input) const = 0;
+		virtual const t_response	execute(const t_parsed& input, Database db) const = 0;
 };
 
 // ------------------------------------------------

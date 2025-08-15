@@ -8,9 +8,8 @@ Command*	PassCommand::createPassCommand() const {
 	return (new PassCommand());
 }
 
-bool	is_validCmd(const t_parsed& input, t_response* res) {
-	Database	data;
-	Client*		sender_client = data.getClient(input.client_fd);
+bool	is_validCmd(const t_parsed& input, t_response* res, Database db) {
+	Client*		sender_client = db.getClient(input.client_fd);
 
 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
@@ -32,7 +31,7 @@ bool	is_validCmd(const t_parsed& input, t_response* res) {
 		res->send_flag = 0;
 		return(false);
 	}
-	else if (data.getPassword() != input.args[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
+	else if (db.getPassword() != input.args[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
 	{
 		res->is_success = false;
 		res->should_send = true;
@@ -47,22 +46,21 @@ bool	is_validCmd(const t_parsed& input, t_response* res) {
 
 //updataDatabase()と、is_validCmd()もプライベートな純粋仮想関数にしてもいいのでは？
 //また、数値のエラー検出もメンバ関数にしてもいいかも
-void	updataDatabase(const t_parsed& input) {
-	Database	data;
-	Client*		sender_client = data.getClient(input.client_fd);
+void	updataDatabase(const t_parsed& input, Database db) {
+	Client*		sender_client = db.getClient(input.client_fd);
 
 	sender_client->setIsRegistered(true);
 }
 
-const t_response	PassCommand::execute(const t_parsed& input) const {
+const t_response	PassCommand::execute(const t_parsed& input, Database db) const {
 	t_response	res;
 
-	if (!is_validCmd(input, &res))
+	if (!is_validCmd(input, &res, db))
 		return (res);
 
 	res.is_success = true;
 	res.should_send = false;
 
-	updataDatabase(input);
+	updataDatabase(input, db);
 	return (res);
 }

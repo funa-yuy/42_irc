@@ -18,7 +18,7 @@ class NickCommand : public Command {
 		NickCommand();
 		~NickCommand();
 
-		const t_response	execute(const t_parsed& input) const;
+		const t_response	execute(const t_parsed& input, Database db) const;
 
 	private:
 
