@@ -3,7 +3,8 @@
 CXX="c++"
 CXX_FLAG="-Wall -Wextra -Werror -std=c++98 -pedantic"
 
-SRCS=$(ls src/*.cpp | grep -v "main.cpp")
+# SRCS=$(find src src/Command -name "*.cpp" ! -name "main.cpp")
+SRCS=$(find src -name "*.cpp" ! -name "main.cpp")
 INC_DIR="includes"
 INCLUDES="-I$INC_DIR"
 
