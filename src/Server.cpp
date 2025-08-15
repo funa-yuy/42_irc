@@ -123,9 +123,9 @@ void	Server::handleClientInput(int fd)
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r')) // msg内の'\n'と'\r'を削除
 			msg.erase(msg.size() - 1);
 
-		t_parserd	parsed;
-		parsed.sender_fd = fd;
-		std::cout << "\n[RECV fd=" << parsed.sender_fd << "] " << msg << std::endl;
+		t_parsed	parsed;
+		parsed.client_fd = fd;
+		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << msg << std::endl;
 
 		// 最初の空白で区切って、コマンドを分ける
 		std::istringstream iss(msg);
@@ -141,14 +141,14 @@ void	Server::handleClientInput(int fd)
 		// 空白ごとに区切って、コマンド引数を分ける
 		std::string arg;
 		while (iss >> arg)
-			parsed.option.push_back(arg);
+			parsed.args.push_back(arg);
 
 		std::cout << "ARGUMENTS: " << std::endl;
-		for (size_t i = 0; i < parsed.option.size(); i++)
-			std::cout << i << ": " << parsed.option[i] << std::endl;
+		for (size_t i = 0; i < parsed.args.size(); i++)
+			std::cout << i << ": " << parsed.args[i] << std::endl;
 
 		// Command * cmdObj = createCommandObj(cmd);
-		// t_parserd	parsed;
+		// t_parsed	parsed;
 		// if (cmdObj)
 		// {
 		// 	cmdObj->execute(parsed);
@@ -163,15 +163,15 @@ void	Server::handleClientInput(int fd)
 	return ;
 }
 
-void	Server::broadcast(int sender_fd, std::string const & msg)
+void	Server::broadcast(int client_fd, std::string const & msg)
 {
 	for (size_t i = 1; i < _poll_fds.size(); ++i)
 	{
 		int fd = _poll_fds[i].fd;
-		if (fd != sender_fd)
+		if (fd != client_fd)
 			send(fd, msg.c_str(), msg.size(), 0);
 	}
-	std::cout << "Broadcast from " << sender_fd << ": " << msg;
+	std::cout << "Broadcast from " << client_fd << ": " << msg;
 	return ;
 }
 
