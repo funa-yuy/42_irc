@@ -136,7 +136,7 @@ void	Server::handleClientInput(int fd)
 			std::cout << i << ": " << parsed.args[i] << std::endl;
 
 		// Command * cmdObj = createCommandObj(cmd);
-		// t_parserd	parsed;
+		// t_parsed	parsed;
 		// if (cmdObj)
 		// {
 		// 	cmdObj->execute(parsed);
@@ -151,15 +151,15 @@ void	Server::handleClientInput(int fd)
 	return ;
 }
 
-void	Server::broadcast(int sender_fd, std::string const & msg)
+void	Server::broadcast(int client_fd, std::string const & msg)
 {
 	for (size_t i = 1; i < _poll_fds.size(); ++i)
 	{
 		int fd = _poll_fds[i].fd;
-		if (fd != sender_fd)
+		if (fd != client_fd)
 			send(fd, msg.c_str(), msg.size(), 0);
 	}
-	std::cout << "Broadcast from " << sender_fd << ": " << msg;
+	std::cout << "Broadcast from " << client_fd << ": " << msg;
 	return ;
 }
 
