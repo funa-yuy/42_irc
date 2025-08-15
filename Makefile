@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/07 18:00:17 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/15 18:11:10 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -86,9 +86,12 @@ fclean: clean
 
 re: fclean all
 
+# test
+test:
+	./test/unit_test.sh
 
 # **************************************************************************** #
 # PHONY
 
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re test
