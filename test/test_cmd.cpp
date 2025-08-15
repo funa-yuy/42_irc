@@ -3,14 +3,14 @@
 #include "PassCommand.hpp"
 #include "NickCommand.hpp"
 #include "UserCommand.hpp"
-#include "Server.hpp"
+// #include "Server.hpp"
 
 // ```bash
 // make re MAIN=test_cmd.cpp
 // valgrind ./test_irc
 // ```
 
-t_response	handleInput(const t_parsed& input) {
+t_response	handleInput(const t_parsed& input, Database& db) {
 	Command* cmd = NULL;
 
 	if (input.cmd == "PASS") {
@@ -29,7 +29,7 @@ t_response	handleInput(const t_parsed& input) {
 		res.send_flag = 0;
 		return (res);
 	}
-	t_response	res = cmd->execute(input);
+	t_response	res = cmd->execute(input, db);
 	delete	cmd;
 	return (res);
 }
@@ -37,6 +37,7 @@ t_response	handleInput(const t_parsed& input) {
 int	main() {
 	int	n = 4;
 	t_parsed	inputs[4];
+	Database	db("password");
 
 	inputs[0].cmd = "PASS";
 	inputs[0].client_fd = 0;
@@ -56,7 +57,7 @@ int	main() {
 
 	for (int i = 0; i < n; ++i)
 	{
-		t_response res = handleInput(inputs[i]);
+		t_response res = handleInput(inputs[i], db);
 		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
 	}
 
