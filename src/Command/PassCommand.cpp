@@ -17,6 +17,7 @@ bool	is_validCmd(const t_parsed& input, t_response* res) {
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":servername 461 :Not enough parameters\r\n";
+		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		res->send_flag = 0;
 		return(false);
@@ -26,6 +27,7 @@ bool	is_validCmd(const t_parsed& input, t_response* res) {
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":servername 462 :Already registered\r\n";
+		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		res->send_flag = 0;
 		return(false);
@@ -35,6 +37,7 @@ bool	is_validCmd(const t_parsed& input, t_response* res) {
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":servername 464 :Password incorrect\r\n";
+		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		res->send_flag = 0;
 		return(false);

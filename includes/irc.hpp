@@ -14,11 +14,11 @@
 
 typedef struct	s_response
 {
-	bool		is_success;
-	bool		should_send;
-	std::string	reply;
-	int			*target_fds;
-	int			send_flag;
+	bool				is_success;
+	bool				should_send;
+	std::string			reply;
+	std::vector<int>	target_fds;
+	int					send_flag;
 }				t_response;
 
 typedef struct	s_parsed
