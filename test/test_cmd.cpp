@@ -6,7 +6,7 @@
 #include "Server.hpp"
 
 // ```bash
-// make re MAIN=cmd_test.cpp
+// make re MAIN=test_cmd.cpp
 // valgrind ./test_irc
 // ```
 
@@ -25,7 +25,7 @@ t_response	handleInput(const t_parsed& input) {
 	else {
 		t_response res;
 		res.reply = "Unknown command\n";
-		res.target_fds = NULL;
+		res.target_fds.push_back(0);
 		res.send_flag = 0;
 		return (res);
 	}
