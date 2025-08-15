@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include "Command.hpp"
-#include "Database.hpp"
 
 // ------------------------------------------------
 // class
