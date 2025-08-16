@@ -30,8 +30,8 @@ public:
 	std::string			getNickname(void) const;
 	std::string			getUsername(void) const;
 	bool				getIsOperator(void) const;
-	bool	getIsRegistered() const;
-	void	setIsRegistered(bool val);
+	bool				getIsRegistered() const;
+	void				setIsRegistered(bool val);
 
 private:
 
