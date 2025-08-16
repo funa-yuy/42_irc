@@ -115,8 +115,7 @@ void	Server::handleClientInput(int fd)
 	clientBuffer += buf;
 
 	size_t pos;
-	// _client_buffers内の最初の改行（"\r\n"）の位置を取得
-	while ((pos = clientBuffer.find("\r\n")) != std::string::npos)
+	while ((pos = clientBuffer.find('\n')) != std::string::npos)
 	{
 		std::string msg = clientBuffer.substr(0, pos + 1); // msgに_client_buffersの先頭から'\n'までを分ける
 		clientBuffer.erase(0, pos + 1); // msgに分けた部分を_client_buffersから削除、次のwhile反復で「次の'\n'」を探せる
@@ -124,24 +123,13 @@ void	Server::handleClientInput(int fd)
 			msg.erase(msg.size() - 1);
 
 		t_parsed	parsed;
-		parsed.client_fd = fd;
-		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << msg << std::endl;
+		parsed = Parser::exec(msg, fd);
 
-		// 最初の空白で区切って、コマンドを分ける
-		std::istringstream iss(msg);
-		iss >> parsed.cmd;
+		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << std::endl;
+		std::cout << msg << std::endl;
 
 		std::cout << "COMMAND: " << std::endl;
 		std::cout << parsed.cmd << std::endl;
-
-		// 小文字でコマンドが送信される可能性もあるため、大文字に変換
-		for (size_t i = 0; i < parsed.cmd.size(); ++i)
-			parsed.cmd[i] = toupper(parsed.cmd[i]);
-
-		// 空白ごとに区切って、コマンド引数を分ける
-		std::string arg;
-		while (iss >> arg)
-			parsed.args.push_back(arg);
 
 		std::cout << "ARGUMENTS: " << std::endl;
 		for (size_t i = 0; i < parsed.args.size(); i++)

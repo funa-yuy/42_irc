@@ -6,7 +6,7 @@
 #    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/11 21:35:16 by keishii          ###   ########.fr        #
+#    Updated: 2025/08/15 17:53:07 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ OBJ_DIR				:= obj
 SRC					:= \
 					main.cpp \
 					Server.cpp \
+					Parser.cpp \
 					Client.cpp \
 					Database.cpp \
 					Command/Command.cpp \
@@ -40,6 +41,7 @@ SRC					:= \
 HEADERS				:= \
 					irc.hpp \
 					Server.hpp \
+					Parser.hpp \
 					Channel.hpp \
 					Client.hpp \
 					Database.hpp \
