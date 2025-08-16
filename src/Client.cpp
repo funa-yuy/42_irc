@@ -41,3 +41,11 @@ std::string const &	Client::getBuffer(void) const
 {
 	return (_buffer);
 }
+
+bool	Client::getIsRegistered() const {
+	return (_isRegistered);
+}
+
+void	Client::setIsRegistered(bool val) {
+	_isRegistered = val;
+}

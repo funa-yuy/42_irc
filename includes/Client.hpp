@@ -30,6 +30,8 @@ public:
 	std::string			getNickname(void) const;
 	std::string			getUsername(void) const;
 	bool				getIsOperator(void) const;
+	bool				getIsRegistered() const;
+	void				setIsRegistered(bool val);
 
 private:
 
@@ -39,13 +41,13 @@ private:
 
 	std::string		_nickname;
 	std::string		_username;
-	
+
 	// ...他に必要に応じて（モードや制限など）
 	bool			_passReceived;
 	bool			_nickReceived;
 	bool			_userReceived;
-	
-	// 
+
+	//
 	bool			_isRegistered;
 	bool			_isOperator;
 
