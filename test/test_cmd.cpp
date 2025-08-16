@@ -25,7 +25,6 @@ t_response	handleInput(const t_parsed& input, Database& db) {
 		t_response res;
 		res.reply = "Unknown command\n";
 		res.target_fds.push_back(0);
-		res.send_flag = 0;
 		return (res);
 	}
 	t_response	res = cmd->execute(input, db);
@@ -60,5 +59,5 @@ int	main() {
 		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
 	}
 
-	return (EXIT_SUCCESS);
+	return (0);
 }

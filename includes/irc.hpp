@@ -36,7 +36,6 @@ typedef struct	s_response
 	bool				should_send;
 	std::string			reply;
 	std::vector<int>	target_fds;
-	int					send_flag;
 }				t_response;
 
 typedef struct	s_parsed
