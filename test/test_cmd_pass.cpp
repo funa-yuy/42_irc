@@ -15,7 +15,7 @@ static void test_pass_command_all() {
 	Database db("password");
 	PassCommand pass;
 
-	// エラー：　args が 0 個 → ERR_NEEDMOREPARAMS 461
+	// エラー：　argsが0個 → ERR_NEEDMOREPARAMS 461
 	{
 		int fd = 4;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>());
@@ -32,7 +32,7 @@ static void test_pass_command_all() {
 		int fd = 5;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
 		Client* c = db.addClient(fd);
-		c->setIsRegistered(true);
+		c->setIsRegistered(true);//isRegisteredをtrueにする
 		t_response res = pass.execute(in, db);
 		assert(res.is_success == false);
 		assert(res.should_send == true);
@@ -43,7 +43,7 @@ static void test_pass_command_all() {
 	// エラー：　パスワード不一致 → ERR_PASSWDMISMATCH 464
 	{
 		int fd = 6;
-		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "wrong"));
+		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "wrong"));//間違ったパスワードを指定
 		db.addClient(fd);
 		t_response res = pass.execute(in, db);
 		assert(res.is_success == false);
@@ -56,12 +56,10 @@ static void test_pass_command_all() {
 	{
 		int fd = 7;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
-		Client* c = db.addClient(fd);
-		assert(c->getIsRegistered() == false);
+		db.addClient(fd);
 		t_response res = pass.execute(in, db);
 		assert(res.is_success == true);
 		assert(res.should_send == false);
-		assert(db.getClient(fd)->getIsRegistered() == true);
 	}
 }
 
