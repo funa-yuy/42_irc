@@ -4,7 +4,7 @@ PassCommand::PassCommand() {}
 
 PassCommand::~PassCommand() {}
 
-Command*	PassCommand::createPassCommand() const {
+Command*	PassCommand::createPassCommand() {
 	return (new PassCommand());
 }
 

@@ -16,7 +16,7 @@ class PassCommand : public Command {
 	public:
 		PassCommand();
 		~PassCommand();
-		Command* createPassCommand() const;
+		static Command* createPassCommand();
 
 		const t_response	execute(const t_parsed& input, Database& db) const;
 };
