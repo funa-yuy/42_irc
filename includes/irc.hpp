@@ -32,9 +32,8 @@ typedef enum
 
 typedef struct	s_response
 {
-	std::string	reply;
-	int			*target_fds;
-	int			send_flag;
+	std::string				reply;
+	std::vector<int>		target_fds;
 }				t_response;
 
 typedef struct	s_parsed

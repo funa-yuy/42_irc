@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
+#    By: yoshiko <yoshiko@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/15 18:20:31 by yohatana         ###   ########.fr        #
+#    Updated: 2025/08/17 12:54:03 by yoshiko          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ OBJ_DIR				:= obj
 SRC					:= \
 					main.cpp \
 					Server.cpp \
+					Parser.cpp \
 					Client.cpp \
 					Database.cpp \
 					Command/Command.cpp \
@@ -40,6 +41,7 @@ SRC					:= \
 HEADERS				:= \
 					irc.hpp \
 					Server.hpp \
+					Parser.hpp \
 					Channel.hpp \
 					Client.hpp \
 					Database.hpp \
