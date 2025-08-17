@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
+#    By: yoshiko <yoshiko@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/15 17:53:07 by keishii          ###   ########.fr        #
+#    Updated: 2025/08/17 17:46:21 by yoshiko          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -65,7 +65,7 @@ OBJ					:= \
 # INCLUDES
 
 
-INC_DIR			:= includes
+INC_DIR			:= includes includes/Command
 INCLUDES		:= -I$(INC_DIR)
 
 

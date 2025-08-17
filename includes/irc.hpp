@@ -34,6 +34,8 @@ typedef struct	s_response
 {
 	std::string				reply;
 	std::vector<int>		target_fds;
+	bool					is_success;
+	bool					should_send;
 }				t_response;
 
 typedef struct	s_parsed
