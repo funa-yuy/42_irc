@@ -61,6 +61,17 @@ static void test_pass_command_all() {
 		assert(res.is_success == true);
 		assert(res.should_send == false);
 	}
+
+	// createPassCommand関数が機能するか
+	{
+		Command* cmd = PassCommand::createPassCommand();
+		int fd = 8;
+		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
+		db.addClient(fd);
+		t_response res = cmd->execute(in, db);
+		assert(res.is_success == true);
+		assert(res.should_send == false);
+	}
 }
 
 int main() {
