@@ -41,6 +41,11 @@ const t_response	NickCommand::execute(const t_parsed& input, Database& db) const
 			return (res);
 		}
 	}
+
+	if (is_registed)
+	{
+		std::cout << "update nick" << std::endl;
+	}
 	res.is_success = true;
 	res.should_send = false;
 	res.reply = "";
