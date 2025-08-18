@@ -19,10 +19,10 @@
 #include "Client.hpp"
 #include "Database.hpp"
 
-#include "Command.hpp"
-#include "PassCommand.hpp"
+#include "Command/Command.hpp"
+#include "Command/PassCommand.hpp"
 #include "Command/NickCommand.hpp"
-#include "UserCommand.hpp"
+#include "Command/UserCommand.hpp"
 
 #define MAX_CLIENTS 10
 #define BUF_SIZE 512

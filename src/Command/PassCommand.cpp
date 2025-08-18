@@ -1,4 +1,4 @@
-#include "PassCommand.hpp"
+#include "Command/PassCommand.hpp"
 
 PassCommand::PassCommand() {}
 

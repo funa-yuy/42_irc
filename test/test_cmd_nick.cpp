@@ -1,5 +1,5 @@
 #include "irc.hpp"
-#include "Command.hpp"
+#include "Command/Command.hpp"
 #include "Command/NickCommand.hpp"
 #include <cassert>
 
@@ -8,7 +8,7 @@ int main()
 	// db create
 	Database db("pass");
 	db.addClient(3);
-	db.getClient(3)->setNickname("");
+	db.getClient(3)->setNickname("funa");
 
 	t_response result;
 	NickCommand nick;
@@ -70,8 +70,30 @@ int main()
 	fds.clear();
 
 	// 空文字の登録
+	args.push_back("");
+	parsed.args = args;
+	parsed.client_fd = 3;
+	parsed.msg = "";
+	result = nick.execute(parsed, db);
+	assert(result.is_success == false);
+	assert(result.reply == ":ft.irc 431 :ERR_NONICKNAMEGIVEN\r\n");
+	assert(result.should_send == true);
+	assert(result.target_fds[0] == 3);
+	args.clear();
+	fds.clear();
 
-	// double nick
+	// すでに登録されているニックネーム
+	// args.push_back("funa");
+	// parsed.args = args;
+	// parsed.client_fd = 3;
+	// parsed.msg = "";
+	// result = nick.execute(parsed, db);
+	// assert(result.is_success == false);
+	// assert(result.reply == ":ft.irc 433 :ERR_NICKNAMEINUSE\r\n");
+	// assert(result.should_send == true);
+	// assert(result.target_fds[0] == 3);
+	// args.clear();
+	// fds.clear();
 
 	// 以下はサーバー間接続に使用するため不要
 	// 436ERR_NICKCOLLISION:

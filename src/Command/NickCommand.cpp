@@ -31,8 +31,10 @@ const t_response	NickCommand::execute(const t_parsed& input, Database& db) const
 		is_registed = true;
 
 	std::string registerd_nick;
+	// 接続切れた場合はここ抜けない？
 	for (int i = 0; db.getClient(i) != NULL; i++)
 	{
+		std::cout << "get nick " << db.getClient(i)->getNickname() << std::endl;
 		if (db.getClient(i)->getNickname() == input.args[0])
 		{
 			set_err_res(&res, input, "433 :ERR_NICKNAMEINUSE");

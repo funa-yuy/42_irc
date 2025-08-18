@@ -1,8 +1,8 @@
 #include <iostream> //cout
 
-#include "PassCommand.hpp"
+#include "Command/PassCommand.hpp"
 #include "Command/NickCommand.hpp"
-#include "UserCommand.hpp"
+#include "Command/UserCommand.hpp"
 
 // ```bash
 // make re MAIN=test_cmd.cpp
