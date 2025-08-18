@@ -6,7 +6,7 @@
 #    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/18 17:38:28 by yohatana         ###   ########.fr        #
+#    Updated: 2025/08/18 18:47:42 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,15 +45,15 @@ HEADERS				:= \
 					Channel.hpp \
 					Client.hpp \
 					Database.hpp \
-					Command.hpp \
-					NickCommand.hpp \
-					PassCommand.hpp \
-					UserCommand.hpp \
+					Command/Command.hpp \
+					Command/NickCommand.hpp \
+					Command/PassCommand.hpp \
+					Command/UserCommand.hpp \
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \
 					$(SRC:.cpp=.o))
-
+# $(warning $(OBJ))
 
 # **************************************************************************** #
 # LIBRARIES & FRAMEWORKS
@@ -66,7 +66,8 @@ OBJ					:= \
 
 
 INC_DIR			:= includes includes/Command
-INCLUDES		:= -I$(INC_DIR)
+INCLUDES		:= $(addprefix -I,$(INC_DIR))
+# $(warning $(INCLUDES))
 
 
 # **************************************************************************** #
@@ -78,7 +79,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(OBJ) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(addprefix $(INC_DIR)/, $(HEADERS))
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp #$(addprefix $(INC_DIR)/, $(HEADERS))
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) -c $< -o $@
 
