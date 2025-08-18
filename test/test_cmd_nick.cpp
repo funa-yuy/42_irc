@@ -1,6 +1,6 @@
 #include "irc.hpp"
 #include "Command.hpp"
-#include "NickCommand.hpp"
+#include "Command/NickCommand.hpp"
 #include <cassert>
 
 int main()
@@ -30,28 +30,40 @@ int main()
 	args.clear();
 	fds.clear();
 
-	// error
-	// invalid arg
 	args.push_back("yohatana");
 	args.push_back("ken");
 	parsed.args = args;
 	parsed.client_fd = 3;
 	parsed.msg = "";
 	result = nick.execute(parsed, db);
-	assert(result.is_success == false);
-	assert(result.reply == "");
-	assert(result.should_send == true);
+	assert(result.is_success == true);
+	assert(result.reply.empty() == true);
+	assert(result.should_send == false);
 	assert(result.target_fds[0] == 3);
 	args.clear();
 	fds.clear();
 
-	// args is 0
+	// error
+	// no args
 	parsed.args = args;
 	parsed.client_fd = 3;
 	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
-	assert(result.reply == "");
+	assert(result.reply == ":ft.irc 431 :ERR_NONICKNAMEGIVEN\r\n");
+	assert(result.should_send == true);
+	assert(result.target_fds[0] == 3);
+	args.clear();
+	fds.clear();
+
+	// invalid arg
+	args.push_back("y|hatana");
+	parsed.args = args;
+	parsed.client_fd = 3;
+	parsed.msg = "";
+	result = nick.execute(parsed, db);
+	assert(result.is_success == false);
+	assert(result.reply == ":ft.irc 432 :ERR_ERRONEUSNICKNAME\r\n");
 	assert(result.should_send == true);
 	assert(result.target_fds[0] == 3);
 	args.clear();
@@ -62,7 +74,7 @@ int main()
 	// double nick
 
 	// 以下はサーバー間接続に使用するため不要
-	// 436ERR_NICKCOLLISION: 
+	// 436ERR_NICKCOLLISION:
 	// サーバーがニックネームの衝突を検出した
 	//（別のサーバーによって既に存在するニックネームが登録された）場合
 

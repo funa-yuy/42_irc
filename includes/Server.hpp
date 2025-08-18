@@ -21,7 +21,7 @@
 
 #include "Command.hpp"
 #include "PassCommand.hpp"
-#include "NickCommand.hpp"
+#include "Command/NickCommand.hpp"
 #include "UserCommand.hpp"
 
 #define MAX_CLIENTS 10
@@ -55,7 +55,7 @@ private:
 	void		disconnectClient(int fd);
 
 	Command *	createCommandObj(std::string cmd_name);
-	
+
 	void		broadcast(int sender_fd, std::string const & msg);
 	void		exitError(std::string const & error_msg);
 

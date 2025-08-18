@@ -1,7 +1,7 @@
 #include <iostream> //cout
 
 #include "PassCommand.hpp"
-#include "NickCommand.hpp"
+#include "Command/NickCommand.hpp"
 #include "UserCommand.hpp"
 
 // ```bash
