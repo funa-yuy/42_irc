@@ -29,8 +29,16 @@ public:
 
 	std::string			getNickname(void) const;
 	std::string			getUsername(void) const;
+	std::string			getRealname(void) const;
+
+	bool				getUserReceived(void) const;
 	bool				getIsOperator(void) const;
-	bool				getIsRegistered() const;
+	bool				getIsRegistered(void) const;
+	
+	void				setNickname(const std::string& nickname);
+	void				setUsername(const std::string& username);
+	void				setRealname(const std::string& realname);
+	void				setUserReceived(bool val);
 	void				setIsRegistered(bool val);
 
 private:
@@ -41,13 +49,12 @@ private:
 
 	std::string		_nickname;
 	std::string		_username;
+	std::string		_realname;
 
-	// ...他に必要に応じて（モードや制限など）
 	bool			_passReceived;
 	bool			_nickReceived;
 	bool			_userReceived;
 
-	//
 	bool			_isRegistered;
 	bool			_isOperator;
 

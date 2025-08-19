@@ -2,7 +2,7 @@
 
 Client::Client()
 :	_fd(0), _buffer(""),
-	_nickname(""), _username(""),
+	_nickname(""), _username(""), _realname(""),
 	_passReceived(false), _nickReceived(false), _userReceived(false),
 	_isRegistered(false), _isOperator(false)
 {
@@ -20,6 +20,8 @@ void	Client::initializeClient(int fd)
 	_pfd.revents = 0;
 	_fd = fd;
 	_buffer = "";
+
+	return ;
 }
 
 int	Client::getFd(void) const
@@ -42,10 +44,56 @@ std::string const &	Client::getBuffer(void) const
 	return (_buffer);
 }
 
+std::string	Client::getNickname(void) const
+{
+	return (_nickname);
+}
+
+std::string	Client::getUsername(void) const
+{
+	return (_username);
+}
+
+std::string	Client::getRealname(void) const
+{
+	return (_realname);
+}
+
+bool	Client::getIsOperator(void) const
+{
+	return (_isOperator);
+}
+
 bool	Client::getIsRegistered() const {
 	return (_isRegistered);
 }
 
-void	Client::setIsRegistered(bool val) {
+void	Client::setNickname(const std::string & nickname)
+{
+	_nickname = nickname;
+	return ;
+}
+
+void	Client::setUsername(const std::string & username)
+{
+	_username = username;
+	return ;
+}
+
+void	Client::setRealname(const std::string & realname)
+{
+	_realname = realname;
+	return ;
+}
+
+void	Client::setUserReceived(bool val)
+{
+	_userReceived = val;
+	return ;
+}
+
+void	Client::setIsRegistered(bool val)
+{
 	_isRegistered = val;
+	return ;
 }
