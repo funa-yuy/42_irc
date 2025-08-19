@@ -27,6 +27,7 @@ public:
 	std::string &		getBuffer(void);
 	std::string const &	getBuffer(void) const;
 
+	void				setNickname(std::string nickname);
 	std::string			getNickname(void) const;
 	std::string			getUsername(void) const;
 	std::string			getRealname(void) const;

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yoshiko <yoshiko@student.42.fr>            +#+  +:+       +#+         #
+#    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/17 12:54:03 by yoshiko          ###   ########.fr        #
+#    Updated: 2025/08/18 18:47:42 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,15 +45,15 @@ HEADERS				:= \
 					Channel.hpp \
 					Client.hpp \
 					Database.hpp \
-					Command.hpp \
-					NickCommand.hpp \
-					PassCommand.hpp \
-					UserCommand.hpp \
+					Command/Command.hpp \
+					Command/NickCommand.hpp \
+					Command/PassCommand.hpp \
+					Command/UserCommand.hpp \
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \
 					$(SRC:.cpp=.o))
-
+# $(warning $(OBJ))
 
 # **************************************************************************** #
 # LIBRARIES & FRAMEWORKS
@@ -65,8 +65,9 @@ OBJ					:= \
 # INCLUDES
 
 
-INC_DIR			:= includes
-INCLUDES		:= -I$(INC_DIR)
+INC_DIR			:= includes includes/Command
+INCLUDES		:= $(addprefix -I,$(INC_DIR))
+# $(warning $(INCLUDES))
 
 
 # **************************************************************************** #
@@ -78,7 +79,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(OBJ) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(addprefix $(INC_DIR)/, $(HEADERS))
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp #$(addprefix $(INC_DIR)/, $(HEADERS))
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXX_FLAGS) $(INCLUDES) -c $< -o $@
 

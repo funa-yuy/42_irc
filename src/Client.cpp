@@ -44,9 +44,14 @@ std::string const &	Client::getBuffer(void) const
 	return (_buffer);
 }
 
-std::string	Client::getNickname(void) const
+std::string	Client::getNickname() const
 {
 	return (_nickname);
+}
+
+void	Client::setNickname(std::string nickname)
+{
+	_nickname = nickname;
 }
 
 std::string	Client::getUsername(void) const
@@ -66,12 +71,6 @@ bool	Client::getIsOperator(void) const
 
 bool	Client::getIsRegistered() const {
 	return (_isRegistered);
-}
-
-void	Client::setNickname(const std::string & nickname)
-{
-	_nickname = nickname;
-	return ;
 }
 
 void	Client::setUsername(const std::string & username)
