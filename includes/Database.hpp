@@ -28,6 +28,7 @@ public:
 	Client *		getClient(int fd);
 	Client const *	getClient(int fd) const;
 	Channel *		getChannel(std::string & name) const;
+	const std::string&	getPassword() const;
 
 private:
 

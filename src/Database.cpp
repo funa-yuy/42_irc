@@ -36,3 +36,7 @@ Client const *	Database::getClient(int fd) const
 		return (NULL);
 	return (&it->second);
 }
+
+const std::string&	Database::getPassword() const {
+	return (_password);
+}
