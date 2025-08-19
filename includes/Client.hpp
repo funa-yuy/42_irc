@@ -27,19 +27,23 @@ public:
 	std::string &		getBuffer(void);
 	std::string const &	getBuffer(void) const;
 
-	void				setNickname(std::string nickname);
 	std::string			getNickname(void) const;
 	std::string			getUsername(void) const;
 	std::string			getRealname(void) const;
 
+	bool				getPassReceived(void) const;
+	bool				getNickReceived(void) const;
 	bool				getUserReceived(void) const;
-	bool				getIsOperator(void) const;
 	bool				getIsRegistered(void) const;
+	bool				getIsOperator(void) const;
 	
 	void				setNickname(const std::string& nickname);
 	void				setUsername(const std::string& username);
 	void				setRealname(const std::string& realname);
+	void				setPassReceived(bool val);
+	void				setNickReceived(bool val);
 	void				setUserReceived(bool val);
+
 	void				setIsRegistered(bool val);
 
 private:

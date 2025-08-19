@@ -49,7 +49,7 @@ std::string	Client::getNickname() const
 	return (_nickname);
 }
 
-void	Client::setNickname(std::string nickname)
+void	Client::setNickname(const std::string & nickname)
 {
 	_nickname = nickname;
 }
@@ -62,6 +62,11 @@ std::string	Client::getUsername(void) const
 std::string	Client::getRealname(void) const
 {
 	return (_realname);
+}
+
+bool	Client::getUserReceived(void) const
+{
+	return (_userReceived);
 }
 
 bool	Client::getIsOperator(void) const
@@ -94,5 +99,27 @@ void	Client::setUserReceived(bool val)
 void	Client::setIsRegistered(bool val)
 {
 	_isRegistered = val;
+	return ;
+}
+
+bool	Client::getPassReceived(void) const
+{
+	return (_passReceived);
+}
+
+bool	Client::getNickReceived(void) const
+{
+	return (_nickReceived);
+}
+
+void	Client::setPassReceived(bool val)
+{
+	_passReceived = val;
+	return ;
+}
+
+void	Client::setNickReceived(bool val)
+{
+	_nickReceived = val;
 	return ;
 }

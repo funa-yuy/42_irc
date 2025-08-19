@@ -49,7 +49,7 @@ bool	UserCommand::isValidCmd(const t_parsed & input, t_response * res, Client * 
 		res->target_fds[0] = input.client_fd;
 		return (false);
 	}
-	else if (client->getIsRegistered())
+	else if (client->getUserReceived())
 	{
 		res->is_success = false;
 		res->should_send = true;
