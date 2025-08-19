@@ -12,12 +12,21 @@
 // class
 // ------------------------------------------------
 
-class UserCommand : public Command {
-	public:
-		UserCommand();
-		~UserCommand();
+class UserCommand : public Command
+{
 
-		const t_response	execute(const t_parsed& input, Database& db) const;
+public:
+
+	UserCommand();
+	~UserCommand();
+
+	static Command *	createUserCommand(void);
+	const t_response	execute(const t_parsed& input, Database& db) const;
+
+private:
+
+	bool	isValidCmd(const t_parsed & input, t_response * res, Client * client) const;
+
 };
 
 // ------------------------------------------------
