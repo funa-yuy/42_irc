@@ -1,4 +1,5 @@
 #include "Command/UserCommand.hpp"
+#include "irc.hpp"
 
 UserCommand::UserCommand() {}
 
@@ -22,8 +23,12 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 
 	if (!isValidCmd(input, &res, sender_client))
 		return (res);
+
+	std::string username = input.args[0];
+	if (username.length() > USERLEN)
+		username = username.substr(0, USERLEN);
 	
-	sender_client->setUsername(input.args[0]);
+	sender_client->setUsername(username);
 
 	std::string realname = input.args[3];
 	if (!realname.empty() && realname[0] == ':')
