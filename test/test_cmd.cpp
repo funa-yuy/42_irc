@@ -36,6 +36,7 @@ int	main() {
 	int	n = 4;
 	t_parsed	inputs[4];
 	Database	db("password");
+	db.addClient(0);
 
 	inputs[0].cmd = "PASS";
 	inputs[0].client_fd = 0;

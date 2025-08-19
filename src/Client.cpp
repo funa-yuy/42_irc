@@ -51,3 +51,11 @@ void	Client::setNickname(std::string nickname)
 {
 	_nickname = nickname;
 }
+
+bool	Client::getIsRegistered() const {
+	return (_isRegistered);
+}
+
+void	Client::setIsRegistered(bool val) {
+	_isRegistered = val;
+}
