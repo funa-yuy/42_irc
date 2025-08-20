@@ -19,10 +19,10 @@
 #include "Client.hpp"
 #include "Database.hpp"
 
-#include "Command.hpp"
-#include "PassCommand.hpp"
-#include "NickCommand.hpp"
-#include "UserCommand.hpp"
+#include "Command/Command.hpp"
+#include "Command/PassCommand.hpp"
+#include "Command/NickCommand.hpp"
+#include "Command/UserCommand.hpp"
 
 #define MAX_CLIENTS 10
 #define BUF_SIZE 512
@@ -55,7 +55,7 @@ private:
 	void		disconnectClient(int fd);
 
 	Command *	createCommandObj(std::string cmd_name);
-	
+
 	void		broadcast(int sender_fd, std::string const & msg);
 	void		exitError(std::string const & error_msg);
 

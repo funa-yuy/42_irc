@@ -42,6 +42,16 @@ std::string const &	Client::getBuffer(void) const
 	return (_buffer);
 }
 
+std::string	Client::getNickname() const
+{
+	return (_nickname);
+}
+
+void	Client::setNickname(std::string nickname)
+{
+	_nickname = nickname;
+}
+
 bool	Client::getIsRegistered() const {
 	return (_isRegistered);
 }

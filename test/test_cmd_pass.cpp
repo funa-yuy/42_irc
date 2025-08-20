@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "PassCommand.hpp"
+#include "Command/PassCommand.hpp"
 
 static t_parsed makeInput(const std::string& cmd, int fd, const std::vector<std::string>& args) {
 	t_parsed in;
