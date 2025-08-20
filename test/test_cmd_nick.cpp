@@ -30,8 +30,8 @@ int main()
 	args.clear();
 	fds.clear();
 
-	args.push_back("yohatana");
 	args.push_back("ken");
+	args.push_back("nusu");
 	parsed.args = args;
 	parsed.client_fd = 3;
 	parsed.msg = "";
@@ -83,17 +83,17 @@ int main()
 	fds.clear();
 
 	// すでに登録されているニックネーム
-	// args.push_back("funa");
-	// parsed.args = args;
-	// parsed.client_fd = 3;
-	// parsed.msg = "";
-	// result = nick.execute(parsed, db);
-	// assert(result.is_success == false);
-	// assert(result.reply == ":ft.irc 433 :ERR_NICKNAMEINUSE\r\n");
-	// assert(result.should_send == true);
-	// assert(result.target_fds[0] == 3);
-	// args.clear();
-	// fds.clear();
+	args.push_back("ken");
+	parsed.args = args;
+	parsed.client_fd = 3;
+	parsed.msg = "";
+	result = nick.execute(parsed, db);
+	assert(result.is_success == false);
+	assert(result.reply == ":ft.irc 433 :ERR_NICKNAMEINUSE\r\n");
+	assert(result.should_send == true);
+	assert(result.target_fds[0] == 3);
+	args.clear();
+	fds.clear();
 
 	// 以下はサーバー間接続に使用するため不要
 	// 436ERR_NICKCOLLISION:

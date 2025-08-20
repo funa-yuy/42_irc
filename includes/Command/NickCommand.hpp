@@ -22,6 +22,8 @@ class NickCommand : public Command {
 										const t_parsed& input,
 										std::string errmsg) const;
 		bool				is_special_char(char c) const;
+		bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) const;
+		static Command* createNickCommand();
 
 	private:
 
