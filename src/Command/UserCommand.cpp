@@ -1,5 +1,5 @@
-#include "Command/UserCommand.hpp"
 #include "irc.hpp"
+#include "Command/UserCommand.hpp"
 
 UserCommand::UserCommand() {}
 
@@ -33,8 +33,10 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 	std::string realname = input.args[3];
 	if (!realname.empty() && realname[0] == ':')
 		realname = realname.substr(1);
+	if (realname.empty())
+		realname = DEFAULT_REALNAME;
+		
 	sender_client->setRealname(realname);
-
 	sender_client->setUserReceived(true);
 
 	res.is_success = true;

@@ -217,7 +217,7 @@ static void test_user_command_edge_cases()
 		t_response res = user.execute(in, db);
 		
 		assert(res.is_success == true);
-		assert(client->getRealname() == "");
+		assert(client->getRealname() == "*");  // デフォルト値が設定される
 	}
 
 	// エッジケース：realname が ":" のみ
@@ -236,7 +236,7 @@ static void test_user_command_edge_cases()
 		t_response res = user.execute(in, db);
 		
 		assert(res.is_success == true);
-		assert(client->getRealname() == "");  // ":" が除去されて空になる
+		assert(client->getRealname() == "*");  // ":" が除去されて空になり、デフォルト値が設定
 	}
 
 	// エッジケース：ちょうどUSERLEN文字のusername
