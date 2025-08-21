@@ -239,9 +239,25 @@ static void test_user_command_edge_cases()
 		assert(client->getRealname() == "*");  // ":" が除去されて空になり、デフォルト値が設定
 	}
 
+	// 空白のみのrealnameテスト
+	{
+		int	fd = 10;
+		std::vector<std::string> args;
+		args.push_back("testuser");
+		args.push_back("0"); 
+		args.push_back("*");
+		args.push_back(":   \t  ");  // 空白とタブのみ
+
+		t_parsed in = makeInput("USER", fd, args);
+		Client* client = db.addClient(fd);
+		
+		t_response res = user.execute(in, db);
+		assert(client->getRealname() == "*");  // デフォルト値
+	}
+
 	// エッジケース：ちょうどUSERLEN文字のusername
 	{
-		int fd = 10;
+		int fd = 11;
 		std::vector<std::string> args;
 		args.push_back("exactlyten");  // ちょうど10文字
 		args.push_back("0");

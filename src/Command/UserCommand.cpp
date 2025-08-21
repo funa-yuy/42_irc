@@ -33,7 +33,8 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 	std::string realname = input.args[3];
 	if (!realname.empty() && realname[0] == ':')
 		realname = realname.substr(1);
-	if (realname.empty())
+
+	if (realname.empty() || realname.find_first_not_of(" \t\r\n") == std::string::npos)
 		realname = DEFAULT_REALNAME;
 		
 	sender_client->setRealname(realname);
