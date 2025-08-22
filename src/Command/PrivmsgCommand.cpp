@@ -21,40 +21,7 @@ PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.
 	- ホストマスク#mask
 */
 
-// static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
-// 	Client*		sender_client = db.getClient(input.client_fd);
-
-// 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
-// 	{
-// 		res->is_success = false;
-// 		res->should_send = true;
-// 		res->reply = ":ft.irc 461 :Not enough parameters\r\n";
-// 		res->target_fds.resize(1);
-// 		res->target_fds[0] = input.client_fd;
-// 		return(false);
-// 	}
-// 	else if (sender_client->getIsRegistered())//ERR_ALREADYREGISTRED 462 登録済みのクライアントが実行した
-// 	{
-// 		res->is_success = false;
-// 		res->should_send = true;
-// 		res->reply = ":ft.irc 462 :Already registered\r\n";
-// 		res->target_fds.resize(1);
-// 		res->target_fds[0] = input.client_fd;
-// 		return(false);
-// 	}
-// 	else if (db.getPassword() != input.args[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
-// 	{
-// 		res->is_success = false;
-// 		res->should_send = true;
-// 		res->reply = ":ft.irc 464 :Password incorrect\r\n";
-// 		res->target_fds.resize(1);
-// 		res->target_fds[0] = input.client_fd;
-// 		return(false);
-// 	}
-// 	return(true);
-// }
-
-std::vector<int>	get_target_fds(std::string	msgtarget, Database& db) {
+std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	std::vector<int>	res;
 
 	std::map<int, Client> Clients = db.getAllClient();
@@ -71,16 +38,54 @@ std::vector<int>	get_target_fds(std::string	msgtarget, Database& db) {
 	return (res);
 }
 
+static	bool	is_valid_target(std::string target, Database& db) {
+	// if (target.size() > 0 && target[0] == '#')
+	// 	return (!get_fd_ByChannel(target, db).empty());
+
+	return (!get_fd_ByNickname(target, db).empty());
+}
+
+static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
+	if (input.args.size() < 1)//ERR_NORECIPIENT 411 受信者が指定されていない
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->reply = ":ft.irc 411 :No recipient given PRIVMSG\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	else if (input.args.size() < 2)//ERR_NOTEXTTOSEND 412 送信テキストがない
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->reply = ":ft.irc 412 :No text to send\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	else if (!is_valid_target(input.args[0], db))//ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->reply = ":ft.irc 401 " + input.args[0] + " :No such nick/channel\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	return(true);
+}
+
 const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
 	t_response	res;
 
-	// if (!is_validCmd(input, &res, db))
-	// 	return (res);
+	if (!is_validCmd(input, &res, db))
+		return (res);
 
 	res.is_success = true;
 	res.should_send = true;
 	res.reply = input.args[1];
-	res.target_fds = get_target_fds(input.args[0], db);
+	res.target_fds = get_fd_ByNickname(input.args[0], db);
 
 	return (res);
 }
