@@ -16,9 +16,10 @@ static void test_pass_command_all() {
 	PrivmsgCommand privmsg;
 	std::vector<std::string> args;
 
-	// 正常: 正しい
+	// 正常: 正しい		送信者と宛先が、同じfd(同じ人)の場合
 	{
 		int	fd = 4;
+		std::vector<std::string> args;
 		args.push_back("funa");
 		args.push_back("Send message successfully.");
 		t_parsed in = makeInput("PRIVMSG", fd, args);
@@ -29,13 +30,27 @@ static void test_pass_command_all() {
 		assert(res.should_send == true);
 		assert(res.reply == "Send message successfully.");
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
-		args.clear();
+	}
+
+	// 正常: 正しい		送信者と宛先が、異なるfd(違う人)の場合
+	{
+		int	fd = 5;
+		std::vector<std::string> args;
+		args.push_back("funa");
+		args.push_back("Send message successfully.");
+		t_parsed in = makeInput("PRIVMSG", fd, args);
+		t_response res = privmsg.execute(in, db);
+		assert(res.is_success == true);
+		assert(res.should_send == true);
+		assert(res.reply == "Send message successfully.");
+		assert(res.target_fds.size() == 1 && res.target_fds[0] == 4);
 	}
 
 	// createPassCommand関数が機能するか
 	{
 		Command* cmd = PrivmsgCommand::createPrivmsgCommand();
-		int fd = 5;
+		int fd = 6;
+		std::vector<std::string> args;
 		args.push_back("ken");
 		args.push_back("This is createPrivmsgCommand.");
 		t_parsed in = makeInput("PRIVMSG", fd, args);
@@ -48,42 +63,44 @@ static void test_pass_command_all() {
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
 
-	// // エラー：　argsが0個 → ERR_NEEDMOREPARAMS 461
-	// {
-	// 	int fd = 4;
-	// 	t_parsed in = makeInput("PASS", fd, std::vector<std::string>());
-	// 	db.addClient(fd);
-	// 	t_response res = privmsg.execute(in, db);
-	// 	assert(res.is_success == false);
-	// 	assert(res.should_send == true);
-	// 	assert(res.reply.find("461") != std::string::npos);
-	// 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
-	// }
+	// エラー：　ERR_NORECIPIENT 411 受信者が指定されていない
+	{
+		int	fd = 7;
+		std::vector<std::string> args;
+		t_parsed in = makeInput("PRIVMSG", fd, args);
+		t_response res = privmsg.execute(in, db);
+		assert(res.is_success == false);
+		assert(res.should_send == true);
+		assert(res.reply.find("411") != std::string::npos);
+		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+	}
 
-	// // エラー：　既に登録済み → ERR_ALREADYREGISTRED 462
-	// {
-	// 	int fd = 5;
-	// 	t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
-	// 	Client* c = db.addClient(fd);
-	// 	c->setIsRegistered(true);//isRegisteredをtrueにする
-	// 	t_response res = privmsg.execute(in, db);
-	// 	assert(res.is_success == false);
-	// 	assert(res.should_send == true);
-	// 	assert(res.reply.find("462") != std::string::npos);
-	// 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
-	// }
+	// エラー：　ERR_NOTEXTTOSEND 412 送信テキストがない
+	{
+		int	fd = 8;
+		std::vector<std::string> args;
+		args.push_back("nusu");
+		t_parsed in = makeInput("PRIVMSG", fd, args);
+		t_response res = privmsg.execute(in, db);
+		assert(res.is_success == false);
+		assert(res.should_send == true);
+		assert(res.reply.find("412") != std::string::npos);
+		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+	}
 
-	// // エラー：　パスワード不一致 → ERR_PASSWDMISMATCH 464
-	// {
-	// 	int fd = 6;
-	// 	t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "wrong"));//間違ったパスワードを指定
-	// 	db.addClient(fd);
-	// 	t_response res = privmsg.execute(in, db);
-	// 	assert(res.is_success == false);
-	// 	assert(res.should_send == true);
-	// 	assert(res.reply.find("464") != std::string::npos);
-	// 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
-	// }
+	// エラー：　ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
+	{
+		int	fd = 9;
+		std::vector<std::string> args;
+		args.push_back("Ghost");
+		args.push_back("This is ERR_NOTEXTTOSEND 401.");
+		t_parsed in = makeInput("PRIVMSG", fd, args);
+		t_response res = privmsg.execute(in, db);
+		assert(res.is_success == false);
+		assert(res.should_send == true);
+		assert(res.reply.find("401") != std::string::npos);
+		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+	}
 }
 
 int main() {
