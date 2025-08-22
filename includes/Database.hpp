@@ -29,6 +29,7 @@ public:
 	Client const *	getClient(int fd) const;
 	Channel *		getChannel(std::string & name) const;
 	const std::string&	getPassword() const;
+	std::map<int, Client>& getAllClient();
 
 private:
 
