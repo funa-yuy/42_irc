@@ -48,19 +48,19 @@ bool	NickCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 {
 	if (input.args.size() == 0 || input.args[0].size() < 1)
 	{
-		set_err_res(res, input, "431 :ERR_NONICKNAMEGIVEN");
+		set_err_res(res, input, "431 :must be input Nickname");
 		return (false);
 	}
 	if (NICKLEN < input.args[0].size())
 	{
-		set_err_res(res, input, "Nickname too long: must be 9 characters or fewer");
+		set_err_res(res, input, "Nickname too long, must be 9 characters or fewer");
 		return (false);
 	}
 	for (int i = 0;input.args[0][i] != '\0';i++)
 	{
 		if (!isalnum(input.args[0][i]) && !is_special_char(input.args[0][i]))
 		{
-			set_err_res(res, input, "432 :ERR_ERRONEUSNICKNAME");
+			set_err_res(res, input, "432 :Nickname includes disallowed character");
 			return (false);
 		}
 	}
@@ -70,7 +70,7 @@ bool	NickCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 	{
 		if (it->second.getNickname() == input.args[0])
 		{
-			set_err_res(res, input, "433 :ERR_NICKNAMEINUSE");
+			set_err_res(res, input, "433 :Nickname is already in use");
 			return (false);
 		}
 		it++;
