@@ -21,14 +21,14 @@ static void test_pass_command_all() {
 		int	fd = 4;
 		std::vector<std::string> args;
 		args.push_back("funa");
-		args.push_back("Send message successfully.");
+		args.push_back("Send message successfully 1.");
 		t_parsed in = makeInput("PRIVMSG", fd, args);
 		Client* c = db.addClient(fd);
 		c->setNickname("funa");
 		t_response res = privmsg.execute(in, db);
 		assert(res.is_success == true);
 		assert(res.should_send == true);
-		assert(res.reply == "Send message successfully.");
+		assert(res.reply == "Send message successfully 1.");
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
 
@@ -37,12 +37,12 @@ static void test_pass_command_all() {
 		int	fd = 5;
 		std::vector<std::string> args;
 		args.push_back("funa");
-		args.push_back("Send message successfully.");
+		args.push_back("Send message successfully 2.");
 		t_parsed in = makeInput("PRIVMSG", fd, args);
 		t_response res = privmsg.execute(in, db);
 		assert(res.is_success == true);
 		assert(res.should_send == true);
-		assert(res.reply == "Send message successfully.");
+		assert(res.reply == "Send message successfully 2.");
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == 4);
 	}
 

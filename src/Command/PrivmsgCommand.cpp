@@ -11,17 +11,18 @@ Command*	PrivmsgCommand::createPrivmsgCommand() {
 /*
 PRIVMSG <msgtarget> <text to be sent>
 # 例
-PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.
+PRIVMSG Angel :yes I'm receiving it !
 
-1. 個人間メッセージをできるようにする
+1. 個人間メッセージを送信できるようにする ←今回やったのはこれ
 2. チャンネルへの一斉送信をできるようにする
 3. チャンネルのモードを確認して、送信可能かを確認してからの送信をできるようにする
-4. プレフィックス付きだった場合の送信をできるようにする
-	- サーバー(サーバー名)マスク$ mask
-	- ホストマスク#mask
+4. 複雑な宛先指定で送信できるようにする
+5. プレフィックス付きだった場合の送信をできるようにする
+	- サーバー(サーバー名)マスク`$ mask`
+	- ホストマスク`#mask`
 */
 
-std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
+static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	std::vector<int>	res;
 
 	std::map<int, Client> Clients = db.getAllClient();
@@ -38,11 +39,11 @@ std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	return (res);
 }
 
-static	bool	is_valid_target(std::string target, Database& db) {
-	// if (target.size() > 0 && target[0] == '#')
-	// 	return (!get_fd_ByChannel(target, db).empty());
+static	std::vector<int>	get_target_fd(std::string target, Database& db) {
+	// if (target.size() > 0 && target[0] == '#') //todo: チャンネルだった場合の処理
+	// 	return (get_fd_ByChannel(target, db));
 
-	return (!get_fd_ByNickname(target, db).empty());
+	return (get_fd_ByNickname(target, db));
 }
 
 static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
@@ -64,7 +65,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	else if (!is_valid_target(input.args[0], db))//ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
+	else if (get_fd_ByNickname(input.args[0], db).empty())//ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
 	{
 		res->is_success = false;
 		res->should_send = true;
@@ -85,7 +86,7 @@ const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) co
 	res.is_success = true;
 	res.should_send = true;
 	res.reply = input.args[1];
-	res.target_fds = get_fd_ByNickname(input.args[0], db);
+	res.target_fds = get_target_fd(input.args[0], db);
 
 	return (res);
 }
