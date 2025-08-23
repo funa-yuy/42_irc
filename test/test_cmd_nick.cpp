@@ -50,7 +50,7 @@ int main()
 	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
-	assert(result.reply == ":ft.irc 431 :ERR_NONICKNAMEGIVEN\r\n");
+	assert(result.reply == ":ft.irc 431 :must be input Nickname\r\n");
 	assert(result.should_send == true);
 	assert(result.target_fds[0] == 3);
 	args.clear();
@@ -63,7 +63,7 @@ int main()
 	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
-	assert(result.reply == ":ft.irc 432 :ERR_ERRONEUSNICKNAME\r\n");
+	assert(result.reply == ":ft.irc 432 :Nickname includes disallowed character\r\n");
 	assert(result.should_send == true);
 	assert(result.target_fds[0] == 3);
 	args.clear();
@@ -76,7 +76,7 @@ int main()
 	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
-	assert(result.reply == ":ft.irc 431 :ERR_NONICKNAMEGIVEN\r\n");
+	assert(result.reply == ":ft.irc 431 :must be input Nickname\r\n");
 	assert(result.should_send == true);
 	assert(result.target_fds[0] == 3);
 	args.clear();
@@ -89,7 +89,7 @@ int main()
 	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
-	assert(result.reply == ":ft.irc 433 :ERR_NICKNAMEINUSE\r\n");
+	assert(result.reply == ":ft.irc 433 :Nickname is already in use\r\n");
 	assert(result.should_send == true);
 	assert(result.target_fds[0] == 3);
 	args.clear();
