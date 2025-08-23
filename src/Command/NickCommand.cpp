@@ -51,7 +51,7 @@ bool	NickCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		set_err_res(res, input, "431 :ERR_NONICKNAMEGIVEN");
 		return (false);
 	}
-	if (9 < input.args[0].size())
+	if (NICKLEN < input.args[0].size())
 	{
 		set_err_res(res, input, "Nickname too long: must be 9 characters or fewer");
 		return (false);
