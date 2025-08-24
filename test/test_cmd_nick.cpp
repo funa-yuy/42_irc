@@ -21,7 +21,6 @@ int main()
 	args.push_back("yohatana");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == true);
 	assert(result.reply.empty() == true);
@@ -34,7 +33,6 @@ int main()
 	args.push_back("nusu");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == true);
 	assert(result.reply.empty() == true);
@@ -47,7 +45,6 @@ int main()
 	// no args
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 431 :must be input Nickname\r\n");
@@ -60,7 +57,6 @@ int main()
 	args.push_back("y|hatana");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 432 :Nickname includes disallowed character\r\n");
@@ -73,7 +69,6 @@ int main()
 	args.push_back("");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 431 :must be input Nickname\r\n");
@@ -86,10 +81,21 @@ int main()
 	args.push_back("ken");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 433 :Nickname is already in use\r\n");
+	assert(result.should_send == true);
+	assert(result.target_fds[0] == 3);
+	args.clear();
+	fds.clear();
+
+	// 文字数が9文字以上
+	args.push_back("1234567890");
+	parsed.args = args;
+	parsed.client_fd = 3;
+	result = nick.execute(parsed, db);
+	assert(result.is_success == false);
+	assert(result.reply == ":ft.irc 432 :Nickname too long, must be 9 characters or fewer\r\n");
 	assert(result.should_send == true);
 	assert(result.target_fds[0] == 3);
 	args.clear();
