@@ -21,7 +21,7 @@ int main()
 	args.push_back("yohatana");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
+	// parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == true);
 	assert(result.reply.empty() == true);
@@ -34,7 +34,7 @@ int main()
 	args.push_back("ken");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
+	// parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == true);
 	assert(result.reply.empty() == true);
@@ -47,7 +47,7 @@ int main()
 	// no args
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
+	// parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 431 :ERR_NONICKNAMEGIVEN\r\n");
@@ -60,7 +60,7 @@ int main()
 	args.push_back("y|hatana");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
+	// parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 432 :ERR_ERRONEUSNICKNAME\r\n");
@@ -73,7 +73,7 @@ int main()
 	args.push_back("");
 	parsed.args = args;
 	parsed.client_fd = 3;
-	parsed.msg = "";
+	// parsed.msg = "";
 	result = nick.execute(parsed, db);
 	assert(result.is_success == false);
 	assert(result.reply == ":ft.irc 431 :ERR_NONICKNAMEGIVEN\r\n");

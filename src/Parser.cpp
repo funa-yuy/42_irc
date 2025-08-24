@@ -4,20 +4,21 @@
 t_parsed Parser::exec(std::string line, int client_fd)
 {
 	t_parsed parsed;
-	std::stringstream stream(line);
 	std::vector<std::string> v;
 
+	std::string last_arg;
 	int pos = line.rfind(":", line.size() - 1);
 	if (pos < 0)
-		parsed.msg = "";
+		last_arg = "";
 	else
 	{
-		parsed.msg = line.substr(pos);
-		parsed.msg.erase(0, 1);
-		parsed.msg.erase(parsed.msg.size() - 2, 2);
+		last_arg = line.substr(pos);
+		last_arg.erase(0, 1);
+		last_arg.erase(last_arg.size() - 2, 2);
 		line.erase(pos);
 	}
 
+	std::stringstream stream(line);
 	std::string temp;
 	while (getline(stream, temp, ' '))
 	{
@@ -25,6 +26,9 @@ t_parsed Parser::exec(std::string line, int client_fd)
 			temp.erase(temp.size() - 2);
 		v.push_back(temp);
 	}
+	if (!last_arg.empty())
+		v.push_back(last_arg);
+
 	parsed.cmd = v[0];
 	for (size_t i = 0; i < parsed.cmd.size(); ++i)
 		parsed.cmd[i] = toupper(parsed.cmd[i]);
