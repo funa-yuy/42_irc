@@ -48,6 +48,7 @@ std::vector<int> get_fd_ByChannel(std::string	msgtarget, Database& db)
 		fdsに打ち込む
 		返す
 	*/
+	std::string channnel_name;
 
 	std::vector<Client *>	clients;
 	clients = db.getChannel(msgtarget)->getClients();
