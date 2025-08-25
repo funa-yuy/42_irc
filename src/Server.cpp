@@ -26,12 +26,12 @@ Server::Server(int port, std::string const & password)
 	server_pfd.revents = 0;
 	_poll_fds.push_back(server_pfd);
 
-	// if (_cmd_map.empty())
-	// {
-	// 	_cmd_map["PASS"] = &PassCommand::createCommand;
-	// 	_cmd_map["NICK"] = &NickCommand::createCommand;
-	// 	_cmd_map["USER"] = &UserCommand::createCommand;
-	// }
+	if (_cmd_map.empty())
+	{
+		_cmd_map["PASS"] = &PassCommand::createPassCommand;
+		_cmd_map["NICK"] = &NickCommand::createNickCommand;
+		_cmd_map["USER"] = &UserCommand::createUserCommand;
+	}
 }
 
 Server::~Server()
@@ -135,17 +135,17 @@ void	Server::handleClientInput(int fd)
 		for (size_t i = 0; i < parsed.args.size(); i++)
 			std::cout << i << ": " << parsed.args[i] << std::endl;
 
-		// Command * cmdObj = createCommandObj(cmd);
-		// t_parsed	parsed;
-		// if (cmdObj)
-		// {
-		// 	cmdObj->execute(parsed);
-		// 	delete cmdObj;
-		// }
-		// else
-		// {
-		// 	// 知らないコマンド
-		// }
+		Command * cmdObj = createCommandObj(parsed.cmd);
+		if (cmdObj)
+		{
+			cmdObj->execute(parsed, _db);
+			delete cmdObj;
+		}
+		else
+		{
+			std::cerr << "Unknown command" << std::endl;
+			// 知らないコマンド
+		}
 	}
 	std::cout << "\n \033[31m --- Receiving ends --- \033[m" << std::endl;
 	return ;
