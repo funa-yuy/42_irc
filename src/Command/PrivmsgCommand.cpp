@@ -39,6 +39,21 @@ static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	return (res);
 }
 
+std::vector<int> get_fd_ByChannel(std::string	msgtarget, Database& db)
+{
+	std::vector<int>	fds;
+	/*
+		チャンネル名からチャンネル構造体を掴む
+		チャンネルに所属しているクライアントを全部引っ張る
+		fdsに打ち込む
+		返す
+	*/
+
+	std::vector<Client *>	clients;
+	clients = db.getChannel(msgtarget)->getClients();
+	return (fds);
+}
+
 static	std::vector<int>	get_target_fd(std::string target, Database& db) {
 	// if (target.size() > 0 && target[0] == '#') //todo: チャンネルだった場合の処理
 	// 	return (get_fd_ByChannel(target, db));
@@ -47,6 +62,9 @@ static	std::vector<int>	get_target_fd(std::string target, Database& db) {
 }
 
 static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
+
+	// チャンネル名は以下で開始される[&, #, +, !]
+
 	if (input.args.size() < 1)//ERR_NORECIPIENT 411 受信者が指定されていない
 	{
 		res->is_success = false;
