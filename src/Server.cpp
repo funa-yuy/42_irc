@@ -67,12 +67,6 @@ void	Server::run(void)
 	return ;
 }
 
-void	Server::exitError(std::string const & error_msg)
-{
-	std::cerr << error_msg << strerror(errno) << std::endl;
-	exit(1);
-}
-
 void	Server::acceptNewClient(void)
 {
 	int	client_fd = accept(_server_fd, NULL, NULL);
@@ -81,13 +75,13 @@ void	Server::acceptNewClient(void)
 		std::cerr << "accept: " << strerror(errno) << std::endl;
 		return ;
 	}
-
+	
 	Client *	new_client = _db.addClient(client_fd);
 	if (!new_client)
-		return ;
-
+	return ;
+	
 	_poll_fds.push_back(new_client->getPfd());
-
+	
 	std::cout << "New client connected: " << new_client->getFd() << std::endl;
 	return ;
 }
@@ -96,83 +90,61 @@ void	Server::handleClientInput(int fd)
 {
 	char	buf[BUF_SIZE];
 	int		n;
-
+	
 	n = recv(fd, buf, BUF_SIZE - 1, 0);
 	if (n <= 0)
 	{
 		disconnectClient(fd);
 		return ;
 	}
-
+	
 	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
-
+	
 	buf[n] = '\0';
 	Client *	client = _db.getClient(fd);
 	if (!client)
-		return ;
-
+	return ;
+	
 	std::string &	clientBuffer = client->getBuffer();
 	clientBuffer += buf;
-
+	
 	size_t pos;
 	while ((pos = clientBuffer.find('\n')) != std::string::npos)
 	{
 		std::string msg = clientBuffer.substr(0, pos + 1);
 		clientBuffer.erase(0, pos + 1);
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r'))
-			msg.erase(msg.size() - 1);
-
+		msg.erase(msg.size() - 1);
+		
 		t_parsed	parsed;
 		parsed = Parser::exec(msg, fd);
-
+		
 		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << std::endl;
 		std::cout << msg << std::endl;
-
+		
 		std::cout << "COMMAND: " << std::endl;
 		std::cout << parsed.cmd << std::endl;
-
+		
 		std::cout << "ARGUMENTS: " << std::endl;
 		for (size_t i = 0; i < parsed.args.size(); i++)	
-			std::cout << i << ": " << parsed.args[i] << std::endl;
-
+		std::cout << i << ": " << parsed.args[i] << std::endl;
+		
 		Command * cmdObj = createCommandObj(parsed.cmd);
 		if (cmdObj)
 		{
-			t_response	res;
-			res = cmdObj->execute(parsed, _db);
-
-			if (!res.is_success && res.should_send)
-				send(parsed.client_fd, res.reply.c_str(), res.reply.size(), 0);
-
-			if (!client->getIsRegistered() && client->getPassReceived()
-				&& client->getNickReceived() && client->getUserReceived())
-			{
-				client->setIsRegistered(true);
-				std::cout << "Client is registered" << std::endl;
-				sendWelcome(*client);
-			}
-
+			t_response	res = cmdObj->execute(parsed, _db);
+			sendResponses(res);
+			tryRegister(*client);
 			delete cmdObj;
 		}
 		else
 		{
 			// 知らないコマンド
-			std::cerr << "Unknown command" << std::endl;
+			std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
+			send(parsed.client_fd, unknown.c_str(), unknown.size(), 0);
 		}
 	}
 	std::cout << "\n \033[31m --- Receiving ends --- \033[m" << std::endl;
-	return ;
-}
-
-void	Server::broadcast(int client_fd, std::string const & msg)
-{
-	for (size_t i = 1; i < _poll_fds.size(); ++i)
-	{
-		int fd = _poll_fds[i].fd;
-		if (fd != client_fd)
-			send(fd, msg.c_str(), msg.size(), 0);
-	}
-	std::cout << "Broadcast from " << client_fd << ": " << msg;
 	return ;
 }
 
@@ -180,7 +152,7 @@ void	Server::disconnectClient(int fd)
 {
 	std::cout << "Client disconnected: " << fd << std::endl;
 	close(fd);
-
+	
 	for (size_t i = 0; i < _poll_fds.size(); ++i)
 	{
 		if (_poll_fds[i].fd == fd)
@@ -189,9 +161,9 @@ void	Server::disconnectClient(int fd)
 			break ;
 		}
 	}
-
+	
 	_db.removeClient(fd);
-
+	
 	return ;
 }
 
@@ -199,19 +171,79 @@ Command *	Server::createCommandObj(std::string cmd_name)
 {
 	std::map<std::string, _cmdFunc>::iterator it = _cmd_map.find(cmd_name);
 	if (it != _cmd_map.end())
-		return (it->second());
+	return (it->second());
 	return (NULL);
+}
+
+void	Server::sendResponses(const t_response & res)
+{
+	if (!res.should_send)
+	return ;
+	for (size_t i = 0; i < res.target_fds.size(); ++i)
+	{
+		int fd = res.target_fds[i];
+		if (fd >= 0 && !res.reply.empty())
+		send(fd, res.reply.c_str(), res.reply.size(), 0);
+	}
+	return ;
+}
+
+bool	Server::tryRegister(Client & client)
+{
+	if (client.getIsRegistered())
+	return (false);
+	if (!client.getPassReceived() || !client.getNickReceived() || !client.getUserReceived())
+	return (false);
+	client.setIsRegistered(true);
+	
+	std::cout	<< "[REGISTERED] fd = " << client.getFd()
+	<< " nick = " << displayNick(client)
+	<< " user = " << client.getUsername()
+	<< " realname = " << client.getRealname()
+	<< std::endl;
+	
+	sendWelcome(client);
+	return (true);
 }
 
 void	Server::sendWelcome(Client & client)
 {
+	std::string nickname = displayNick(client);
 	std::string	welcome;
-
-	welcome = ":ft.irc 001 " + client.getNickname()
-		+ " :Welcome to the ft_irc Network " + client.getNickname() + "!"
-		+ client.getUsername() + "@ft.irc\r\n";
-
+	
+	welcome = ":ft.irc 001 " + nickname + " :Welcome to the ft_irc Network "
+	+ nickname + "! " + client.getUsername() + "@ft.irc\r\n";
+	welcome += ":ft.irc 002 " + nickname + " :Your host is ft.irc, running version 0.1\r\n";
+	welcome += ":ft.irc 003 " + nickname + " :This server was created 2025-08-26\r\n";
+	welcome += ":ft.irc 004 " + nickname + " ft.irc 0.1 o o\r\n";
+	
 	send(client.getFd(), welcome.c_str(), welcome.size(), 0);
-
+	
 	return ;
+}
+
+std::string	Server::displayNick(const Client & client) const
+{
+	std::string nick = client.getNickname();
+	if (nick.empty())
+	return "*";
+	return (nick);
+}
+
+void	Server::broadcast(int client_fd, std::string const & msg)
+{
+	for (size_t i = 1; i < _poll_fds.size(); ++i)
+	{
+		int fd = _poll_fds[i].fd;
+		if (fd != client_fd)
+		send(fd, msg.c_str(), msg.size(), 0);
+	}
+	std::cout << "Broadcast from " << client_fd << ": " << msg;
+	return ;
+}
+
+void	Server::exitError(std::string const & error_msg)
+{
+	std::cerr << error_msg << strerror(errno) << std::endl;
+	exit(1);
 }
