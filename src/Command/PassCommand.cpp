@@ -43,9 +43,12 @@ bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 
 const t_response	PassCommand::execute(const t_parsed& input, Database& db) const {
 	t_response	res;
+	Client *	sender_client = db.getClient(input.client_fd);
 
 	if (!is_validCmd(input, &res, db))
 		return (res);
+
+	sender_client->setPassReceived(true);
 
 	res.is_success = true;
 	res.should_send = false;
