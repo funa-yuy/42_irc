@@ -30,13 +30,8 @@ t_parsed Parser::exec(std::string line, int client_fd)
 		parsed.cmd[i] = toupper(parsed.cmd[i]);
 	v.erase(v.begin());
 	if (15 < v.size())
-		print_debug("too many args");
+		std::cerr << "too many args" << std::endl;
 	parsed.args = v;
 	parsed.client_fd = client_fd;
 	return (parsed);
-}
-
-void print_debug(std::string msg)
-{
-	std::cerr << "[DEBUG] " << msg << std::endl;
 }

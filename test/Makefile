@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/16 17:03:53 by miyuu            ###   ########.fr        #
+#    Updated: 2025/08/25 17:08:36 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,7 @@ SRC					:= \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
+					PrintLog.cpp \
 
 HEADERS				:= \
 					irc.hpp \
@@ -48,7 +49,8 @@ HEADERS				:= \
 					Command.hpp \
 					NickCommand.hpp \
 					PassCommand.hpp \
-					UserCommand.hpp
+					UserCommand.hpp \
+					PrintLog.hpp
 
 
 OBJ					:= $(addprefix $(OBJ_DIR)/src/, $(SRC:.cpp=.o)) \

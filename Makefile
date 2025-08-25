@@ -6,7 +6,7 @@
 #    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/18 18:47:42 by yohatana         ###   ########.fr        #
+#    Updated: 2025/08/25 17:00:13 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,7 @@ SRC					:= \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
+					PrintLog.cpp \
 
 HEADERS				:= \
 					irc.hpp \
@@ -49,6 +50,7 @@ HEADERS				:= \
 					Command/NickCommand.hpp \
 					Command/PassCommand.hpp \
 					Command/UserCommand.hpp \
+					PrintLog.hpp \
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \
