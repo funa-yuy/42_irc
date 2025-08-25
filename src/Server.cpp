@@ -117,9 +117,9 @@ void	Server::handleClientInput(int fd)
 	size_t pos;
 	while ((pos = clientBuffer.find('\n')) != std::string::npos)
 	{
-		std::string msg = clientBuffer.substr(0, pos + 1); // msgに_client_buffersの先頭から'\n'までを分ける
-		clientBuffer.erase(0, pos + 1); // msgに分けた部分を_client_buffersから削除、次のwhile反復で「次の'\n'」を探せる
-		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r')) // msg内の'\n'と'\r'を削除
+		std::string msg = clientBuffer.substr(0, pos + 1);
+		clientBuffer.erase(0, pos + 1);
+		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r'))
 			msg.erase(msg.size() - 1);
 
 		t_parsed	parsed;
@@ -138,7 +138,21 @@ void	Server::handleClientInput(int fd)
 		Command * cmdObj = createCommandObj(parsed.cmd);
 		if (cmdObj)
 		{
-			cmdObj->execute(parsed, _db);
+			t_response	res;
+			res = cmdObj->execute(parsed, _db);
+			if (!client->getIsRegistered()
+				&& client->getPassReceived()
+				&& client->getNickReceived()
+				&& client->getUserReceived())
+			{
+				client->setIsRegistered(true);
+				std::cout << "Client is registered" << std::endl;
+				std::string response = ":ft.irc 001 " + client->getNickname()
+					+ " :Welcome to the ft_irc Network "
+					+ client->getNickname() + "!" + client->getUsername()
+					+ "@ft.irc\r\n";
+				send(parsed.client_fd, response.c_str(), response.size(), 0);
+			}
 			delete cmdObj;
 		}
 		else

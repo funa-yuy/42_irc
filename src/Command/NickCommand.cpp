@@ -16,6 +16,9 @@ const t_response	NickCommand::execute(const t_parsed& input, Database& db) const
 	{
 		db.getClient(input.client_fd)->setNickname(input.args[0]);
 	}
+
+	db.getClient(input.client_fd)->setNickReceived(true);
+
 	res.is_success = true;
 	res.should_send = false;
 	res.reply = "";
