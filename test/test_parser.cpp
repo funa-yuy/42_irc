@@ -98,6 +98,14 @@ int main()
 		assert(result.args[i] == expect_v[i]);
 	expect_v.clear();
 
+	// no msg
+	result = parser.exec("PRIVMSG B :\r\n", 4);
+	expect_v.push_back("B");
+	assert(result.cmd == "PRIVMSG");
+	for(int i = 0; i < (int)expect_v.size();i++)
+		assert(result.args[i] == expect_v[i]);
+	expect_v.clear();
+
 	// TODO 以下のケースはどういったデータを返すべきか？
 	/*
 	// error
