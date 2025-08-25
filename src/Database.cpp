@@ -40,3 +40,8 @@ Client const *	Database::getClient(int fd) const
 const std::string&	Database::getPassword() const {
 	return (_password);
 }
+
+std::map<int, Client>&		Database::getAllClient()
+{
+	return (_clients);
+}
