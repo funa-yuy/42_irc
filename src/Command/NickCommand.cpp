@@ -6,45 +6,15 @@ NickCommand::NickCommand() {}
 NickCommand::~NickCommand() {}
 
 const t_response	NickCommand::execute(const t_parsed& input, Database& db) const {
+
 	t_response	res;
-	bool		is_registed = false;
 
-	if (input.args.size() == 0 || input.args[0].size() < 1)
-	{
-		set_err_res(&res, input, "431 :ERR_NONICKNAMEGIVEN");
+	if (is_validCmd(input, &res, db) == false)
 		return (res);
-	}
-	if (9 < input.args[0].size())
-	{
-		set_err_res(&res, input, "Nickname too long: must be 9 characters or fewer");
-		return (res);
-	}
-	for (int i = 0;input.args[0][i] != '\0';i++)
-	{
-		if (!isalnum(input.args[0][i]) && !is_special_char(input.args[0][i]))
-		{
-			set_err_res(&res, input, "432 :ERR_ERRONEUSNICKNAME");
-			return (res);
-		}
-	}
+
 	if (db.getClient(input.client_fd))
-		is_registed = true;
-
-	std::string registerd_nick;
-	// 接続切れた場合はここ抜けない？
-	for (int i = 0; db.getClient(i) != NULL; i++)
 	{
-		std::cout << "get nick " << db.getClient(i)->getNickname() << std::endl;
-		if (db.getClient(i)->getNickname() == input.args[0])
-		{
-			set_err_res(&res, input, "433 :ERR_NICKNAMEINUSE");
-			return (res);
-		}
-	}
-
-	if (is_registed)
-	{
-		std::cout << "update nick" << std::endl;
+		db.getClient(input.client_fd)->setNickname(input.args[0]);
 	}
 	res.is_success = true;
 	res.should_send = false;
@@ -72,4 +42,42 @@ bool NickCommand::is_special_char(char c) const
 		|| c == '{' || c == '}')
 		return (true);
 	return (false);
+}
+
+bool	NickCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db) const
+{
+	if (input.args.size() == 0 || input.args[0].size() < 1)
+	{
+		set_err_res(res, input, "431 :must be input Nickname");
+		return (false);
+	}
+	if (NICKLEN < input.args[0].size())
+	{
+		set_err_res(res, input, "432 :Nickname too long, must be 9 characters or fewer");
+		return (false);
+	}
+	for (int i = 0;input.args[0][i] != '\0';i++)
+	{
+		if (!isalnum(input.args[0][i]) && !is_special_char(input.args[0][i]))
+		{
+			set_err_res(res, input, "432 :Nickname includes disallowed character");
+			return (false);
+		}
+	}
+
+	std::map<int, Client>::iterator it = db.getAllClient().begin();
+	while (it != db.getAllClient().end())
+	{
+		if (it->second.getNickname() == input.args[0])
+		{
+			set_err_res(res, input, "433 :Nickname is already in use");
+			return (false);
+		}
+		it++;
+	}
+	return (true);
+}
+
+Command*	NickCommand::createNickCommand() {
+	return (new NickCommand());
 }
