@@ -2,7 +2,7 @@
 
 PrintLog::PrintLog()
 {
-	strm.open("ircserv.log");
+	strm.open("ircserv.log", std::ios::app);
 	if (!strm.is_open())
 		std::cerr << "Failed to open log file" << std::endl;
 }
@@ -22,4 +22,5 @@ void PrintLog::print_debug(std::string msg)
 	ss << std::ctime(&now);
 	time = ss.str().erase(ss.str().size()-1);
 	strm << time << " [DEBUG] :" << msg << std::endl;
+	strm.flush();
 }
