@@ -89,6 +89,15 @@ int main()
 		assert(result.args[i] == expect_v[i]);
 	expect_v.clear();
 
+	// multi space in message
+	result = parser.exec("NICK         nusu    aaaa\r\n", 4);
+	expect_v.push_back("nusu");
+	expect_v.push_back("aaaa");
+	assert(result.cmd == "NICK");
+	for(int i = 0; i < (int)expect_v.size();i++)
+		assert(result.args[i] == expect_v[i]);
+	expect_v.clear();
+
 	// TODO 以下のケースはどういったデータを返すべきか？
 	/*
 	// error
