@@ -50,7 +50,6 @@ typedef struct	s_parsed
 	int client_fd;
 	std::string cmd;
 	std::vector<std::string> args;
-	std::string msg;
 }				t_parsed;
 
 // ------------------------------------------------
