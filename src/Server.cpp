@@ -140,25 +140,24 @@ void	Server::handleClientInput(int fd)
 		{
 			t_response	res;
 			res = cmdObj->execute(parsed, _db);
-			if (!client->getIsRegistered()
-				&& client->getPassReceived()
-				&& client->getNickReceived()
-				&& client->getUserReceived())
+
+			if (!res.is_success && res.should_send)
+				send(parsed.client_fd, res.reply.c_str(), res.reply.size(), 0);
+
+			if (!client->getIsRegistered() && client->getPassReceived()
+				&& client->getNickReceived() && client->getUserReceived())
 			{
 				client->setIsRegistered(true);
 				std::cout << "Client is registered" << std::endl;
-				std::string response = ":ft.irc 001 " + client->getNickname()
-					+ " :Welcome to the ft_irc Network "
-					+ client->getNickname() + "!" + client->getUsername()
-					+ "@ft.irc\r\n";
-				send(parsed.client_fd, response.c_str(), response.size(), 0);
+				sendWelcome(*client);
 			}
+
 			delete cmdObj;
 		}
 		else
 		{
-			std::cerr << "Unknown command" << std::endl;
 			// 知らないコマンド
+			std::cerr << "Unknown command" << std::endl;
 		}
 	}
 	std::cout << "\n \033[31m --- Receiving ends --- \033[m" << std::endl;
@@ -202,4 +201,17 @@ Command *	Server::createCommandObj(std::string cmd_name)
 	if (it != _cmd_map.end())
 		return (it->second());
 	return (NULL);
+}
+
+void	Server::sendWelcome(Client & client)
+{
+	std::string	welcome;
+
+	welcome = ":ft.irc 001 " + client.getNickname()
+		+ " :Welcome to the ft_irc Network " + client.getNickname() + "!"
+		+ client.getUsername() + "@ft.irc\r\n";
+
+	send(client.getFd(), welcome.c_str(), welcome.size(), 0);
+
+	return ;
 }

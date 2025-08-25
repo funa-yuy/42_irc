@@ -56,6 +56,8 @@ private:
 
 	Command *	createCommandObj(std::string cmd_name);
 
+	void		sendWelcome(Client & client);
+
 	void		broadcast(int sender_fd, std::string const & msg);
 	void		exitError(std::string const & error_msg);
 
