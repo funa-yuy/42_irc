@@ -103,7 +103,7 @@ void	Server::handleClientInput(int fd)
 	buf[n] = '\0';
 	Client *	client = _db.getClient(fd);
 	if (!client)
-	return ;
+		return ;
 	
 	std::string &	clientBuffer = client->getBuffer();
 	clientBuffer += buf;
@@ -128,11 +128,29 @@ void	Server::handleClientInput(int fd)
 		std::cout << "ARGUMENTS: " << std::endl;
 		for (size_t i = 0; i < parsed.args.size(); i++)	
 		std::cout << i << ": " << parsed.args[i] << std::endl;
+
+		if (!client->getIsRegistered())
+		{
+			if (parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER"
+				&& parsed.cmd != "PING" && parsed.cmd != "QUIT" && parsed.cmd != "CAP")
+			{
+				std::string not_registered = ":ft.irc 451 " + displayNick(*client) + " :You have not registered\r\n";
+				send(parsed.client_fd, not_registered.c_str(), not_registered.size(), 0);
+				continue ;
+			}
+		}
 		
 		Command * cmdObj = createCommandObj(parsed.cmd);
 		if (cmdObj)
 		{
 			t_response	res = cmdObj->execute(parsed, _db);
+			if (res.should_disconnect)
+			{
+				sendResponses(res);
+				delete cmdObj;
+				disconnectClient(parsed.client_fd);
+				break ;
+			}
 			sendResponses(res);
 			tryRegister(*client);
 			delete cmdObj;
@@ -178,7 +196,7 @@ Command *	Server::createCommandObj(std::string cmd_name)
 void	Server::sendResponses(const t_response & res)
 {
 	if (!res.should_send)
-	return ;
+		return ;
 	for (size_t i = 0; i < res.target_fds.size(); ++i)
 	{
 		int fd = res.target_fds[i];
@@ -191,9 +209,9 @@ void	Server::sendResponses(const t_response & res)
 bool	Server::tryRegister(Client & client)
 {
 	if (client.getIsRegistered())
-	return (false);
+		return (false);
 	if (!client.getPassReceived() || !client.getNickReceived() || !client.getUserReceived())
-	return (false);
+		return (false);
 	client.setIsRegistered(true);
 	
 	std::cout	<< "[REGISTERED] fd = " << client.getFd()
@@ -212,7 +230,7 @@ void	Server::sendWelcome(Client & client)
 	std::string	welcome;
 	
 	welcome = ":ft.irc 001 " + nickname + " :Welcome to the ft_irc Network "
-	+ nickname + "! " + client.getUsername() + "@ft.irc\r\n";
+	+ nickname + "!" + client.getUsername() + "@ft.irc\r\n";
 	welcome += ":ft.irc 002 " + nickname + " :Your host is ft.irc, running version 0.1\r\n";
 	welcome += ":ft.irc 003 " + nickname + " :This server was created 2025-08-26\r\n";
 	welcome += ":ft.irc 004 " + nickname + " ft.irc 0.1 o o\r\n";
