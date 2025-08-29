@@ -64,6 +64,7 @@ void	Server::run(void)
 			}
 		}
 	}
+
 	return ;
 }
 
@@ -83,6 +84,7 @@ void	Server::acceptNewClient(void)
 	_poll_fds.push_back(new_client->getPfd());
 	
 	std::cout << "New client connected: " << new_client->getFd() << std::endl;
+
 	return ;
 }
 
@@ -114,10 +116,11 @@ void	Server::handleClientInput(int fd)
 		std::string msg = clientBuffer.substr(0, pos + 1);
 		clientBuffer.erase(0, pos + 1);
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r'))
-		msg.erase(msg.size() - 1);
+			msg.erase(msg.size() - 1);
 		
-		t_parsed	parsed;
-		parsed = Parser::exec(msg, fd);
+		t_parsed	parsed = Parser::exec(msg, fd);
+		if (parsed.cmd.empty())
+			continue ;
 		
 		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << std::endl;
 		std::cout << msg << std::endl;
@@ -163,6 +166,7 @@ void	Server::handleClientInput(int fd)
 		}
 	}
 	std::cout << "\n \033[31m --- Receiving ends --- \033[m" << std::endl;
+
 	return ;
 }
 
@@ -189,7 +193,8 @@ Command *	Server::createCommandObj(std::string cmd_name)
 {
 	std::map<std::string, _cmdFunc>::iterator it = _cmd_map.find(cmd_name);
 	if (it != _cmd_map.end())
-	return (it->second());
+		return (it->second());
+
 	return (NULL);
 }
 
@@ -203,6 +208,7 @@ void	Server::sendResponses(const t_response & res)
 		if (fd >= 0 && !res.reply.empty())
 		send(fd, res.reply.c_str(), res.reply.size(), 0);
 	}
+
 	return ;
 }
 
@@ -221,6 +227,7 @@ bool	Server::tryRegister(Client & client)
 	<< std::endl;
 	
 	sendWelcome(client);
+
 	return (true);
 }
 
@@ -244,7 +251,8 @@ std::string	Server::displayNick(const Client & client) const
 {
 	std::string nick = client.getNickname();
 	if (nick.empty())
-	return "*";
+		return "*";
+
 	return (nick);
 }
 
@@ -254,9 +262,10 @@ void	Server::broadcast(int client_fd, std::string const & msg)
 	{
 		int fd = _poll_fds[i].fd;
 		if (fd != client_fd)
-		send(fd, msg.c_str(), msg.size(), 0);
+			send(fd, msg.c_str(), msg.size(), 0);
 	}
 	std::cout << "Broadcast from " << client_fd << ": " << msg;
+
 	return ;
 }
 
