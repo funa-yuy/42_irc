@@ -7,6 +7,8 @@
  #include <vector>
  #include "irc.hpp"
 
+ #define MAX_MSG_ARG 15
+
 void print_debug(std::string msg);
 
 class Parser

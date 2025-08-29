@@ -50,8 +50,3 @@ t_parsed Parser::exec(std::string line, int client_fd)
 
 	return (parsed);
 }
-
-void print_debug(std::string msg)
-{
-	std::cerr << "[DEBUG] " << msg << std::endl;
-}
