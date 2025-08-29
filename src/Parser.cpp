@@ -24,8 +24,7 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	}
 
 	parsed.cmd = tokens[0];
-	for (size_t i = 0; i < parsed.cmd.size(); ++i)
-		parsed.cmd[i] = std::toupper(parsed.cmd[i]);	
+	toUpperCase(parsed.cmd);
 	tokens.erase(tokens.begin());
 
 	if (!trailing.empty())
@@ -72,6 +71,14 @@ void	Parser::tokenize(std::string & s, std::vector<std::string> & tokens)
 
 	while (ss >> token)
 		tokens.push_back(token);
+
+	return ;
+}
+
+void	Parser::toUpperCase(std::string & s)
+{
+	for (size_t i = 0; i < s.size(); ++i)
+		s[i] = std::toupper(s[i]);	
 
 	return ;
 }
