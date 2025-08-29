@@ -13,10 +13,19 @@ void print_debug(std::string msg);
 
 class Parser
 {
-	public:
-		static t_parsed exec(std::string line, int client_fd);
-	private:
-		std::string _line;
+
+public:
+
+	static t_parsed exec(std::string line, int client_fd);
+
+private:
+
+	std::string _line;
+
+	static void trimCRLF(std::string & s);
+	static void	extractTrailing(std::string & s, std::string & trailing);
+	static void	tokenize(std::string & s, std::vector<std::string> & tokens);
+
 };
 
 #endif
