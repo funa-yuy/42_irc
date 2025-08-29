@@ -5,16 +5,21 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	t_parsed parsed;
 	parsed.client_fd = client_fd;
 
+	// 末尾の CR/LF を除去
 	trimCRLF(line);
+
+	// 入力行が空白のみの場合、早期リターン
 	if (line.find_first_not_of(" \t") == std::string::npos)
 	{
 		parsed.cmd = "";
 		return (parsed);
 	}
 
+	// " :" でトレーリングパラメータを抽出
 	std::string	trailing;
 	extractTrailing(line, trailing);
 
+	// 入力をトークン化
 	std::vector<std::string>	tokens;
 	tokenize(line, tokens);
 	if (tokens.empty())
@@ -23,6 +28,7 @@ t_parsed Parser::exec(std::string line, int client_fd)
 		return (parsed);
 	}
 
+	// コマンドのみ大文字に正規化
 	parsed.cmd = tokens[0];
 	toUpperCase(parsed.cmd);
 	tokens.erase(tokens.begin());
@@ -30,6 +36,7 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	if (!trailing.empty())
 		tokens.push_back(trailing);
 
+	// 引数上限チェック
 	if (tokens.size() > MAX_MSG_ARG)
 		std::cerr << "too many args" << std::endl;
 
