@@ -6,7 +6,7 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	t_parsed parsed;
 	parsed.client_fd = client_fd;
 
-	while (!line.empty() && (line.back() == '\n' || line.back() == '\r'))
+	while (!line.empty() && (line.size() - 1 == '\n' || line.size() - 1 == '\r'))
 		line.erase(line.size() - 1);
 
 	if (line.find_first_not_of(" \t") == std::string::npos)
