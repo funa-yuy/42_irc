@@ -4,35 +4,50 @@
 t_parsed Parser::exec(std::string line, int client_fd)
 {
 	t_parsed parsed;
-	std::stringstream stream(line);
-	std::vector<std::string> v;
-
-	int pos = line.rfind(":", line.size() - 1);
-	if (pos < 0)
-		parsed.msg = "";
-	else
-	{
-		parsed.msg = line.substr(pos);
-		parsed.msg.erase(0, 1);
-		parsed.msg.erase(parsed.msg.size() - 2, 2);
-		line.erase(pos);
-	}
-
-	std::string temp;
-	while (getline(stream, temp, ' '))
-	{
-		if (temp.size() >= 2 && temp.compare(temp.size() - 2, 2, "\r\n") == 0)
-			temp.erase(temp.size() - 2);
-		v.push_back(temp);
-	}
-	parsed.cmd = v[0];
-	for (size_t i = 0; i < parsed.cmd.size(); ++i)
-		parsed.cmd[i] = toupper(parsed.cmd[i]);
-	v.erase(v.begin());
-	if (15 < v.size())
-		print_debug("too many args");
-	parsed.args = v;
 	parsed.client_fd = client_fd;
+
+	while (!line.empty() && (line.back() == '\n' || line.back() == '\r'))
+		line.erase(line.size() - 1);
+
+	if (line.find_first_not_of(" \t") == std::string::npos)
+	{
+		parsed.cmd = "";
+		return (parsed);
+	}
+
+	std::string	trailing;
+	size_t	sep = line.find(" :");
+	if (sep != std::string::npos)
+	{
+		trailing = line.substr(sep + 2);
+		line.erase(sep);
+	}
+
+	std::stringstream ss(line);
+	std::vector<std::string> tokens;
+	std::string	token;
+	while (ss >> token)
+		tokens.push_back(token);
+
+	if (tokens.empty())
+	{
+		parsed.cmd = "";
+		return (parsed);
+	}
+
+	parsed.cmd = tokens[0];
+	for (size_t i = 0; i < parsed.cmd.size(); ++i)
+		parsed.cmd[i] = std::toupper(parsed.cmd[i]);	
+	tokens.erase(tokens.begin());
+
+	if (!trailing.empty())
+		tokens.push_back(trailing);
+
+	if (tokens.size() > 15)
+		print_debug("too many args");
+
+	parsed.args = tokens;
+
 	return (parsed);
 }
 
