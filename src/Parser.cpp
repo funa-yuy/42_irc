@@ -4,39 +4,55 @@
 t_parsed Parser::exec(std::string line, int client_fd)
 {
 	t_parsed parsed;
-	std::stringstream stream(line);
 	std::vector<std::string> v;
+	std::string last_arg;
 
-	int pos = line.rfind(":", line.size() - 1);
+	if (line.empty())
+		return parsed;
+	int pos = -1;
+	for (int i = 0; i < (int)line.size();i++)
+	{
+		if (line[i] == ' ' && i != (int)line.size() -1 && line[i + 1] == ':')
+		{
+			pos = i + 1;
+			break ;
+		}
+	}
 	if (pos < 0)
-		parsed.msg = "";
+		last_arg = "";
 	else
 	{
-		parsed.msg = line.substr(pos);
-		parsed.msg.erase(0, 1);
-		parsed.msg.erase(parsed.msg.size() - 2, 2);
+		last_arg = line.substr(pos);
+		last_arg.erase(0, 1);
+		last_arg.erase(last_arg.size() - 2, 2);
 		line.erase(pos);
 	}
 
+	std::stringstream stream(line);
 	std::string temp;
+	std::string prev;
+	int  i = 0;
 	while (getline(stream, temp, ' '))
 	{
 		if (temp.size() >= 2 && temp.compare(temp.size() - 2, 2, "\r\n") == 0)
 			temp.erase(temp.size() - 2);
-		v.push_back(temp);
+		if ((!prev.empty() || i == 0) && !temp.empty())
+		{
+			v.push_back(temp);
+			prev = temp;
+		}
+		i++;
 	}
+	if (!last_arg.empty())
+		v.push_back(last_arg);
+
 	parsed.cmd = v[0];
 	for (size_t i = 0; i < parsed.cmd.size(); ++i)
 		parsed.cmd[i] = toupper(parsed.cmd[i]);
 	v.erase(v.begin());
-	if (15 < v.size())
-		print_debug("too many args");
+	if (MAX_MSG_ARG < v.size())
+		std::cerr << "too many args" << std::endl;
 	parsed.args = v;
 	parsed.client_fd = client_fd;
 	return (parsed);
-}
-
-void print_debug(std::string msg)
-{
-	std::cerr << "[DEBUG] " << msg << std::endl;
 }

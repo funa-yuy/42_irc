@@ -49,3 +49,5 @@ keishii/
 ircserv
 **/obj
 test/test_irc
+ircserv.log
+test/ircserv.log
