@@ -44,7 +44,7 @@ t_parsed Parser::exec(std::string line, int client_fd)
 		tokens.push_back(trailing);
 
 	if (tokens.size() > 15)
-		print_debug("too many args");
+		std::cerr << "too many args" << std::endl;
 
 	parsed.args = tokens;
 
