@@ -7,6 +7,9 @@
 
 #include <iostream>
 #include "Command.hpp"
+#include "Database.hpp"
+
+#define EXCLAMATION_CHANNEL_MAX 6
 
 // ------------------------------------------------
 // class
