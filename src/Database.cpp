@@ -46,6 +46,11 @@ std::map<int, Client>&		Database::getAllClient()
 	return (_clients);
 }
 
+void Database::addChannel(Channel& channel)
+{
+	_channels.insert(std::make_pair(channel.getName(), channel));
+}
+
 const Channel *		Database::getChannel(std::string & name) const
 {
 	std::map<std::string, Channel>::const_iterator it = _channels.find(name);
@@ -53,3 +58,11 @@ const Channel *		Database::getChannel(std::string & name) const
 		return (NULL);
 	return (&it->second);
 }
+
+void Database::removeChannel(std::string& name)
+{
+	std::map<std::string, Channel>::iterator it = _channels.find(name);
+	if (it != _channels.end())
+		_channels.erase(it);
+}
+

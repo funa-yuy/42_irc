@@ -25,9 +25,9 @@ void Channel::setName(std::string name)
 	_name = name;
 }
 
-void Channel::setClients(std::vector<Client *> clients)
+void Channel::addClient(Client& client)
 {
-	_clients = clients;
+	_clients.push_back(&client);
 }
 
 void Channel::setTopic(std::string topic)
@@ -38,4 +38,13 @@ void Channel::setTopic(std::string topic)
 void Channel::setChannelOperator(Client * channelOperator)
 {
 	_channelOperator = channelOperator;
+}
+
+void	Channel::removeClient(Client& client)
+{
+	for (int i = 0; i < (int) _clients.size(); i ++)
+	{
+		if (_clients[i]->getNickname() == client.getNickname())
+			_clients.erase(_clients.begin() + i);
+	}
 }
