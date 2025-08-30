@@ -37,6 +37,9 @@ public:
 
 	void	run(void);
 
+	// テスト用
+	bool	step(int timeout_ms);
+
 private:
 
 	int							_port;

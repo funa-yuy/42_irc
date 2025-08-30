@@ -274,3 +274,27 @@ void	Server::exitError(std::string const & error_msg)
 	std::cerr << error_msg << strerror(errno) << std::endl;
 	exit(1);
 }
+
+bool	Server::step(int timeout_ms)
+{
+    int ret = poll(&_poll_fds[0], _poll_fds.size(), timeout_ms);
+    if (ret < 0)
+    {
+        std::cerr << "poll: " << strerror(errno) << std::endl;
+        return false;
+    }
+    if (ret == 0) // timeout
+        return true;
+
+    for (size_t i = 0; i < _poll_fds.size(); ++i)
+    {
+        if (_poll_fds[i].revents & POLLIN)
+        {
+            if (_poll_fds[i].fd == _server_fd)
+                acceptNewClient();
+            else
+                handleClientInput(_poll_fds[i].fd);
+        }
+    }
+    return true;
+}
