@@ -24,6 +24,7 @@ public:
 
 	Client *		addClient(int fd);
 	void			removeClient(int fd);
+	void			addChannel(Channel& channel);
 
 	Client *		getClient(int fd);
 	Client const *	getClient(int fd) const;
