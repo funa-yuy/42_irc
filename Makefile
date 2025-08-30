@@ -6,7 +6,7 @@
 #    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/25 17:36:50 by yohatana         ###   ########.fr        #
+#    Updated: 2025/08/30 14:17:18 by yohatana         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,6 +31,7 @@ SRC					:= \
 					main.cpp \
 					Server.cpp \
 					Parser.cpp \
+					Channel.cpp \
 					Client.cpp \
 					Database.cpp \
 					Command/Command.cpp \

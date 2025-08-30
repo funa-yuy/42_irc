@@ -22,6 +22,13 @@ PRIVMSG Angel :yes I'm receiving it !
 	- ホストマスク`#mask`
 */
 
+static bool is_channel(std::string target)
+{
+	if (target.size() > 0 && (target[0] == '#' || target[0] == '&' || target[0] == '+' || target[0] == '!'))
+		return (true);
+	return (false);
+}
+
 static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	std::vector<int>	res;
 
@@ -39,14 +46,53 @@ static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	return (res);
 }
 
-static	std::vector<int>	get_target_fd(std::string target, Database& db) {
-	// if (target.size() > 0 && target[0] == '#') //todo: チャンネルだった場合の処理
-	// 	return (get_fd_ByChannel(target, db));
+static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
+{
+	std::vector<int>	fds;
+	std::string channelName;
 
+	// チャンネル名は以下で開始される[&, #, +, !]
+	// ！始まりの場合5文字の英数字 (A-Zまたは0-9) で構成
+	if (target[0] == '!' && target.size() == EXCLAMATION_CHANNEL_MAX)
+	{
+		for (int i = 1; i < EXCLAMATION_CHANNEL_MAX;i++)
+		{
+			if (!std::isalnum(target[i]))
+				return (fds);
+		}
+	}
+	else
+		return (fds);
+
+	target.erase(0, 1);
+	if (db.getChannel(target) == NULL)
+		return (fds);
+	std::vector<Client *> clients= db.getChannel(target)->getClients();
+	for (int i = 0; i < (int)clients.size(); i++)
+		fds.push_back(clients[i]->getFd());
+	return (fds);
+}
+
+static bool is_belong_channel(const t_parsed& input, Database& db)
+{
+	std::vector<int> fds =  get_fd_ByChannel(input.args[0], db);
+	for (int i = 0; i < (int)fds.size();i++)
+	{
+		if (fds[i] == input.client_fd)
+			return (true);
+	}
+	return (false);
+}
+
+static	std::vector<int>	get_target_fd(std::string target, Database& db) {
+
+	if (target.size() > 0 && is_channel(target))
+		return (get_fd_ByChannel(target, db));
 	return (get_fd_ByNickname(target, db));
 }
 
 static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
+
 	if (input.args.size() < 1)//ERR_NORECIPIENT 411 受信者が指定されていない
 	{
 		res->is_success = false;
@@ -65,11 +111,21 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	else if (get_fd_ByNickname(input.args[0], db).empty())//ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
+	else if (get_target_fd(input.args[0], db).empty()) //ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
 	{
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":ft.irc 401 " + input.args[0] + " :No such nick/channel\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+
+	if (is_channel(input.args[0]) && is_belong_channel(input, db)) //チャンネルに参加していない、もしくはBANされている時
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->reply = ":ft.irc 474 " + input.args[0] + " :You are not in this channel.\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);

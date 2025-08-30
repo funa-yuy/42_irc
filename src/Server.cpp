@@ -132,7 +132,7 @@ void	Server::handleClientInput(int fd)
 		std::cout << parsed.cmd << std::endl;
 
 		std::cout << "ARGUMENTS: " << std::endl;
-		for (size_t i = 0; i < parsed.args.size(); i++)	
+		for (size_t i = 0; i < parsed.args.size(); i++)
 			std::cout << i << ": " << parsed.args[i] << std::endl;
 
 		Command * cmdObj = createCommandObj(parsed.cmd);
