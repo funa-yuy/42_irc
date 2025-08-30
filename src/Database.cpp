@@ -45,3 +45,11 @@ std::map<int, Client>&		Database::getAllClient()
 {
 	return (_clients);
 }
+
+const Channel *		Database::getChannel(std::string & name) const
+{
+	std::map<std::string, Channel>::const_iterator it = _channels.find(name);
+	if (it == _channels.end())
+		return (NULL);
+	return (&it->second);
+}
