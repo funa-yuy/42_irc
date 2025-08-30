@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 
+#include "Database.hpp"
 #include "Command/PrivmsgCommand.hpp"
 
 static t_parsed makeInput(const std::string& cmd, int fd, const std::vector<std::string>& args) {
@@ -119,6 +120,35 @@ static void test_err_401_nosuchnick() {
 	assert(res.reply.find("401") != std::string::npos);
 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 }
+
+// static Database set_db(Database& db)
+// {
+// 	Channel channel;
+// 	std::map<int, Client> db_clients;
+// 	std::vector<Client *> clients;
+
+// 	for (int i = 0; i < 3; i++)
+// 	{
+// 		db.addClient(i + 2);
+// 		db.getClient(i + 2)->setNickname("aaa");
+// 		db.getClient(i + 2)->setUsername("bbb");
+// 		db.getClient(i + 2)->setRealname("ccc");
+
+// 		db_clients[i + 2] = *(db.getClient(i + 2));
+// 	}
+
+// 	channel.setName("name");
+// 	channel.setClients(clients);
+// 	return (db);
+// }
+
+// static void test_channel_broadcast()
+// {
+// 	// db作成
+// 	Database db("pass");
+// 	set_db(db);
+// 	// パースド作成
+// }
 
 int main() {
 	test_success();//正常
