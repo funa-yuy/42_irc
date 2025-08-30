@@ -22,6 +22,13 @@ PRIVMSG Angel :yes I'm receiving it !
 	- ホストマスク`#mask`
 */
 
+static bool is_channel(std::string target)
+{
+	if (target.size() > 0 && (target[0] == '#' || target[0] == '&' || target[0] == '+' || target[0] == '!'))
+		return (true);
+	return (false);
+}
+
 static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	std::vector<int>	res;
 
@@ -66,6 +73,17 @@ static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
 	return (fds);
 }
 
+static bool is_belong_channel(const t_parsed& input, Database& db)
+{
+	std::vector<int> fds =  get_fd_ByChannel(input.args[0], db);
+	for (int i = 0; i < (int)fds.size();i++)
+	{
+		if (fds[i] == input.client_fd)
+			return (true);
+	}
+	return (false);
+}
+
 static	std::vector<int>	get_target_fd(std::string target, Database& db) {
 
 	if (target.size() > 0 && is_channel(target))
@@ -93,7 +111,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	else if (get_target_fd(input.args[0], db).empty())//ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
+	else if (get_target_fd(input.args[0], db).empty()) //ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
 	{
 		res->is_success = false;
 		res->should_send = true;
@@ -113,24 +131,6 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 		return(false);
 	}
 	return(true);
-}
-
-static bool is_channel(std::string target)
-{
-	if (target.size() > 0 && (target[0] == '#' || target[0] == '&' || target[0] == '+' || target[0] == '!'))
-		return (true);
-	return (false);
-}
-
-static bool is_belong_channel(const t_parsed& input, Database& db)
-{
-	std::vector<int> fds =  get_fd_ByChannel(input.args[0], db);
-	for (int i = 0; i < fds.size();i++)
-	{
-		if (fds[i] == input.client_fd)
-			return (true);
-	}
-	return (false);
 }
 
 const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
