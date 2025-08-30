@@ -18,6 +18,7 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 	{
 		res.is_success = false;
 		res.should_send = false;
+		res.should_disconnect = false;
 		return (res);
 	}
 
@@ -42,6 +43,7 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 
 	res.is_success = true;
 	res.should_send = false;
+	res.should_disconnect = false;
 
 	return (res);
 }
@@ -52,6 +54,7 @@ bool	UserCommand::isValidCmd(const t_parsed & input, t_response * res, Client * 
 	{
 		res->is_success = false;
 		res->should_send = true;
+		res->should_disconnect = false;
 		res->reply = ":ft.irc 461 " + client->getNickname() + " USER :Not enough parameters\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
@@ -61,6 +64,7 @@ bool	UserCommand::isValidCmd(const t_parsed & input, t_response * res, Client * 
 	{
 		res->is_success = false;
 		res->should_send = true;
+		res->should_disconnect = false;
 		res->reply = ":ft.irc 462 " + client->getNickname() + " :You may not reregister\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;

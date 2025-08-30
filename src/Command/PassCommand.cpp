@@ -15,25 +15,26 @@ bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 	{
 		res->is_success = false;
 		res->should_send = true;
-		res->reply = ":ft.irc 461 :Not enough parameters\r\n";
+		res->reply = ":ft.irc 461 " + sender_client->getNickname() + " PASS :Not enough parameters\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	else if (sender_client->getIsRegistered())//ERR_ALREADYREGISTRED 462 登録済みのクライアントが実行した
+	if (sender_client->getIsRegistered())//ERR_ALREADYREGISTRED 462 登録済みのクライアントが実行した
 	{
 		res->is_success = false;
 		res->should_send = true;
-		res->reply = ":ft.irc 462 :Already registered\r\n";
+		res->reply = ":ft.irc 462 " + sender_client->getNickname() + " PASS :Already registered\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	else if (db.getPassword() != input.args[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
+	if (db.getPassword() != input.args[0])//ERR_PASSWDMISMATCH 464 パスワードが正しくない
 	{
 		res->is_success = false;
 		res->should_send = true;
-		res->reply = ":ft.irc 464 :Password incorrect\r\n";
+		res->should_disconnect = true;
+		res->reply = ":ft.irc 464 " + sender_client->getNickname() + " PASS :Password incorrect\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);
@@ -43,6 +44,9 @@ bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 
 const t_response	PassCommand::execute(const t_parsed& input, Database& db) const {
 	t_response	res;
+	res.is_success = false;
+	res.should_send = false;
+	res.should_disconnect = false;
 	Client *	sender_client = db.getClient(input.client_fd);
 
 	if (!is_validCmd(input, &res, db))
@@ -51,7 +55,6 @@ const t_response	PassCommand::execute(const t_parsed& input, Database& db) const
 	sender_client->setPassReceived(true);
 
 	res.is_success = true;
-	res.should_send = false;
 
 	return (res);
 }

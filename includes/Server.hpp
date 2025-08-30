@@ -37,6 +37,9 @@ public:
 
 	void	run(void);
 
+	// テスト用
+	bool	step(int timeout_ms);
+
 private:
 
 	int							_port;
@@ -56,8 +59,11 @@ private:
 
 	Command *	createCommandObj(std::string cmd_name);
 
+	void		sendResponses(const t_response & res);
+	bool		tryRegister(Client & client);
 	void		sendWelcome(Client & client);
-
+	
+	std::string	displayNick(const Client & client) const;
 	void		broadcast(int sender_fd, std::string const & msg);
 	void		exitError(std::string const & error_msg);
 
