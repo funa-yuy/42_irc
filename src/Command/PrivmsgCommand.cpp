@@ -145,7 +145,7 @@ const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) co
 
 	res.is_success = true;
 	res.should_send = true;
-	res.reply = input.args[1] + "\r\n";
+	res.reply = input.args[1];
 	std::cout << res.reply << std::endl;
 	res.target_fds = get_target_fd(input.args[0], db);
 
