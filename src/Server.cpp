@@ -31,6 +31,7 @@ Server::Server(int port, std::string const & password)
 		_cmd_map["PASS"] = &PassCommand::createPassCommand;
 		_cmd_map["NICK"] = &NickCommand::createNickCommand;
 		_cmd_map["USER"] = &UserCommand::createUserCommand;
+		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 	}
 }
 
@@ -206,7 +207,7 @@ void	Server::sendResponses(const t_response & res)
 	{
 		int fd = res.target_fds[i];
 		if (fd >= 0 && !res.reply.empty())
-		send(fd, res.reply.c_str(), res.reply.size(), 0);
+			send(fd, res.reply.c_str(), res.reply.size(), 0);
 	}
 
 	return ;

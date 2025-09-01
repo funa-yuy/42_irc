@@ -121,11 +121,11 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 		return(false);
 	}
 
-	if (is_channel(input.args[0]) && is_belong_channel(input, db)) //チャンネルに参加していない、もしくはBANされている時
+	if (is_channel(input.args[0]) && !is_belong_channel(input, db)) //チャンネルに参加していない、もしくはBANされている時
 	{
 		res->is_success = false;
 		res->should_send = true;
-		res->reply = ":ft.irc 474 " + input.args[0] + " :You are not in this channel.\r\n";
+		res->reply = ":ft.irc 442 " + input.args[0] + " :You are not in this channel.\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);
@@ -134,14 +134,19 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 }
 
 const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
-	t_response	res;
+	t_response	res;	
+
+	res.is_success = false;
+	res.should_send = false;
+	res.should_disconnect = false;
 
 	if (!is_validCmd(input, &res, db))
 		return (res);
 
 	res.is_success = true;
 	res.should_send = true;
-	res.reply = input.args[1];
+	res.reply = input.args[1] + "\r\n";
+	std::cout << res.reply << std::endl;
 	res.target_fds = get_target_fd(input.args[0], db);
 
 	return (res);
