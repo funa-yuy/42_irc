@@ -143,11 +143,22 @@ const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) co
 	if (!is_validCmd(input, &res, db))
 		return (res);
 
+	Client * sender = db.getClient(input.client_fd);
+	std::string	nick = sender->getNickname();
+	std::string	user = sender->getUsername();
+	std::string	host = "ft.irc";
+
+	std::string	target = input.args[0];
+	std::string	text = input.args[1];
+
+	std::vector<int>	fds = get_target_fd(target, db);
+
+	std::string line =	":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + text + "\r\n";
+
 	res.is_success = true;
 	res.should_send = true;
-	res.reply = input.args[1];
-	std::cout << res.reply << std::endl;
-	res.target_fds = get_target_fd(input.args[0], db);
+	res.reply = line;
+	res.target_fds = fds;
 
 	return (res);
 }
