@@ -33,6 +33,19 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	toUpperCase(parsed.cmd);
 	tokens.erase(tokens.begin());
 
+	if (trailing.empty() && parsed.cmd == "PRIVMSG" && tokens.size() >= 2)
+	{
+		std::string	joined;
+		for (size_t i = 1; i < tokens.size(); ++i)
+		{
+			if (i > 1)
+				joined += " ";
+			joined += tokens[i];
+		}
+		trailing = joined;
+		tokens.resize(1);
+	}
+
 	if (!trailing.empty())
 		tokens.push_back(trailing);
 
@@ -61,14 +74,28 @@ void	Parser::trimCRLF(std::string & s)
 
 void	Parser::extractTrailing(std::string & s, std::string & trailing)
 {
-	size_t	sep = s.find(" :");
-	if (sep != std::string::npos)
-	{
-		trailing = s.substr(sep + 2);
-		s.erase(sep);
-	}
+	// size_t	sep = s.find(" :");
+	// if (sep != std::string::npos)
+	// {
+	// 	trailing = s.substr(sep + 2);
+	// 	s.erase(sep);
+	// }
 
-	return ;
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		if (s[i] == ':')
+		{
+			if (i == 0)
+				continue ;
+			if (isspace(s[i - 1]))
+			{
+				trailing = s.substr(i + 1);
+				s.erase(i);
+				return ;
+			}
+		}
+	}
+	trailing.clear();
 }
 
 void	Parser::tokenize(std::string & s, std::vector<std::string> & tokens)
