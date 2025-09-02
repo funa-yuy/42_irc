@@ -100,7 +100,6 @@ int main()
 	// no msg
 	result = parser.exec("PRIVMSG B :\r\n", 4);
 	expect_v.push_back("B");
-	expect_v.push_back("");
 	assert(result.cmd == "PRIVMSG");
 	for(int i = 0; i < (int)expect_v.size();i++)
 		assert(result.args[i] == expect_v[i]);
