@@ -26,7 +26,8 @@ class Channel {
 		void	setTopic(std::string);
 		void	addClient(Client& client);
 
-		void	removeClient(Client& client);
+		void	removeClient(Client* client);
+		void	removeClient(std::string& nickname);
 
 	private:
 		std::string				_name;

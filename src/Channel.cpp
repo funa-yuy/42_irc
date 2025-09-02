@@ -40,11 +40,20 @@ void Channel::setChannelOperator(Client * channelOperator)
 	_channelOperator = channelOperator;
 }
 
-void	Channel::removeClient(Client& client)
+void	Channel::removeClient(Client* client)
 {
 	for (int i = 0; i < (int) _clients.size(); i ++)
 	{
-		if (_clients[i]->getNickname() == client.getNickname())
+		if (_clients[i]->getNickname() == client->getNickname())
+			_clients.erase(_clients.begin() + i);
+	}
+}
+
+void	Channel::removeClient(std::string& nickname)
+{
+	for (int i = 0; i < (int) _clients.size(); i ++)
+	{
+		if (_clients[i]->getNickname() == nickname)
 			_clients.erase(_clients.begin() + i);
 	}
 }

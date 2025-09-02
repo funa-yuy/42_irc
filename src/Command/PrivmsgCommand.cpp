@@ -125,7 +125,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 	{
 		res->is_success = false;
 		res->should_send = true;
-		res->reply = ":ft.irc 474 " + input.args[0] + " :You are not in this channel.\r\n";
+		res->reply = ":ft.irc 442 " + input.args[0] + " :You are not in this channel.\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);

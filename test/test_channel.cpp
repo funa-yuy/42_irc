@@ -63,15 +63,26 @@ int main()
 	client_add.setNickname("add!");
 	db.getChannel(name)->addClient(client_add);
 	std::vector<Client *> test = db.getChannel(name)->getClients();
-	std::cout << "size " << test.size() << std::endl;
 	assert(test.size() == 4);
 	assert(test[3]->getNickname() == "add!");
 
-	// ユーザーの削除
-	channel1.removeClient(client_add);
+	// ユーザーの削除 Client*
+	db.getChannel(name)->removeClient(&client_add);
 	test = db.getChannel(name)->getClients();
 	assert(test.size() == 3);
 	for (int i = 0; i < (int)test.size();i++)
+	{
 		assert(test[i]->getNickname() != "add!");
+	}
+
+	// ユーザーの削除 string
+	std::string nickname = "nusu0";
+	db.getChannel(name)->removeClient(nickname);
+	test = db.getChannel(name)->getClients();
+	assert(test.size() == 2);
+	for (int i = 0; i < (int)test.size();i++)
+	{
+		assert(test[i]->getNickname() != nickname);
+	}
 	return (0);
 }

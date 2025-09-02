@@ -59,6 +59,14 @@ const Channel *		Database::getChannel(std::string & name) const
 	return (&it->second);
 }
 
+Channel *		Database::getChannel(std::string & name)
+{
+	std::map<std::string, Channel>::iterator it = _channels.find(name);
+	if (it == _channels.end())
+		return (NULL);
+	return (&it->second);
+}
+
 void Database::removeChannel(std::string& name)
 {
 	std::map<std::string, Channel>::iterator it = _channels.find(name);

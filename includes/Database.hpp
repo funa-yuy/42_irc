@@ -27,9 +27,10 @@ public:
 	void			addChannel(Channel& channel);
 	void			removeChannel(std::string& name);
 
-	Client *		getClient(int fd);
-	Client const *	getClient(int fd) const;
+	Client *			getClient(int fd);
+	Client const *		getClient(int fd) const;
 	Channel const *		getChannel(std::string & name) const;
+	Channel *			getChannel(std::string & name);
 	const std::string&	getPassword() const;
 	std::map<int, Client>&		getAllClient();
 
