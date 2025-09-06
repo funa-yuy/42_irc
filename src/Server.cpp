@@ -31,6 +31,7 @@ Server::Server(int port, std::string const & password)
 		_cmd_map["PASS"] = &PassCommand::createPassCommand;
 		_cmd_map["NICK"] = &NickCommand::createNickCommand;
 		_cmd_map["USER"] = &UserCommand::createUserCommand;
+		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 	}
 }
 
@@ -122,15 +123,14 @@ void	Server::handleClientInput(int fd)
 		if (parsed.cmd.empty())
 			continue ;
 		
-		std::cout << "\n[RECV fd=" << parsed.client_fd << "] " << std::endl;
-		std::cout << msg << std::endl;
-		
-		std::cout << "COMMAND: " << std::endl;
-		std::cout << parsed.cmd << std::endl;
-		
-		std::cout << "ARGUMENTS: " << std::endl;
-		for (size_t i = 0; i < parsed.args.size(); i++)
-			std::cout << i << ": " << parsed.args[i] << std::endl;
+		PrintLog printlog;
+		printlog.print_debug("INPUT LINE: " + msg);
+		printlog.print_debug("COMMAND: " + parsed.cmd);
+		for (int i = 0; i < (int)parsed.args.size(); ++i)
+		{
+			std::cerr << "[" << i << "] ";
+			printlog.print_debug("ARGUMENT: " + parsed.args[i]);
+		}
 
 		if (!client->getIsRegistered())
 		{
@@ -165,7 +165,7 @@ void	Server::handleClientInput(int fd)
 			send(parsed.client_fd, unknown.c_str(), unknown.size(), 0);
 		}
 	}
-	std::cout << "\n \033[31m --- Receiving ends --- \033[m" << std::endl;
+	std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;
 
 	return ;
 }
@@ -202,11 +202,13 @@ void	Server::sendResponses(const t_response & res)
 {
 	if (!res.should_send)
 		return ;
+	PrintLog printlog;
+	printlog.print_debug("SEND REPLY: " + res.reply);
 	for (size_t i = 0; i < res.target_fds.size(); ++i)
 	{
 		int fd = res.target_fds[i];
 		if (fd >= 0 && !res.reply.empty())
-		send(fd, res.reply.c_str(), res.reply.size(), 0);
+			send(fd, res.reply.c_str(), res.reply.size(), 0);
 	}
 
 	return ;

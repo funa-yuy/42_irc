@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yohatana <yohatana@student.42.fr>          +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/08/25 17:36:52 by yohatana         ###   ########.fr        #
+#    Updated: 2025/09/02 18:55:49 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,7 @@ SRC					:= \
 					Server.cpp \
 					Parser.cpp \
 					Client.cpp \
+					Channel.cpp \
 					Database.cpp \
 					Command/Command.cpp \
 					Command/NickCommand.cpp \
