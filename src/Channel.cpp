@@ -5,7 +5,7 @@ std::string Channel::getName() const
 	return (_name);
 }
 
-std::vector<Client *> Channel::getClients() const
+std::map<int, Client> Channel::getClients() const
 {
 	return (_clients);
 }
@@ -25,9 +25,9 @@ void Channel::setName(std::string name)
 	_name = name;
 }
 
-void Channel::setClients(std::vector<Client *> clients)
+void Channel::addClient(Client& client)
 {
-	_clients = clients;
+	_clients[client.getFd()] = client;
 }
 
 void Channel::setTopic(std::string topic)
@@ -38,4 +38,16 @@ void Channel::setTopic(std::string topic)
 void Channel::setChannelOperator(Client * channelOperator)
 {
 	_channelOperator = channelOperator;
+}
+
+void	Channel::removeClient(Client* client)
+{
+	std::map<int, Client>::iterator it = _clients.find(client->getFd());
+	_clients.erase(it);
+}
+
+void	Channel::removeClient(int fd)
+{
+	std::map<int, Client>::iterator it = _clients.find(fd);
+	_clients.erase(it);
 }
