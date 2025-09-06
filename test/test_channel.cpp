@@ -17,6 +17,7 @@ int main()
 	{
 		ss << i;
 		Client *cre = new Client();
+		cre->initializeClient(i + 3);
 		cre->setNickname("nusu" + ss.str());
 		channel1.addClient(*cre);
 		ss.clear();
@@ -62,27 +63,42 @@ int main()
 	Client client_add;
 	client_add.setNickname("add!");
 	db.getChannel(name)->addClient(client_add);
-	std::vector<Client *> test = db.getChannel(name)->getClients();
+	std::map<int, Client> test = db.getChannel(name)->getClients();
 	assert(test.size() == 4);
-	assert(test[3]->getNickname() == "add!");
+	std::map<int, Client>::iterator it = test.begin();
+	while (it != test.end())
+	{
+		assert(test[client_add.getFd()].getNickname() == "add!");
+		it++;
+	}
 
 	// ユーザーの削除 Client*
-	db.getChannel(name)->removeClient(&client_add);
+	std::cout << "ユーザー削除(Clinet)" << std::endl;
+	db.getChannel(name)->removeClient(&client_add); // ここでコケてる
+	std::cout << "db.getChannel(name)->getClients()" << std::endl;
 	test = db.getChannel(name)->getClients();
+	std::cout<< test.size() << std::endl;
 	assert(test.size() == 3);
-	for (int i = 0; i < (int)test.size();i++)
+	std::cout << "aaaa" << std::endl;
+	it = test.begin();
+	while (it != test.end())
 	{
-		assert(test[i]->getNickname() != "add!");
+		assert(it->first != client_add.getFd());
+		it++;
 	}
 
-	// ユーザーの削除 string
-	std::string nickname = "nusu0";
-	db.getChannel(name)->removeClient(nickname);
+	// ユーザーの削除　fd
+	std::cout << "ユーザー削除(fd)" << std::endl;
+	db.getChannel(name)->removeClient(3);
 	test = db.getChannel(name)->getClients();
 	assert(test.size() == 2);
-	for (int i = 0; i < (int)test.size();i++)
+	// std::map<int, Client>::iterator 
+	it = test.begin();
+	while (it != test.end())
 	{
-		assert(test[i]->getNickname() != nickname);
+		assert(it->first != 3);
+		it++;
 	}
+
 	return (0);
 }

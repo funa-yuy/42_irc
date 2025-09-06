@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include "Client.hpp"
-#include <vector>
+#include <map>
 
 
 // ------------------------------------------------
@@ -17,7 +17,7 @@
 class Channel {
 	public:
 		std::string	getName() const;
-		std::vector<Client *>	getClients() const;
+		std::map<int, Client>	getClients() const;
 		Client*	getChannelOperator() const;
 		std::string	getTopic() const;
 
@@ -27,11 +27,12 @@ class Channel {
 		void	addClient(Client& client);
 
 		void	removeClient(Client* client);
-		void	removeClient(std::string& nickname);
+		void	removeClient(int fd);
 
 	private:
 		std::string				_name;
-		std::vector<Client *>	_clients;
+		// std::vector<Client *>	_clients;
+		std::map<int, Client>	_clients;
 		Client*					_channelOperator;
 		std::string				_topic;
 	// ...他に必要に応じて（モードや制限など）

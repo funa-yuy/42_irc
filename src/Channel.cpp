@@ -5,7 +5,7 @@ std::string Channel::getName() const
 	return (_name);
 }
 
-std::vector<Client *> Channel::getClients() const
+std::map<int, Client> Channel::getClients() const
 {
 	return (_clients);
 }
@@ -27,7 +27,8 @@ void Channel::setName(std::string name)
 
 void Channel::addClient(Client& client)
 {
-	_clients.push_back(&client);
+	// _clients.push_back(&client);
+	_clients[client.getFd()] = client;
 }
 
 void Channel::setTopic(std::string topic)
@@ -42,18 +43,25 @@ void Channel::setChannelOperator(Client * channelOperator)
 
 void	Channel::removeClient(Client* client)
 {
-	for (int i = 0; i < (int) _clients.size(); i ++)
+	std::map<int, Client>::iterator it = _clients.begin();
+	while (it != _clients.end())
 	{
-		if (_clients[i]->getNickname() == client->getNickname())
-			_clients.erase(_clients.begin() + i);
+		if (it->first == client->getFd())
+		{
+			std::cout << "target fd" << std::endl;
+			_clients.erase(it->first);
+		}
+		it++;
 	}
 }
 
-void	Channel::removeClient(std::string& nickname)
+void	Channel::removeClient(int fd)
 {
-	for (int i = 0; i < (int) _clients.size(); i ++)
+	std::map<int, Client>::iterator it = _clients.begin();
+	while (it != _clients.end())
 	{
-		if (_clients[i]->getNickname() == nickname)
-			_clients.erase(_clients.begin() + i);
+		if (it->first == fd)
+			_clients.erase(it->first);
+		it++;
 	}
 }
