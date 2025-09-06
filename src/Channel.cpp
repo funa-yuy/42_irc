@@ -27,7 +27,6 @@ void Channel::setName(std::string name)
 
 void Channel::addClient(Client& client)
 {
-	// _clients.push_back(&client);
 	_clients[client.getFd()] = client;
 }
 
@@ -43,25 +42,12 @@ void Channel::setChannelOperator(Client * channelOperator)
 
 void	Channel::removeClient(Client* client)
 {
-	std::map<int, Client>::iterator it = _clients.begin();
-	while (it != _clients.end())
-	{
-		if (it->first == client->getFd())
-		{
-			std::cout << "target fd" << std::endl;
-			_clients.erase(it->first);
-		}
-		it++;
-	}
+	std::map<int, Client>::iterator it = _clients.find(client->getFd());
+	_clients.erase(it);
 }
 
 void	Channel::removeClient(int fd)
 {
-	std::map<int, Client>::iterator it = _clients.begin();
-	while (it != _clients.end())
-	{
-		if (it->first == fd)
-			_clients.erase(it->first);
-		it++;
-	}
+	std::map<int, Client>::iterator it = _clients.find(fd);
+	_clients.erase(it);
 }

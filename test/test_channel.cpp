@@ -73,13 +73,9 @@ int main()
 	}
 
 	// ユーザーの削除 Client*
-	std::cout << "ユーザー削除(Clinet)" << std::endl;
 	db.getChannel(name)->removeClient(&client_add); // ここでコケてる
-	std::cout << "db.getChannel(name)->getClients()" << std::endl;
 	test = db.getChannel(name)->getClients();
-	std::cout<< test.size() << std::endl;
 	assert(test.size() == 3);
-	std::cout << "aaaa" << std::endl;
 	it = test.begin();
 	while (it != test.end())
 	{
@@ -88,11 +84,9 @@ int main()
 	}
 
 	// ユーザーの削除　fd
-	std::cout << "ユーザー削除(fd)" << std::endl;
 	db.getChannel(name)->removeClient(3);
 	test = db.getChannel(name)->getClients();
 	assert(test.size() == 2);
-	// std::map<int, Client>::iterator 
 	it = test.begin();
 	while (it != test.end())
 	{
