@@ -9,8 +9,9 @@
 #include "Command.hpp"
 #include "Database.hpp"
 
-#define EXCLAMATION_CHANNEL_MAX 6
+#define EXCLAMATION_CHANNEL_LEN 6
 #define SERVER_PREFIX ":ft.irc"
+#define SERVER_NAME "ft.irc"
 
 // ------------------------------------------------
 // class
