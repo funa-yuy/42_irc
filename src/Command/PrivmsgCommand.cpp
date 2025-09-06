@@ -22,14 +22,14 @@ PRIVMSG Angel :yes I'm receiving it !
 	- ホストマスク`#mask`
 */
 
-static bool is_channel(std::string target)
+bool PrivmsgCommand::is_channel(std::string target) const
 {
 	if (target.size() > 0 && (target[0] == '#' || target[0] == '&' || target[0] == '+' || target[0] == '!'))
 		return (true);
 	return (false);
 }
 
-static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
+std::vector<int>	PrivmsgCommand::get_fd_ByNickname(std::string	msgtarget, Database& db) const {
 	std::vector<int>	res;
 
 	std::map<int, Client> Clients = db.getAllClient();
@@ -46,7 +46,7 @@ static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	return (res);
 }
 
-static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
+std::vector<int> PrivmsgCommand::get_fd_ByChannel(std::string	target, Database& db) const
 {
 	std::vector<int>	fds;
 	std::string channelName;
@@ -73,7 +73,7 @@ static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
 	return (fds);
 }
 
-static bool is_belong_channel(const t_parsed& input, Database& db)
+bool PrivmsgCommand::is_belong_channel(const t_parsed& input, Database& db) const
 {
 	std::vector<int> fds =  get_fd_ByChannel(input.args[0], db);
 	for (int i = 0; i < (int)fds.size();i++)
@@ -84,17 +84,18 @@ static bool is_belong_channel(const t_parsed& input, Database& db)
 	return (false);
 }
 
-static	std::vector<int>	get_target_fd(std::string target, Database& db) {
+std::vector<int>	PrivmsgCommand::get_target_fd(std::string target, Database& db) const{
 
 	if (target.size() > 0 && is_channel(target))
 		return (get_fd_ByChannel(target, db));
 	return (get_fd_ByNickname(target, db));
 }
 
-static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
+bool	PrivmsgCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db) const {
 
 	if (input.args.size() < 1)//ERR_NORECIPIENT 411 受信者が指定されていない
 	{
+		// return (return_false_set_reply(res, input, "411 :No recipient given PRIVMSG"));
 		res->is_success = false;
 		res->should_send = true;
 		res->reply = ":ft.irc 411 :No recipient given PRIVMSG\r\n";
@@ -161,4 +162,16 @@ const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) co
 	res.target_fds = fds;
 
 	return (res);
+}
+
+bool	PrivmsgCommand::return_false_set_reply(t_response *res, 
+												const t_parsed& input, 
+												std::string msg) const
+{
+	res->is_success = false;
+	res->should_send = true;
+	res->reply = SERVER_PREFIX + msg + "\r\n";
+	res->target_fds.resize(1);
+	res->target_fds[0] = input.client_fd;
+	return (false);
 }
