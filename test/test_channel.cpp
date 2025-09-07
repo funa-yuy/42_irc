@@ -6,11 +6,26 @@ int main()
 {
 	Database db("pass");
 
+	// コンストラクタの初期化確認
+	Client *ope0 = new Client();
+	ope0->setNickname("0");
+	std::string name0 = "channel0";
+
+	Channel channel0(name0, ope0);
+
+	std::map<int, Client> clients = channel0.getClients();
+	assert(channel0.getName() == name0);
+	assert(clients.size() == 1);
+	assert(clients.begin()->second.getNickname() == ope0->getNickname());
+	assert(channel0.getChannelOperator() == ope0);
+
+
 	// チャンネルを新規作成する
 
-	Channel channel1;
 	Client *ope = new Client();
 	ope->setNickname("1");
+	std::string name = "channel1";
+	Channel channel1("channel1", ope);
 
 	std::stringstream ss;
 	for (int i = 0;i < 3; i++)
@@ -23,10 +38,7 @@ int main()
 		ss.clear();
 	}
 
-	std::string name = "channel1";
-	channel1.setName(name);
 	channel1.setTopic("aaaa");
-	channel1.setChannelOperator(ope);
 	db.addChannel(channel1);
 	const Channel *result = db.getChannel(name);
 
@@ -34,9 +46,8 @@ int main()
 	assert(result->getTopic() == "aaaa");
 	assert(result->getChannelOperator()->getNickname() == "1");
 
-	Channel channel2;
 	name = "channel2";
-	channel2.setName(name);
+	Channel channel2(name, ope);
 	for (int i = 0;i < 3; i++)
 	{
 		ss << i;
@@ -46,7 +57,6 @@ int main()
 		ss.clear();
 	}
 	channel2.setTopic("bbbbb");
-	channel2.setChannelOperator(ope);
 	db.addChannel(channel2);
 	result = db.getChannel(name);
 	assert(result->getName() == name);

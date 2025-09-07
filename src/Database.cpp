@@ -48,8 +48,6 @@ std::map<int, Client>&		Database::getAllClient()
 
 void Database::addChannel(Channel& channel)
 {
-	// _channels.insert(std::make_pair(channel.getName(), channel));
-	// Channel new_channel;
 	_channels[channel.getName()] = channel;
 }
 

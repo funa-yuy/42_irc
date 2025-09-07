@@ -1,5 +1,13 @@
 #include "Channel.hpp"
 
+Channel::Channel() {}
+
+Channel::Channel(std::string name, Client* createdBy) {
+	setName(name);
+	addClient(*createdBy);
+	setChannelOperator(createdBy);
+}
+
 std::string Channel::getName() const
 {
 	return (_name);
