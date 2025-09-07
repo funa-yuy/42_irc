@@ -74,8 +74,6 @@ static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
 		fds.push_back(it->first);
 		it++;
 	}
-	// for (int i = 0; i < (int)clients.size(); i++)
-		// fds.push_back(clients[i]->getFd());
 	return (fds);
 }
 
