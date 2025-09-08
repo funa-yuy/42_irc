@@ -41,6 +41,7 @@ typedef struct	s_response
 {
 	bool				is_success;
 	bool				should_send;
+	bool				should_disconnect;
 	std::string			reply;
 	std::vector<int>	target_fds;
 }				t_response;

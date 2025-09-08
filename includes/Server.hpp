@@ -23,6 +23,9 @@
 #include "Command/PassCommand.hpp"
 #include "Command/NickCommand.hpp"
 #include "Command/UserCommand.hpp"
+#include "Command/PrivmsgCommand.hpp"
+
+#include "PrintLog.hpp"
 
 #define MAX_CLIENTS 10
 #define BUF_SIZE 512
@@ -36,6 +39,9 @@ public:
 	~Server();
 
 	void	run(void);
+
+	// テスト用
+	bool	step(int timeout_ms);
 
 private:
 
@@ -56,8 +62,11 @@ private:
 
 	Command *	createCommandObj(std::string cmd_name);
 
+	void		sendResponses(const t_response & res);
+	bool		tryRegister(Client & client);
 	void		sendWelcome(Client & client);
-
+	
+	std::string	displayNick(const Client & client) const;
 	void		broadcast(int sender_fd, std::string const & msg);
 	void		exitError(std::string const & error_msg);
 

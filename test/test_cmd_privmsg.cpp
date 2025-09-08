@@ -22,6 +22,7 @@ static void test_success() {
 
 		Client* c = db.addClient(fd);
 		c->setNickname("funa");
+		c->setUsername("funauser");
 
 		std::vector<std::string> args;
 		args.push_back("funa");
@@ -29,25 +30,39 @@ static void test_success() {
 
 		t_parsed in = makeInput("PRIVMSG", fd, args);
 		t_response res = privmsg.execute(in, db);
+
+		std::string expected = ":funa!funauser@ft.irc PRIVMSG funa :Send message successfully 1.\r\n";
+		// ":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + text + "\r\n"
 		assert(res.is_success == true);
 		assert(res.should_send == true);
-		assert(res.reply == "Send message successfully 1.");
+		assert(res.reply == expected);
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
-
+	
 	// 正常: 正しい		送信者と宛先が、異なるfd(違う人)の場合
 	{
-		int	fd = 5;
+		int	sender_fd = 5;
+		int	target_fd = 4;
+
+		Client *	target = db.addClient(target_fd);
+		target->setNickname("funa");
+		target->setUsername("funauser");
+
+		Client *	sender = db.addClient(sender_fd);
+		sender->setNickname("user1");
+		sender->setUsername("user1user");
 
 		std::vector<std::string> args;
 		args.push_back("funa");
 		args.push_back("Send message successfully 2.");
-
-		t_parsed in = makeInput("PRIVMSG", fd, args);
+		
+		t_parsed in = makeInput("PRIVMSG", sender_fd, args);
 		t_response res = privmsg.execute(in, db);
+
+		std::string expected = ":user1!user1user@ft.irc PRIVMSG funa :Send message successfully 2.\r\n";
 		assert(res.is_success == true);
 		assert(res.should_send == true);
-		assert(res.reply == "Send message successfully 2.");
+		assert(res.reply == expected);
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == 4);
 	}
 }
@@ -59,6 +74,7 @@ static void test_factory() {
 
 	Client* c = db.addClient(fd);
 	c->setNickname("ken");
+	c->setUsername("kenuser");
 
 	std::vector<std::string> args;
 	args.push_back("ken");
@@ -66,9 +82,11 @@ static void test_factory() {
 
 	t_parsed in = makeInput("PRIVMSG", fd, args);
 	t_response res = cmd->execute(in, db);
+
+	std::string expected = ":ken!kenuser@ft.irc PRIVMSG ken :This is createPrivmsgCommand.\r\n";
 	assert(res.is_success == true);
 	assert(res.should_send == true);
-	assert(res.reply == "This is createPrivmsgCommand.");
+	assert(res.reply == expected);
 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 }
 

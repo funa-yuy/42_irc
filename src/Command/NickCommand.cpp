@@ -21,6 +21,7 @@ const t_response	NickCommand::execute(const t_parsed& input, Database& db) const
 
 	res.is_success = true;
 	res.should_send = false;
+	res.should_disconnect = false;
 	res.reply = "";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
@@ -33,6 +34,7 @@ void	NickCommand::set_err_res(t_response *res,
 {
 	res->is_success = false;
 	res->should_send = true;
+	res->should_disconnect = false;
 	res->reply = ":ft.irc " + errmsg + "\r\n";
 	res->target_fds.resize(1);
 	res->target_fds[0] = input.client_fd;
