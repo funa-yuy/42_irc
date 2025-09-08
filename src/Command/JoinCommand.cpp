@@ -140,6 +140,9 @@ const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const
 	for (size_t i = 0; i < items.size(); i++)
 		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
 
+		if (!is_validCmd(input, &res, db, items))
+		return (res);
+
 	//todo: 1個ずつ不正チェックと実行をする?
 	// for (size_t i = 0; i < items.size(); i++)
 	// {
@@ -150,5 +153,6 @@ const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const
 	// }
 
 	//todo: t_responseをセット
+
 	return (res);
 }
