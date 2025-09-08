@@ -44,7 +44,9 @@ ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
 437 <nick/channel> :Nick/channel is temporarily unavailable*/
 
 static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, std::vector<s_join_item> items) {
-	Client*		sender_client = db.getClient(input.client_fd);
+	// Client*		sender_client = db.getClient(input.client_fd);
+	(void) db;
+	(void) items;
 	std::string	command = "JOIN";
 
 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
@@ -97,7 +99,7 @@ std::vector<s_join_item>	parse_join_args(const t_parsed& input) {
 
 const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const {
 	t_response	res;
-	Client *	sender_client = db.getClient(input.client_fd);
+	// Client *	sender_client = db.getClient(input.client_fd);
 
 	std::vector<s_join_item> items = parse_join_args(input);
 
