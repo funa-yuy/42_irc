@@ -44,6 +44,38 @@ ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
 	437 <nick/channel> :Nick/channel is temporarily unavailable*/
 
 
+static std::vector<std::string> split(const std::string& str, char delimiter) {
+	std::vector<std::string> tokens;
+	std::stringstream ss(str);
+	std::string token;
+
+	while (std::getline(ss, token, delimiter)) {
+		tokens.push_back(token);
+	}
+	return tokens;
+}
+
+static std::vector<s_join_item>	parse_join_args(const t_parsed& input) {
+	std::vector<s_join_item>	res;
+	std::vector<std::string> channels;
+	std::vector<std::string> keys;
+
+	if (input.args.size() > 0)
+		channels = split(input.args[0], ',');
+	if (input.args.size() > 1)
+		keys = split(input.args[1], ',');
+
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		s_join_item item;
+		item.channel = channels[i];
+		if (keys.size() > i)
+			item.key = keys[i];
+		res.push_back(item);
+	}
+	return (res);
+}
+
 static bool is_containsChar(const std::string& str, char target) {
 	return (str.find(target) != std::string::npos);
 }
@@ -77,15 +109,6 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	std::string	command = "JOIN";
 	std::string invalid_channelName;
 
-	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
 	if (!is_validChannelName(items, &invalid_channelName))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
 	{
 		res->is_success = false;
@@ -98,61 +121,55 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	return(true);
 }
 
-std::vector<std::string> split(const std::string& str, char delimiter) {
-	std::vector<std::string> tokens;
-	std::stringstream ss(str);
-	std::string token;
+static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
+	std::string	command = "JOIN";
 
-	while (std::getline(ss, token, delimiter)) {
-		tokens.push_back(token);
-	}
-	return tokens;
-}
-
-std::vector<s_join_item>	parse_join_args(const t_parsed& input) {
-	std::vector<s_join_item>	res;
-	std::vector<std::string> channels;
-	std::vector<std::string> keys;
-
-	if (input.args.size() > 0)
-		channels = split(input.args[0], ',');
-	if (input.args.size() > 1)
-		keys = split(input.args[1], ',');
-
-	for (size_t i = 0; i < channels.size(); i++)
+	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
-		s_join_item item;
-		item.channel = channels[i];
-		if (keys.size() > i)
-			item.key = keys[i];
-		res.push_back(item);
+		res->is_success = false;
+		res->should_send = true;
+		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
 	}
-	return (res);
+	return (true);
 }
 
 const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const {
 	t_response	res;
-	// Client *	sender_client = db.getClient(input.client_fd);
+
+	if (!is_needMoreParams(input, &res))
+		return (res);
+
+	if (input.args[0] == "0"){
+		//todo: すべてのチャンネルから退出する処理とレスポンスをpush
+		return (res);
+	}
 
 	std::vector<s_join_item> items = parse_join_args(input);
-	//todo: デバック用
-	std::cout << std::endl << "パース結果↓ " << std::endl;
+
+	std::cout << std::endl << "パース結果↓ " << std::endl;	//todo: デバック用
 	for (size_t i = 0; i < items.size(); i++)
 		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
 
-		if (!is_validCmd(input, &res, db, items))
-		return (res);
+	// if (!is_validCmd(input, &res, db, items))
+	// 	return (res);
 
-	//todo: 1個ずつ不正チェックと実行をする?
-	// for (size_t i = 0; i < items.size(); i++)
-	// {
-	// 	t_response res;
-	// 	if (is_validCmd(input, &res, db, items))
-	// 		res = update_database(input, db, items);
-	// 	response.push_back(res);
-	// }
-
-	//todo: t_responseをセット
-
+	// todo: 1個ずつ不正チェックと実行をする?
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		t_response res;
+		if (!is_validCmd(input, &res, db, items)) {
+			//todo: 不正だった場合のresをpushする
+			// response.push_back(res);
+		} else {
+			//todo: 正常だった場合、データ更新と、resをpush
+			// update_database(input, db, items);
+			// create_Join_response(); //JOIN成功メッセージ
+			// create_rplTopic_response(); //RPL_TOPIC
+			// create_rplNamreply_response(); //RPL_NAMREPLY
+		}
+	}
 	return (res);
 }
