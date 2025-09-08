@@ -103,6 +103,21 @@ static bool	is_validChannelName(std::vector<s_join_item> items, std::string* inv
 	return (true);
 }
 
+static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
+	std::string	command = "JOIN";
+
+	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	return (true);
+}
+
 static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, std::vector<s_join_item> items) {
 	// Client*		sender_client = db.getClient(input.client_fd);
 	(void) db;
@@ -121,20 +136,26 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	return(true);
 }
 
-static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
-	std::string	command = "JOIN";
+static const std::vector<t_response>	executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) {
+	std::vector<t_response>	allResponse;
 
-	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
+	for (size_t i = 0; i < items.size(); i++)
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
+		t_response res;
+		if (!is_validCmd(input, &res, db, items)) {
+			//todo: 不正だった場合のresをpushする
+			allResponse.push_back(res);
+		} else {
+			//todo: 正常だった場合、データ更新と、resをpush
+			// update_database(input, db, items);
+			// create_Join_allResponse(); //JOIN成功メッセージ
+			// create_rplTopic_allResponse(); //RPL_TOPIC
+			// create_rplNamreply_allResponse(); //RPL_NAMREPLY
+		}
 	}
-	return (true);
+	return (allResponse);
 }
+
 
 const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const {
 	t_response	res;
@@ -153,23 +174,11 @@ const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const
 	for (size_t i = 0; i < items.size(); i++)
 		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
 
-	// if (!is_validCmd(input, &res, db, items))
-	// 	return (res);
+	if (!is_validCmd(input, &res, db, items))
+		return (res);
 
-	// todo: 1個ずつ不正チェックと実行をする?
-	for (size_t i = 0; i < items.size(); i++)
-	{
-		t_response res;
-		if (!is_validCmd(input, &res, db, items)) {
-			//todo: 不正だった場合のresをpushする
-			// response.push_back(res);
-		} else {
-			//todo: 正常だった場合、データ更新と、resをpush
-			// update_database(input, db, items);
-			// create_Join_response(); //JOIN成功メッセージ
-			// create_rplTopic_response(); //RPL_TOPIC
-			// create_rplNamreply_response(); //RPL_NAMREPLY
-		}
-	}
+	// todo: 1個ずつ実行する関数
+	executeJoin(input, db, items);
+
 	return (res);
 }
