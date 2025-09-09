@@ -67,9 +67,13 @@ static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
 	target.erase(0, 1);
 	if (db.getChannel(target) == NULL)
 		return (fds);
-	std::vector<Client *> clients= db.getChannel(target)->getClients();
-	for (int i = 0; i < (int)clients.size(); i++)
-		fds.push_back(clients[i]->getFd());
+	std::map<int, Client> clients= db.getChannel(target)->getClients();
+	std::map<int, Client>::iterator it = clients.begin();
+	while (it != clients.end())
+	{
+		fds.push_back(it->first);
+		it++;
+	}
 	return (fds);
 }
 

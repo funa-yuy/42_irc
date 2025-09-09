@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
+#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/02 18:55:49 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/08 12:44:19 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,6 +31,7 @@ MAIN				?=
 SRC					:= \
 					Server.cpp \
 					Parser.cpp \
+					Channel.cpp \
 					Client.cpp \
 					Channel.cpp \
 					Database.cpp \
@@ -38,8 +39,8 @@ SRC					:= \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
-					PrintLog.cpp \
 					Command/PrivmsgCommand.cpp \
+					PrintLog.cpp \
 
 HEADERS				:= \
 					irc.hpp \
