@@ -263,7 +263,6 @@ static void test_user_command_edge_cases()
 
 		std::vector<t_response> response_list = user.execute(in, db);
 		assert(response_list.size() == 1);
-		const t_response & res = response_list[0];
 		assert(client->getRealname() == "*");  // デフォルト値
 	}
 
