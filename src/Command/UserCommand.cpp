@@ -10,8 +10,9 @@ Command *	UserCommand::createUserCommand(void)
 	return (new UserCommand());
 }
 
-const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
+std::vector<t_response>	UserCommand::execute(const t_parsed& input, Database& db) const
 {
+	std::vector<t_response> response_list;
 	t_response	res;
 	Client *	sender_client = db.getClient(input.client_fd);
 	if (!sender_client)
@@ -19,16 +20,20 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 		res.is_success = false;
 		res.should_send = false;
 		res.should_disconnect = false;
-		return (res);
+		response_list.push_back(res);
+		return (response_list);
 	}
 
 	if (!isValidCmd(input, &res, sender_client))
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
 	std::string username = input.args[0];
 	if (username.length() > USERLEN)
 		username = username.substr(0, USERLEN);
-	
+
 	sender_client->setUsername(username);
 
 	std::string realname = input.args[3];
@@ -37,7 +42,7 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 
 	if (realname.empty() || realname.find_first_not_of(" \t\r\n") == std::string::npos)
 		realname = DEFAULT_REALNAME;
-		
+
 	sender_client->setRealname(realname);
 	sender_client->setUserReceived(true);
 
@@ -45,7 +50,8 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 	res.should_send = false;
 	res.should_disconnect = false;
 
-	return (res);
+	response_list.push_back(res);
+	return (response_list);
 }
 
 bool	UserCommand::isValidCmd(const t_parsed & input, t_response * res, Client * client) const
