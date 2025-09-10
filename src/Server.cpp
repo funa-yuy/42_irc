@@ -29,9 +29,9 @@ Server::Server(int port, std::string const & password)
 	if (_cmd_map.empty())
 	{
 		_cmd_map["PASS"] = &PassCommand::createPassCommand;
-		// _cmd_map["NICK"] = &NickCommand::createNickCommand;
-		// _cmd_map["USER"] = &UserCommand::createUserCommand;
-		// _cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
+		_cmd_map["NICK"] = &NickCommand::createNickCommand;
+		_cmd_map["USER"] = &UserCommand::createUserCommand;
+		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 	}
 }
 
