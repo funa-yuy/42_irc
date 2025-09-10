@@ -29,9 +29,9 @@ Server::Server(int port, std::string const & password)
 	if (_cmd_map.empty())
 	{
 		_cmd_map["PASS"] = &PassCommand::createPassCommand;
-		_cmd_map["NICK"] = &NickCommand::createNickCommand;
-		_cmd_map["USER"] = &UserCommand::createUserCommand;
-		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
+		// _cmd_map["NICK"] = &NickCommand::createNickCommand;
+		// _cmd_map["USER"] = &UserCommand::createUserCommand;
+		// _cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 	}
 }
 
@@ -77,13 +77,13 @@ void	Server::acceptNewClient(void)
 		std::cerr << "accept: " << strerror(errno) << std::endl;
 		return ;
 	}
-	
+
 	Client *	new_client = _db.addClient(client_fd);
 	if (!new_client)
 	return ;
-	
+
 	_poll_fds.push_back(new_client->getPfd());
-	
+
 	std::cout << "New client connected: " << new_client->getFd() << std::endl;
 
 	return ;
@@ -93,24 +93,24 @@ void	Server::handleClientInput(int fd)
 {
 	char	buf[BUF_SIZE];
 	int		n;
-	
+
 	n = recv(fd, buf, BUF_SIZE - 1, 0);
 	if (n <= 0)
 	{
 		disconnectClient(fd);
 		return ;
 	}
-	
+
 	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
-	
+
 	buf[n] = '\0';
 	Client *	client = _db.getClient(fd);
 	if (!client)
 		return ;
-	
+
 	std::string &	clientBuffer = client->getBuffer();
 	clientBuffer += buf;
-	
+
 	size_t pos;
 	while ((pos = clientBuffer.find('\n')) != std::string::npos)
 	{
@@ -118,11 +118,11 @@ void	Server::handleClientInput(int fd)
 		clientBuffer.erase(0, pos + 1);
 		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r'))
 			msg.erase(msg.size() - 1);
-		
+
 		t_parsed	parsed = Parser::exec(msg, fd);
 		if (parsed.cmd.empty())
 			continue ;
-		
+
 		PrintLog printlog;
 		printlog.print_debug("INPUT LINE: " + msg);
 		printlog.print_debug("COMMAND: " + parsed.cmd);
@@ -142,19 +142,27 @@ void	Server::handleClientInput(int fd)
 				continue ;
 			}
 		}
-		
+
 		Command * cmdObj = createCommandObj(parsed.cmd);
 		if (cmdObj)
 		{
-			t_response	res = cmdObj->execute(parsed, _db);
-			if (res.should_disconnect)
+			std::vector<t_response> response_list = cmdObj->execute(parsed, _db);
+			bool should_break_outer = false;
+			for (size_t i = 0; i < response_list.size(); ++i)
 			{
+				const t_response & res = response_list[i];
+				if (res.should_disconnect)
+				{
+					sendResponses(res);
+					delete cmdObj;
+					disconnectClient(parsed.client_fd);
+					should_break_outer = true;
+					break;
+				}
 				sendResponses(res);
-				delete cmdObj;
-				disconnectClient(parsed.client_fd);
-				break ;
 			}
-			sendResponses(res);
+			if (should_break_outer)
+				break ;
 			tryRegister(*client);
 			delete cmdObj;
 		}
@@ -174,7 +182,7 @@ void	Server::disconnectClient(int fd)
 {
 	std::cout << "Client disconnected: " << fd << std::endl;
 	close(fd);
-	
+
 	for (size_t i = 0; i < _poll_fds.size(); ++i)
 	{
 		if (_poll_fds[i].fd == fd)
@@ -183,9 +191,9 @@ void	Server::disconnectClient(int fd)
 			break ;
 		}
 	}
-	
+
 	_db.removeClient(fd);
-	
+
 	return ;
 }
 
@@ -221,13 +229,13 @@ bool	Server::tryRegister(Client & client)
 	if (!client.getPassReceived() || !client.getNickReceived() || !client.getUserReceived())
 		return (false);
 	client.setIsRegistered(true);
-	
+
 	std::cout	<< "[REGISTERED] fd = " << client.getFd()
 	<< " nick = " << displayNick(client)
 	<< " user = " << client.getUsername()
 	<< " realname = " << client.getRealname()
 	<< std::endl;
-	
+
 	sendWelcome(client);
 
 	return (true);
@@ -237,15 +245,15 @@ void	Server::sendWelcome(Client & client)
 {
 	std::string nickname = displayNick(client);
 	std::string	welcome;
-	
+
 	welcome = ":ft.irc 001 " + nickname + " :Welcome to the ft_irc Network "
 	+ nickname + "!" + client.getUsername() + "@ft.irc\r\n";
 	welcome += ":ft.irc 002 " + nickname + " :Your host is ft.irc, running version 0.1\r\n";
 	welcome += ":ft.irc 003 " + nickname + " :This server was created 2025-08-26\r\n";
 	welcome += ":ft.irc 004 " + nickname + " ft.irc 0.1 o o\r\n";
-	
+
 	send(client.getFd(), welcome.c_str(), welcome.size(), 0);
-	
+
 	return ;
 }
 
