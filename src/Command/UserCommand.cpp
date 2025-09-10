@@ -10,7 +10,7 @@ Command *	UserCommand::createUserCommand(void)
 	return (new UserCommand());
 }
 
-const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
+std::vector<t_response>	UserCommand::execute(const t_parsed& input, Database& db) const
 {
 	t_response	res;
 	Client *	sender_client = db.getClient(input.client_fd);
@@ -28,7 +28,7 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 	std::string username = input.args[0];
 	if (username.length() > USERLEN)
 		username = username.substr(0, USERLEN);
-	
+
 	sender_client->setUsername(username);
 
 	std::string realname = input.args[3];
@@ -37,7 +37,7 @@ const t_response	UserCommand::execute(const t_parsed& input, Database& db) const
 
 	if (realname.empty() || realname.find_first_not_of(" \t\r\n") == std::string::npos)
 		realname = DEFAULT_REALNAME;
-		
+
 	sender_client->setRealname(realname);
 	sender_client->setUserReceived(true);
 

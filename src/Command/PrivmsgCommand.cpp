@@ -137,8 +137,8 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 	return(true);
 }
 
-const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
-	t_response	res;	
+std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
+	t_response	res;
 
 	res.is_success = false;
 	res.should_send = false;

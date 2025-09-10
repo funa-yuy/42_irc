@@ -21,7 +21,7 @@ class PrivmsgCommand : public Command {
 		~PrivmsgCommand();
 		static Command* createPrivmsgCommand();
 
-		const t_response	execute(const t_parsed& input, Database& db) const;
+		std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
 };
 
 // ------------------------------------------------

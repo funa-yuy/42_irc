@@ -5,7 +5,7 @@ NickCommand::NickCommand() {}
 
 NickCommand::~NickCommand() {}
 
-const t_response	NickCommand::execute(const t_parsed& input, Database& db) const {
+std::vector<t_response>	NickCommand::execute(const t_parsed& input, Database& db) const {
 
 	t_response	res;
 
