@@ -1,11 +1,11 @@
 #include "Channel.hpp"
 
-Channel::Channel() {}
+Channel::Channel() : _channelOperatorFds(-1) {}
 
-Channel::Channel(std::string name, Client* createdBy) {
+Channel::Channel(std::string name, int createdBy) {
 	setName(name);
-	addClient(*createdBy);
-	setChannelOperator(createdBy);
+	addClientFd(createdBy);
+	setChannelOperatorFds(createdBy);
 }
 
 std::string Channel::getName() const
@@ -13,9 +13,9 @@ std::string Channel::getName() const
 	return (_name);
 }
 
-std::map<int, Client> Channel::getClients() const
+const std::set<int>& Channel::getClientFds() const
 {
-	return (_clients);
+	return (_clientFds);
 }
 
 std::string Channel::getTopic() const
@@ -23,9 +23,9 @@ std::string Channel::getTopic() const
 	return (_topic);
 }
 
-Client *Channel::getChannelOperator() const
+int Channel::getChannelOperatorFds() const
 {
-	return (_channelOperator);
+	return (_channelOperatorFds);
 }
 
 void Channel::setName(std::string name)
@@ -33,9 +33,9 @@ void Channel::setName(std::string name)
 	_name = name;
 }
 
-void Channel::addClient(Client& client)
+void Channel::addClientFd(int fd)
 {
-	_clients[client.getFd()] = client;
+	_clientFds.insert(fd);
 }
 
 void Channel::setTopic(std::string topic)
@@ -43,19 +43,18 @@ void Channel::setTopic(std::string topic)
 	_topic = topic;
 }
 
-void Channel::setChannelOperator(Client * channelOperator)
+void Channel::setChannelOperatorFds(int fd)
 {
-	_channelOperator = channelOperator;
+	if (_clientFds.find(fd) != _clientFds.end())
+		_channelOperatorFds = fd;
 }
 
-void	Channel::removeClient(Client* client)
+void	Channel::removeClientFd(int fd)
 {
-	std::map<int, Client>::iterator it = _clients.find(client->getFd());
-	_clients.erase(it);
-}
-
-void	Channel::removeClient(int fd)
-{
-	std::map<int, Client>::iterator it = _clients.find(fd);
-	_clients.erase(it);
+	std::set<int>::iterator it = _clientFds.find(fd);
+	if (it == _clientFds.end())
+		return ;
+	if (_channelOperatorFds == fd)//todo: オペレーターが退出した場合の処理を考える。
+		_channelOperatorFds = -1;
+	_clientFds.erase(it);
 }
