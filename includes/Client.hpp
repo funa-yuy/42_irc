@@ -36,7 +36,8 @@ public:
 	bool				getUserReceived(void) const;
 	bool				getIsRegistered(void) const;
 	bool				getIsOperator(void) const;
-	
+
+	void				setFd(int fd);
 	void				setNickname(const std::string& nickname);
 	void				setUsername(const std::string& username);
 	void				setRealname(const std::string& realname);

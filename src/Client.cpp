@@ -78,6 +78,12 @@ bool	Client::getIsRegistered() const {
 	return (_isRegistered);
 }
 
+void	Client::setFd(int fd)
+{
+	_fd = fd;
+	return ;
+}
+
 void	Client::setUsername(const std::string & username)
 {
 	_username = username;
