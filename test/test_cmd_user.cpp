@@ -30,8 +30,9 @@ static void test_user_command_basic()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick");  // nickname設定済みと想定
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(res.should_send == false);
 		assert(client->getUsername() == "testuser");
@@ -58,8 +59,9 @@ static void test_user_command_realname_with_colon()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick2");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(client->getRealname() == "Real Name With Colon");
 	}
@@ -83,8 +85,9 @@ static void test_user_command_userlen_limit()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick3");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(client->getUsername() == "verylongus");  // 10文字に切り詰められる
 		assert(client->getUsername().length() == 10);
@@ -109,8 +112,9 @@ static void test_user_command_errors()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick4");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
 		assert(res.reply.find("461") != std::string::npos);
@@ -127,8 +131,9 @@ static void test_user_command_errors()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick5");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
 		assert(res.reply.find("461") != std::string::npos);
@@ -148,8 +153,9 @@ static void test_user_command_errors()
 		client->setNickname("testnick6");
 		client->setUserReceived(true);  // 既にUSER受信済みに設定
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
 		assert(res.reply.find("462") != std::string::npos);
@@ -175,8 +181,9 @@ static void test_user_command_edge_cases()
 		t_parsed in = makeInput("USER", fd, args);
 		// db.addClient(fd) を呼ばない = 存在しないクライアント
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == false);  // クライアントが存在しないので送信しない
 	}
@@ -194,9 +201,10 @@ static void test_user_command_edge_cases()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick7");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
 		// 空のusernameでも技術的には処理される（RFC的にはグレーゾーン）
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(client->getUsername() == "");
 	}
@@ -214,8 +222,9 @@ static void test_user_command_edge_cases()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick8");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(client->getRealname() == "*");  // デフォルト値が設定される
 	}
@@ -233,8 +242,9 @@ static void test_user_command_edge_cases()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick9");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(client->getRealname() == "*");  // ":" が除去されて空になり、デフォルト値が設定
 	}
@@ -244,14 +254,16 @@ static void test_user_command_edge_cases()
 		int	fd = 10;
 		std::vector<std::string> args;
 		args.push_back("testuser");
-		args.push_back("0"); 
+		args.push_back("0");
 		args.push_back("*");
 		args.push_back(":   \t  ");  // 空白とタブのみ
 
 		t_parsed in = makeInput("USER", fd, args);
 		Client* client = db.addClient(fd);
-		
-		t_response res = user.execute(in, db);
+
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(client->getRealname() == "*");  // デフォルト値
 	}
 
@@ -268,8 +280,9 @@ static void test_user_command_edge_cases()
 		Client* client = db.addClient(fd);
 		client->setNickname("testnick10");
 
-		t_response res = user.execute(in, db);
-		
+		std::vector<t_response> response_list = user.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(client->getUsername() == "exactlyten");
 		assert(client->getUsername().length() == 10);
@@ -281,11 +294,11 @@ static void test_user_command_factory()
 	// createUserCommand のテスト
 	Command* cmd = UserCommand::createUserCommand();
 	assert(cmd != NULL);
-	
+
 	// 動的確認：実際にUserCommandかどうか
 	UserCommand* userCmd = dynamic_cast<UserCommand*>(cmd);
 	assert(userCmd != NULL);
-	
+
 	delete cmd;
 }
 
@@ -297,6 +310,6 @@ int main(void)
 	test_user_command_errors();
 	test_user_command_edge_cases();
 	test_user_command_factory();
-	
+
 	return 0;
 }
