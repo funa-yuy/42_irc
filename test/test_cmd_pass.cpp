@@ -20,7 +20,9 @@ static void test_pass_command_all() {
 		int fd = 4;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>());
 		db.addClient(fd);
-		t_response res = pass.execute(in, db);
+		std::vector<t_response> response_list = pass.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
 		assert(res.reply.find("461") != std::string::npos);
@@ -33,7 +35,9 @@ static void test_pass_command_all() {
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
 		Client* c = db.addClient(fd);
 		c->setIsRegistered(true);//isRegisteredをtrueにする
-		t_response res = pass.execute(in, db);
+		std::vector<t_response> response_list = pass.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
 		assert(res.reply.find("462") != std::string::npos);
@@ -45,7 +49,9 @@ static void test_pass_command_all() {
 		int fd = 6;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "wrong"));//間違ったパスワードを指定
 		db.addClient(fd);
-		t_response res = pass.execute(in, db);
+		std::vector<t_response> response_list = pass.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
 		assert(res.reply.find("464") != std::string::npos);
@@ -57,7 +63,9 @@ static void test_pass_command_all() {
 		int fd = 7;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
 		db.addClient(fd);
-		t_response res = pass.execute(in, db);
+		std::vector<t_response> response_list = pass.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(res.should_send == false);
 	}
@@ -68,9 +76,12 @@ static void test_pass_command_all() {
 		int fd = 8;
 		t_parsed in = makeInput("PASS", fd, std::vector<std::string>(1, "password"));
 		db.addClient(fd);
-		t_response res = cmd->execute(in, db);
+		std::vector<t_response> response_list = cmd->execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(res.should_send == false);
+		delete cmd;
 	}
 }
 

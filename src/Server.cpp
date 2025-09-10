@@ -146,15 +146,23 @@ void	Server::handleClientInput(int fd)
 		Command * cmdObj = createCommandObj(parsed.cmd);
 		if (cmdObj)
 		{
-			t_response	res = cmdObj->execute(parsed, _db);
-			if (res.should_disconnect)
+			std::vector<t_response> response_list = cmdObj->execute(parsed, _db);
+			bool should_break_outer = false;
+			for (size_t i = 0; i < response_list.size(); ++i)
 			{
+				const t_response & res = response_list[i];
+				if (res.should_disconnect)
+				{
+					sendResponses(res);
+					delete cmdObj;
+					disconnectClient(parsed.client_fd);
+					should_break_outer = true;
+					break;
+				}
 				sendResponses(res);
-				delete cmdObj;
-				disconnectClient(parsed.client_fd);
-				break ;
 			}
-			sendResponses(res);
+			if (should_break_outer)
+				break ;
 			tryRegister(*client);
 			delete cmdObj;
 		}

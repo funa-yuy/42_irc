@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/10 16:01:32 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/10 16:50:22 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,7 @@ SRC					:= \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
 					Command/PrivmsgCommand.cpp \
-					PrintLog.cpp \
+					PrintLog.cpp
 
 HEADERS				:= \
 					irc.hpp \
@@ -52,8 +52,8 @@ HEADERS				:= \
 					NickCommand.hpp \
 					PassCommand.hpp \
 					UserCommand.hpp \
-					PrintLog.hpp \
-					PrivmsgCommand.hpp
+					PrivmsgCommand.hpp \
+					PrintLog.hpp
 
 
 OBJ					:= $(addprefix $(OBJ_DIR)/src/, $(SRC:.cpp=.o)) \
