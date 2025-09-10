@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel() {}
+Channel::Channel() : _channelOperatorFds(-1) {}
 
 Channel::Channel(std::string name, int createdBy) {
 	setName(name);
