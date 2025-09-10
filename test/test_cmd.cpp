@@ -57,7 +57,7 @@ int	main() {
 	for (int i = 0; i < n; ++i)
 	{
 		t_response res = handleInput(inputs[i], db);
-		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
+		// std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
 	}
 
 	return (0);
