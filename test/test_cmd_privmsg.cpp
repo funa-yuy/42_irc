@@ -29,7 +29,9 @@ static void test_success() {
 		args.push_back("Send message successfully 1.");
 
 		t_parsed in = makeInput("PRIVMSG", fd, args);
-		t_response res = privmsg.execute(in, db);
+		std::vector<t_response> response_list = privmsg.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 
 		std::string expected = ":funa!funauser@ft.irc PRIVMSG funa :Send message successfully 1.\r\n";
 		// ":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + text + "\r\n"
@@ -38,7 +40,7 @@ static void test_success() {
 		assert(res.reply == expected);
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
-	
+
 	// 正常: 正しい		送信者と宛先が、異なるfd(違う人)の場合
 	{
 		int	sender_fd = 5;
@@ -55,9 +57,11 @@ static void test_success() {
 		std::vector<std::string> args;
 		args.push_back("funa");
 		args.push_back("Send message successfully 2.");
-		
+
 		t_parsed in = makeInput("PRIVMSG", sender_fd, args);
-		t_response res = privmsg.execute(in, db);
+		std::vector<t_response> response_list = privmsg.execute(in, db);
+		assert(response_list.size() == 1);
+		const t_response & res = response_list[0];
 
 		std::string expected = ":user1!user1user@ft.irc PRIVMSG funa :Send message successfully 2.\r\n";
 		assert(res.is_success == true);
@@ -81,13 +85,17 @@ static void test_factory() {
 	args.push_back("This is createPrivmsgCommand.");
 
 	t_parsed in = makeInput("PRIVMSG", fd, args);
-	t_response res = cmd->execute(in, db);
+	std::vector<t_response> response_list = cmd->execute(in, db);
+	assert(response_list.size() == 1);
+	const t_response & res = response_list[0];
 
 	std::string expected = ":ken!kenuser@ft.irc PRIVMSG ken :This is createPrivmsgCommand.\r\n";
 	assert(res.is_success == true);
 	assert(res.should_send == true);
 	assert(res.reply == expected);
 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+
+	delete cmd;
 }
 
 static void test_err_411_norecipient() {
@@ -98,7 +106,10 @@ static void test_err_411_norecipient() {
 	std::vector<std::string> args;
 
 	t_parsed in = makeInput("PRIVMSG", fd, args);
-	t_response res = privmsg.execute(in, db);
+	std::vector<t_response> response_list = privmsg.execute(in, db);
+	assert(response_list.size() == 1);
+	const t_response & res = response_list[0];
+
 	assert(res.is_success == false);
 	assert(res.should_send == true);
 	assert(res.reply.find("411") != std::string::npos);
@@ -114,7 +125,10 @@ static void test_err_412_notexttosend() {
 	args.push_back("nusu");
 
 	t_parsed in = makeInput("PRIVMSG", fd, args);
-	t_response res = privmsg.execute(in, db);
+	std::vector<t_response> response_list = privmsg.execute(in, db);
+	assert(response_list.size() == 1);
+	const t_response & res = response_list[0];
+
 	assert(res.is_success == false);
 	assert(res.should_send == true);
 	assert(res.reply.find("412") != std::string::npos);
@@ -132,7 +146,10 @@ static void test_err_401_nosuchnick() {
 	args.push_back("This is ERR_NOTEXTTOSEND 401.");
 
 	t_parsed in = makeInput("PRIVMSG", fd, args);
-	t_response res = privmsg.execute(in, db);
+	std::vector<t_response> response_list = privmsg.execute(in, db);
+	assert(response_list.size() == 1);
+	const t_response & res = response_list[0];
+
 	assert(res.is_success == false);
 	assert(res.should_send == true);
 	assert(res.reply.find("401") != std::string::npos);
