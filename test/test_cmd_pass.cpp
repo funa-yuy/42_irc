@@ -81,6 +81,7 @@ static void test_pass_command_all() {
 		const t_response & res = response_list[0];
 		assert(res.is_success == true);
 		assert(res.should_send == false);
+		delete cmd;
 	}
 }
 

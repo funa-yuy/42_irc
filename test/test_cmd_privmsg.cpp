@@ -94,6 +94,8 @@ static void test_factory() {
 	assert(res.should_send == true);
 	assert(res.reply == expected);
 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+
+	delete cmd;
 }
 
 static void test_err_411_norecipient() {
