@@ -54,7 +54,7 @@ void	Channel::removeClientFd(int fd)
 	std::set<int>::iterator it = _clientFds.find(fd);
 	if (it == _clientFds.end())
 		return ;
-	if (_channelOperatorFds == fd)
+	if (_channelOperatorFds == fd)//todo: オペレーターが退出した場合の処理を考える。
 		_channelOperatorFds = -1;
 	_clientFds.erase(it);
 }
