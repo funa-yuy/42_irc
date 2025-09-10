@@ -43,18 +43,26 @@ bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 }
 
 std::vector<t_response>	PassCommand::execute(const t_parsed& input, Database& db) const {
+	std::vector<t_response>	response_list;
 	t_response	res;
+
 	res.is_success = false;
 	res.should_send = false;
 	res.should_disconnect = false;
-	Client *	sender_client = db.getClient(input.client_fd);
+	res.reply.clear();
+	res.target_fds.clear();
 
+	Client *	sender_client = db.getClient(input.client_fd);
 	if (!is_validCmd(input, &res, db))
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
 	sender_client->setPassReceived(true);
 
 	res.is_success = true;
+	response_list.push_back(res);
 
-	return (res);
+	return (response_list);
 }
