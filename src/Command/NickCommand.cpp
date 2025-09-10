@@ -7,10 +7,14 @@ NickCommand::~NickCommand() {}
 
 std::vector<t_response>	NickCommand::execute(const t_parsed& input, Database& db) const {
 
+	std::vector<t_response> response_list;
 	t_response	res;
 
 	if (is_validCmd(input, &res, db) == false)
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
 	if (db.getClient(input.client_fd))
 	{
@@ -25,7 +29,8 @@ std::vector<t_response>	NickCommand::execute(const t_parsed& input, Database& db
 	res.reply = "";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
-	return (res);
+	response_list.push_back(res);
+	return (response_list);
 }
 
 void	NickCommand::set_err_res(t_response *res,

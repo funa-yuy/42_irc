@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/10 14:11:51 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/10 14:20:01 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,9 +36,9 @@ SRC					:= \
 					Database.cpp \
 					Command/Command.cpp \
 					Command/PassCommand.cpp \
+					Command/NickCommand.cpp \
 					PrintLog.cpp
-# Command/NickCommand.cpp \
-Command/UserCommand.cpp \
+# Command/UserCommand.cpp \
 Command/PrivmsgCommand.cpp \
 
 HEADERS				:= \
@@ -50,9 +50,9 @@ HEADERS				:= \
 					Database.hpp \
 					Command.hpp \
 					PassCommand.hpp \
+					NickCommand.hpp \
 					PrintLog.hpp
-# NickCommand.hpp \
-UserCommand.hpp \
+# UserCommand.hpp \
 PrivmsgCommand.hpp
 
 

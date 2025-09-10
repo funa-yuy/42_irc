@@ -49,8 +49,6 @@ std::vector<t_response>	PassCommand::execute(const t_parsed& input, Database& db
 	res.is_success = false;
 	res.should_send = false;
 	res.should_disconnect = false;
-	res.reply.clear();
-	res.target_fds.clear();
 
 	Client *	sender_client = db.getClient(input.client_fd);
 	if (!is_validCmd(input, &res, db))
