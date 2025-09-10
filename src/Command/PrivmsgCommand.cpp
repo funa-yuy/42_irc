@@ -67,11 +67,11 @@ static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
 	target.erase(0, 1);
 	if (db.getChannel(target) == NULL)
 		return (fds);
-	std::map<int, Client> clients= db.getChannel(target)->getClients();
-	std::map<int, Client>::iterator it = clients.begin();
+	const std::set<int>& clients = db.getChannel(target)->getClientFds();
+	std::set<int>::const_iterator it = clients.begin();
 	while (it != clients.end())
 	{
-		fds.push_back(it->first);
+		fds.push_back(*it);
 		it++;
 	}
 	return (fds);
@@ -138,7 +138,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 }
 
 const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
-	t_response	res;	
+	t_response	res;
 
 	res.is_success = false;
 	res.should_send = false;
