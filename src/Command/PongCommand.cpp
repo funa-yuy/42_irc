@@ -9,7 +9,7 @@ Command *	PongCommand::createPongCommand()
 	return (new PongCommand());
 }
 
-const std::vector<t_response>	PongCommand::execute(const t_parsed & input, Database & db) const
+std::vector<t_response>	PongCommand::execute(const t_parsed & input, Database & db) const
 {
 	std::vector<t_response>	responses;
 	t_response				res;
