@@ -138,6 +138,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 }
 
 std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
+	std::vector<t_response> response_list;
 	t_response	res;
 
 	res.is_success = false;
@@ -145,7 +146,10 @@ std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database&
 	res.should_disconnect = false;
 
 	if (!is_validCmd(input, &res, db))
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
 	Client * sender = db.getClient(input.client_fd);
 	std::string	nick = sender->getNickname();
@@ -164,5 +168,6 @@ std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database&
 	res.reply = line;
 	res.target_fds = fds;
 
-	return (res);
+	response_list.push_back(res);
+	return (response_list);
 }
