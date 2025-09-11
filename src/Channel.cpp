@@ -1,13 +1,21 @@
 #include "Channel.hpp"
 
+Channel::Channel() : _channelOperatorFds(-1) {}
+
+Channel::Channel(std::string name, int createdBy) {
+	setName(name);
+	addClientFd(createdBy);
+	setChannelOperatorFds(createdBy);
+}
+
 std::string Channel::getName() const
 {
 	return (_name);
 }
 
-std::vector<Client *> Channel::getClients() const
+const std::set<int>& Channel::getClientFds() const
 {
-	return (_clients);
+	return (_clientFds);
 }
 
 std::string Channel::getTopic() const
@@ -15,9 +23,9 @@ std::string Channel::getTopic() const
 	return (_topic);
 }
 
-Client *Channel::getChannelOperator() const
+int Channel::getChannelOperatorFds() const
 {
-	return (_channelOperator);
+	return (_channelOperatorFds);
 }
 
 void Channel::setName(std::string name)
@@ -25,9 +33,9 @@ void Channel::setName(std::string name)
 	_name = name;
 }
 
-void Channel::setClients(std::vector<Client *> clients)
+void Channel::addClientFd(int fd)
 {
-	_clients = clients;
+	_clientFds.insert(fd);
 }
 
 void Channel::setTopic(std::string topic)
@@ -35,7 +43,18 @@ void Channel::setTopic(std::string topic)
 	_topic = topic;
 }
 
-void Channel::setChannelOperator(Client * channelOperator)
+void Channel::setChannelOperatorFds(int fd)
 {
-	_channelOperator = channelOperator;
+	if (_clientFds.find(fd) != _clientFds.end())
+		_channelOperatorFds = fd;
+}
+
+void	Channel::removeClientFd(int fd)
+{
+	std::set<int>::iterator it = _clientFds.find(fd);
+	if (it == _clientFds.end())
+		return ;
+	if (_channelOperatorFds == fd)//todo: オペレーターが退出した場合の処理を考える。
+		_channelOperatorFds = -1;
+	_clientFds.erase(it);
 }

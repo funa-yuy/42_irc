@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/08 16:15:01 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/11 17:49:42 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,8 +31,8 @@ MAIN				?=
 SRC					:= \
 					Server.cpp \
 					Parser.cpp \
-					Client.cpp \
 					Channel.cpp \
+					Client.cpp \
 					Database.cpp \
 					Command/Command.cpp \
 					Command/NickCommand.cpp \

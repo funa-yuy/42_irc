@@ -6,8 +6,9 @@
 // ------------------------------------------------
 
 #include <iostream>
+#include <string>
+#include <set>
 #include "Client.hpp"
-#include <vector>
 
 
 // ------------------------------------------------
@@ -16,19 +17,23 @@
 
 class Channel {
 	public:
+		Channel();
+		Channel(std::string name, int createdBy);
 		std::string	getName() const;
-		std::vector<Client *>	getClients() const;
-		Client*	getChannelOperator() const;
+		const std::set<int>&	getClientFds() const;
+		int	getChannelOperatorFds() const;
 		std::string	getTopic() const;
+
 		void	setName(std::string name);
-		void	setClients(std::vector<Client *> clients);
-		void	setChannelOperator(Client *channelOperator);
+		void	setChannelOperatorFds(int fd);
 		void	setTopic(std::string);
+		void	addClientFd(int fd);
+		void	removeClientFd(int fd);
 
 	private:
 		std::string				_name;
-		std::vector<Client *>	_clients;
-		Client*					_channelOperator;
+		std::set<int>			_clientFds;
+		int						_channelOperatorFds;
 		std::string				_topic;
 	// ...他に必要に応じて（モードや制限など）
 };

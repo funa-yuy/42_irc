@@ -18,7 +18,7 @@ class PassCommand : public Command {
 		~PassCommand();
 		static Command* createPassCommand();
 
-		const t_response	execute(const t_parsed& input, Database& db) const;
+		std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
 };
 
 // ------------------------------------------------

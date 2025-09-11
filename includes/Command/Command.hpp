@@ -8,6 +8,7 @@
 #include <iostream>
 #include "irc.hpp"
 #include "Database.hpp"
+#include <vector>
 
 // ------------------------------------------------
 // class
@@ -18,7 +19,7 @@ class Command {
 		Command();
 		virtual ~Command() = 0;
 
-		virtual const t_response	execute(const t_parsed& input, Database& db) const = 0;
+		virtual std::vector<t_response>	execute(const t_parsed& input, Database& db) const = 0;
 };
 
 // ------------------------------------------------
