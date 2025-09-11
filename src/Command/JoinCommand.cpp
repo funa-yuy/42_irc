@@ -110,6 +110,7 @@ static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
 	{
 		res->is_success = false;
 		res->should_send = true;
+		res->should_disconnect = false;
 		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
@@ -128,6 +129,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	{
 		res->is_success = false;
 		res->should_send = true;
+		res->should_disconnect = false;
 		res->reply = ":ft.irc 403 " + invalid_channelName + " :No such channel\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
@@ -136,24 +138,36 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	return(true);
 }
 
+t_response	create_Join_response(const t_parsed& input, Database& db, Channel* channel) {
+	t_response	res;
+	const std::set<int>&	clientFds = channel->getClientFds();
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+	res.reply = db.getClient(input.client_fd)->getNickname() + " has joined " + channel->getName() + "\r\n";
+	res.target_fds.assign(clientFds.begin(), clientFds.end());
+	return (res);
+}
+
 static const std::vector<t_response>	executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) {
-	std::vector<t_response>	allResponse;
+	std::vector<t_response>	list;
 
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		t_response res;
-		if (!is_validCmd(input, &res, db, items)) {
+		if (!is_validCmd(input, &res, db, items)) {//todo: items[i]にする
 			//todo: 不正だった場合のresをpushする
-			allResponse.push_back(res);
+			list.push_back(res);
 		} else {
 			//todo: 正常だった場合、データ更新と、resをpush
 			// update_database(input, db, items);
-			// create_Join_allResponse(); //JOIN成功メッセージ
-			// create_rplTopic_allResponse(); //RPL_TOPIC
-			// create_rplNamreply_allResponse(); //RPL_NAMREPLY
+			list.push_back(create_Join_response(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
+			// create_rplTopic_response(); //RPL_TOPIC
+			// create_rplNamreply_response(); //RPL_NAMREPLY
 		}
 	}
-	return (allResponse);
+	return (list);
 }
 
 
