@@ -145,8 +145,20 @@ t_response	create_Join_response(const t_parsed& input, Database& db, Channel* ch
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = db.getClient(input.client_fd)->getNickname() + " has joined " + channel->getName() + "\r\n";
+	res.reply = ":ft.irc " + db.getClient(input.client_fd)->getNickname() + " has joined " + channel->getTopic() + "\r\n";//aa has joined #mfuna
 	res.target_fds.assign(clientFds.begin(), clientFds.end());
+	return (res);
+}
+
+t_response	create_rplTopic_response(const t_parsed& input, Channel* channel) {
+	t_response	res;
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+	res.reply = ":ft.irc 332 Topic for " + channel->getName() + ": " + channel->getTopic() + "\r\n";//Topic for #mfuna: aa
+	res.target_fds.resize(1);
+	res.target_fds[0] = input.client_fd;
 	return (res);
 }
 
@@ -163,7 +175,7 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 			//todo: 正常だった場合、データ更新と、resをpush
 			// update_database(input, db, items);
 			list.push_back(create_Join_response(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
-			// create_rplTopic_response(); //RPL_TOPIC
+			list.push_back(create_rplTopic_response(input, db.getChannel(items[i].channel))); //RPL_TOPIC
 			// create_rplNamreply_response(); //RPL_NAMREPLY
 		}
 	}
