@@ -18,7 +18,7 @@ class JoinCommand : public Command {
 		~JoinCommand();
 		static Command* createJoinCommand();
 
-		const t_response	execute(const t_parsed& input, Database& db) const;
+		std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
 };
 
 // ------------------------------------------------

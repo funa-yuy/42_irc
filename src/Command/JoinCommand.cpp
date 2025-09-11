@@ -157,15 +157,21 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 }
 
 
-const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const {
-	t_response	res;
+std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db) const {
+	std::vector<t_response> response_list;
+	t_response res;
 
 	if (!is_needMoreParams(input, &res))
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
-	if (input.args[0] == "0"){
-		//todo: すべてのチャンネルから退出する処理とレスポンスをpush
-		return (res);
+	if (input.args[0] == "0")
+	{
+		// todo: すべてのチャンネルから退出する処理とレスポンスをpush
+		response_list.push_back(res);
+		return (response_list);
 	}
 
 	std::vector<s_join_item> items = parse_join_args(input);
@@ -175,10 +181,12 @@ const t_response	JoinCommand::execute(const t_parsed& input, Database& db) const
 		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
 
 	if (!is_validCmd(input, &res, db, items))
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
 	// todo: 1個ずつ実行する関数
-	executeJoin(input, db, items);
-
-	return (res);
+	response_list = executeJoin(input, db, items);
+	return (response_list);
 }

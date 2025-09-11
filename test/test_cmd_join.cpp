@@ -25,7 +25,7 @@ static void test_success() {
 		args.push_back("#hoge");
 
 		t_parsed in = makeInput("JOIN", fd, args);
-		t_response res = join.execute(in, db);
+		std::vector<t_response> res = join.execute(in, db);
 
 		// std::string expected = ":funa!funauser@ft.irc JOIN funa :Send message successfully 1.\r\n";
 		// assert(res.is_success == true);
@@ -44,7 +44,7 @@ static void test_success() {
 		args.push_back("hogeKey,fugaKey");
 
 		t_parsed in = makeInput("JOIN", fd, args);
-		t_response res = join.execute(in, db);
+		std::vector<t_response> res = join.execute(in, db);
 
 		// std::string expected = ":funa!funauser@ft.irc JOIN funa :Send message successfully 1.\r\n";
 		// assert(res.is_success == true);
@@ -63,7 +63,7 @@ static void test_success() {
 		args.push_back("hogeKey");
 
 		t_parsed in = makeInput("JOIN", fd, args);
-		t_response res = join.execute(in, db);
+		std::vector<t_response> res = join.execute(in, db);
 
 		// std::string expected = ":funa!funauser@ft.irc JOIN funa :Send message successfully 1.\r\n";
 		// assert(res.is_success == true);
@@ -82,7 +82,7 @@ static void test_success() {
 		args.push_back("hogeKey,fugaKey");
 
 		t_parsed in = makeInput("JOIN", fd, args);
-		t_response res = join.execute(in, db);
+		std::vector<t_response> res = join.execute(in, db);
 
 		// std::string expected = ":funa!funauser@ft.irc JOIN funa :Send message successfully 1.\r\n";
 		// assert(res.is_success == true);
@@ -124,12 +124,13 @@ static void test_err_461_needmoreparams() {
 
 	std::vector<std::string> args; // 空
 	t_parsed in = makeInput("JOIN", fd, args);
-	t_response res = join.execute(in, db);
+	std::vector<t_response> res = join.execute(in, db);
 
-	assert(res.is_success == false);
-	assert(res.should_send == true);
-	assert(res.reply.find("461") != std::string::npos);
-	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+	assert(res.size() == 1);
+	assert(res[0].is_success == false);
+	assert(res[0].should_send == true);
+	assert(res[0].reply.find("461") != std::string::npos);
+	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 }
 
 static void test_err_403_nosuchchannel() {
@@ -143,11 +144,12 @@ static void test_err_403_nosuchchannel() {
 		std::vector<std::string> args;
 		args.push_back("foo"); // 無効: "#", "&", "+", "!" で開始していない
 		t_parsed in = makeInput("JOIN", fd, args);
-		t_response res = join.execute(in, db);
-		assert(res.is_success == false);
-		assert(res.should_send == true);
-		assert(res.reply.find("403 foo") != std::string::npos);
-		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("403 foo") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 	}
 
 	{
@@ -157,11 +159,12 @@ static void test_err_403_nosuchchannel() {
 		std::vector<std::string> args;
 		args.push_back("f  oo"); // 無効: 空白が含まれている
 		t_parsed in = makeInput("JOIN", fd, args);
-		t_response res = join.execute(in, db);
-		assert(res.is_success == false);
-		assert(res.should_send == true);
-		assert(res.reply.find("403 f  oo") != std::string::npos);
-		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("403 f  oo") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 	}
 }
 
