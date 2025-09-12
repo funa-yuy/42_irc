@@ -20,8 +20,8 @@ public:
 	PongCommand();
 	~PongCommand();
 
-	static Command*					createPongCommand();
-	std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
+	static Command*			createPongCommand();
+	std::vector<t_response>	execute(const t_parsed & input, Database & db) const;
 
 private:
 
