@@ -1,4 +1,4 @@
-#include "PongCommand.hpp"
+#include "Command/PongCommand.hpp"
 
 PongCommand::PongCommand() {}
 
