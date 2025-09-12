@@ -41,8 +41,14 @@ ERR_TOOMANYTARGETS(407)
 	407 <target> :<error code> recipients. <abort message>
 ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
 	サーバーが現在ブロックされているチャネルに参加しようとしている
-	437 <nick/channel> :Nick/channel is temporarily unavailable*/
+	437 <nick/channel> :Nick/channel is temporarily unavailable
 
+RPL_TOPIC(332)
+	チャンネルに設定されてるtopicを送る。
+	332 <channel> :<topic>
+RPL_NAMREPLY(353)
+	チャンネルにいるユーザーのリストを送る
+*/
 
 static std::vector<std::string> split(const std::string& str, char delimiter) {
 	std::vector<std::string> tokens;
@@ -162,6 +168,39 @@ t_response	create_rplTopic_response(const t_parsed& input, Channel* channel) {
 	return (res);
 }
 
+std::string	get_nickname_list(Database& db, Channel* channel) {
+	const std::set<int>& fds = channel->getClientFds();
+	const int operatorFds = channel->getChannelOperatorFds();
+
+	std::string names;
+	if (operatorFds != -1) {
+		names += "@";
+		names += db.getClient(operatorFds)->getNickname();
+	}
+	for (std::set<int>::const_iterator it = fds.begin(); it != fds.end(); ++it) {
+		if (*it == operatorFds)
+			continue;
+		if (!names.empty())
+			names += " ";
+		//if (hasVoice(channel, *it)) todo: ボイス権限があるユーザーの処理
+			// names += "+";
+		names += db.getClient(*it) ->getNickname();
+	}
+}
+
+t_response	create_rplNamreply_response(const t_parsed& input, Database& db, Channel* channel) {
+	t_response	res;
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+	// std::string status = getChannelStatus(channel);
+	res.reply = ":ft.irc 353 " + status + channel->getName() + ": " + get_nickname_list(db, channel) + "\r\n";
+	res.target_fds.resize(1);
+	res.target_fds[0] = input.client_fd;
+	return (res);
+}
+
 static const std::vector<t_response>	executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) {
 	std::vector<t_response>	list;
 
@@ -176,7 +215,7 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 			// update_database(input, db, items);
 			list.push_back(create_Join_response(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
 			list.push_back(create_rplTopic_response(input, db.getChannel(items[i].channel))); //RPL_TOPIC
-			// create_rplNamreply_response(); //RPL_NAMREPLY
+			list.push_back(create_rplNamreply_response(input, db, db.getChannel(items[i].channel))); //RPL_NAMREPLY
 		}
 	}
 	return (list);
@@ -195,7 +234,7 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 
 	if (input.args[0] == "0")
 	{
-		// todo: すべてのチャンネルから退出する処理とレスポンスをpush
+		// todo: すべてのチャンネルから退出する処理とレスポンス
 		response_list.push_back(res);
 		return (response_list);
 	}
@@ -205,12 +244,6 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	std::cout << std::endl << "パース結果↓ " << std::endl;	//todo: デバック用
 	for (size_t i = 0; i < items.size(); i++)
 		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
-
-	if (!is_validCmd(input, &res, db, items))
-	{
-		response_list.push_back(res);
-		return (response_list);
-	}
 
 	// todo: 1個ずつ実行する関数
 	response_list = executeJoin(input, db, items);
