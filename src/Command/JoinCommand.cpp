@@ -151,7 +151,7 @@ t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* chann
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = ":ft.irc " + db.getClient(input.client_fd)->getNickname() + " has joined " + channel->getTopic() + "\r\n";//aa has joined #mfuna
+	res.reply = ":ft.irc " + db.getClient(input.client_fd)->getNickname() + " has joined " + channel->getName() + "\r\n";
 	res.target_fds.assign(clientFds.begin(), clientFds.end());
 	return (res);
 }
@@ -162,7 +162,7 @@ t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = ":ft.irc 332 Topic for " + channel->getName() + ": " + channel->getTopic() + "\r\n";//Topic for #mfuna: aa
+	res.reply = ":ft.irc 332 Topic for " + channel->getName() + " : " + channel->getTopic() + "\r\n";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
 	return (res);
@@ -195,8 +195,8 @@ t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* channel
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	// std::string status = getChannelStatus(channel);//todo: チャンネルのステータスに関して調べて実装する
-	res.reply = ":ft.irc 353 " + channel->getName() + ": " + getNicknameList(db, channel) + "\r\n";
+	// std::string status = getChannelStatus(channel);//todo: チャンネルのステータスを実装する
+	res.reply = ":ft.irc 353 " + channel->getName() + " : " + getNicknameList(db, channel) + "\r\n";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
 	return (res);
@@ -244,7 +244,6 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	for (size_t i = 0; i < items.size(); i++)
 		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
 
-	// todo: 1個ずつ実行する関数
 	response_list = executeJoin(input, db, items);
 	return (response_list);
 }
