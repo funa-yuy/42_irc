@@ -144,7 +144,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	return(true);
 }
 
-t_response	create_Join_response(const t_parsed& input, Database& db, Channel* channel) {
+t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) {
 	t_response	res;
 	const std::set<int>&	clientFds = channel->getClientFds();
 
@@ -156,7 +156,7 @@ t_response	create_Join_response(const t_parsed& input, Database& db, Channel* ch
 	return (res);
 }
 
-t_response	create_rplTopic_response(const t_parsed& input, Channel* channel) {
+t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
 	t_response	res;
 
 	res.is_success = true;
@@ -168,7 +168,7 @@ t_response	create_rplTopic_response(const t_parsed& input, Channel* channel) {
 	return (res);
 }
 
-std::string	get_nickname_list(Database& db, Channel* channel) {
+std::string	getNicknameList(Database& db, Channel* channel) {
 	const std::set<int>& fds = channel->getClientFds();
 	const int operatorFds = channel->getChannelOperatorFds();
 
@@ -186,16 +186,17 @@ std::string	get_nickname_list(Database& db, Channel* channel) {
 			// names += "+";
 		names += db.getClient(*it) ->getNickname();
 	}
+	return (names);
 }
 
-t_response	create_rplNamreply_response(const t_parsed& input, Database& db, Channel* channel) {
+t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) {
 	t_response	res;
 
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	// std::string status = getChannelStatus(channel);
-	res.reply = ":ft.irc 353 " + status + channel->getName() + ": " + get_nickname_list(db, channel) + "\r\n";
+	// std::string status = getChannelStatus(channel);//todo: チャンネルのステータスに関して調べて実装する
+	res.reply = ":ft.irc 353 " + channel->getName() + ": " + getNicknameList(db, channel) + "\r\n";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
 	return (res);
@@ -208,14 +209,12 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 	{
 		t_response res;
 		if (!is_validCmd(input, &res, db, items)) {//todo: items[i]にする
-			//todo: 不正だった場合のresをpushする
 			list.push_back(res);
 		} else {
-			//todo: 正常だった場合、データ更新と、resをpush
-			// update_database(input, db, items);
-			list.push_back(create_Join_response(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
-			list.push_back(create_rplTopic_response(input, db.getChannel(items[i].channel))); //RPL_TOPIC
-			list.push_back(create_rplNamreply_response(input, db, db.getChannel(items[i].channel))); //RPL_NAMREPLY
+			// update_database(input, db, items);//todo: 正常だった場合のデータ更新
+			list.push_back(makeJoinBroadcast(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
+			list.push_back(makeRplTopic(input, db.getChannel(items[i].channel))); //RPL_TOPIC
+			list.push_back(makeRplNamreply(input, db, db.getChannel(items[i].channel))); //RPL_NAMREPLY
 		}
 	}
 	return (list);
