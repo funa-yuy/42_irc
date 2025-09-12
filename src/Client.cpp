@@ -78,6 +78,16 @@ bool	Client::getIsRegistered() const {
 	return (_isRegistered);
 }
 
+time_t	Client::getLastPingTime(void) const
+{
+	return (_lastPingTime);
+}
+
+std::string	Client::getLastPingToken(void) const
+{
+	return (_lastPingToken);
+}
+
 void	Client::setUsername(const std::string & username)
 {
 	_username = username;
@@ -121,5 +131,17 @@ void	Client::setPassReceived(bool val)
 void	Client::setNickReceived(bool val)
 {
 	_nickReceived = val;
+	return ;
+}
+
+void	Client::setLastPingTime(time_t time)
+{
+	_lastPingTime = time;
+	return ;
+}
+
+void	Client::setLastPingToken(std::string token)
+{
+	_lastPingToken = token;
 	return ;
 }

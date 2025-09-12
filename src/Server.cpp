@@ -1,7 +1,8 @@
 #include "Server.hpp"
 
 Server::Server(int port, std::string const & password)
-: _port(port), _db(password)
+: _port(port), _db(password),
+_last_ping(time(NULL)), _ping_interval(PING_INTERVAL), _timeout_ms(TIMEOUT_MS)
 {
 	_server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_server_fd < 0)
@@ -31,7 +32,8 @@ Server::Server(int port, std::string const & password)
 		_cmd_map["PASS"] = &PassCommand::createPassCommand;
 		_cmd_map["NICK"] = &NickCommand::createNickCommand;
 		_cmd_map["USER"] = &UserCommand::createUserCommand;
-		_cmd_map["PING"] = &PongCommand::createPongCommand;
+		_cmd_map["PING"] = &PingCommand::createPingCommand;
+		_cmd_map["PONG"] = &PongCommand::createPongCommand;
 		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 	}
 }
@@ -48,7 +50,7 @@ void	Server::run(void)
 	while (true)
 	{
 
-		int	ret = poll(&_poll_fds[0], _poll_fds.size(), -1);
+		int	ret = poll(&_poll_fds[0], _poll_fds.size(), _timeout_ms);
 		if (ret < 0)
 		{
 			std::cerr << "poll: " << strerror(errno) << std::endl;
@@ -64,6 +66,15 @@ void	Server::run(void)
 				else
 					handleClientInput(_poll_fds[i].fd);
 			}
+		}
+
+		checkClientTimeout();
+
+		time_t	now = time(NULL);
+		if (now - _last_ping >= _ping_interval)
+		{
+			sendPing();
+			_last_ping = now;
 		}
 	}
 
@@ -136,7 +147,8 @@ void	Server::handleClientInput(int fd)
 		if (!client->getIsRegistered())
 		{
 			if (parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER"
-				&& parsed.cmd != "PING" && parsed.cmd != "QUIT" && parsed.cmd != "CAP")
+				&& parsed.cmd != "PONG" && parsed.cmd != "PING"
+				&& parsed.cmd != "QUIT" && parsed.cmd != "CAP")
 			{
 				std::string not_registered = ":ft.irc 451 " + displayNick(*client) + " :You have not registered\r\n";
 				send(parsed.client_fd, not_registered.c_str(), not_registered.size(), 0);
@@ -256,6 +268,46 @@ void	Server::sendWelcome(Client & client)
 	send(client.getFd(), welcome.c_str(), welcome.size(), 0);
 
 	return ;
+}
+
+void	Server::sendPing(void)
+{
+	std::string	token = "Hey! Are you there?";
+	for
+	(
+		std::map<int, Client>::iterator it = _db.getAllClient().begin();
+		it != _db.getAllClient().end();
+		++it
+	)
+	{
+		int	fd = it->first;
+		std::string	ping = "PING :" + token + "\r\n";
+		send(fd, ping.c_str(), ping.size(), 0);
+		it->second.setLastPingToken(token);
+	}
+	return ;
+}
+
+void	Server::checkClientTimeout(void)
+{
+	time_t	now = time(NULL);
+	for
+	(
+		std::map<int, Client>::iterator	it = _db.getAllClient().begin();
+		it != _db.getAllClient().end();
+
+	)
+	{
+		if (it->second.getLastPingTime() != 0
+			&& (now - it->second.getLastPingTime()) > _ping_interval * 2)
+		{
+			int	fd = it->second.getFd();
+			++it;
+			disconnectClient(fd);
+			continue ;
+		}
+		++it;
+	}
 }
 
 std::string	Server::displayNick(const Client & client) const

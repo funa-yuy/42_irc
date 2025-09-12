@@ -36,6 +36,9 @@ public:
 	bool				getUserReceived(void) const;
 	bool				getIsRegistered(void) const;
 	bool				getIsOperator(void) const;
+
+	time_t				getLastPingTime(void) const;
+	std::string			getLastPingToken(void) const;
 	
 	void				setNickname(const std::string& nickname);
 	void				setUsername(const std::string& username);
@@ -43,8 +46,11 @@ public:
 	void				setPassReceived(bool val);
 	void				setNickReceived(bool val);
 	void				setUserReceived(bool val);
-
+	
 	void				setIsRegistered(bool val);
+
+	void				setLastPingTime(time_t time);
+	void				setLastPingToken(std::string token);
 
 private:
 
@@ -62,6 +68,9 @@ private:
 
 	bool			_isRegistered;
 	bool			_isOperator;
+
+	time_t			_lastPingTime;
+	std::string		_lastPingToken;
 
 };
 
