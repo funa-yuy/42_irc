@@ -133,7 +133,7 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	std::vector<t_response> response_list;
 	t_response res;
 
-	if (input.args[0] == "0")
+	if (input.args.size() > 0 && input.args[0] == "0")
 	{
 		// todo: すべてのチャンネルから退出する処理とレスポンス
 		return (response_list);
