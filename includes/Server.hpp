@@ -32,7 +32,7 @@
 
 #define MAX_CLIENTS 10
 #define BUF_SIZE 512
-#define TIMEOUT_MS 1000
+#define TIMEOUT_MS 0
 #define PING_INTERVAL 60
 
 class Server
