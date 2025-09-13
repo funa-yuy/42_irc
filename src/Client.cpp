@@ -4,7 +4,8 @@ Client::Client()
 :	_fd(0), _buffer(""),
 	_nickname(""), _username(""), _realname(""),
 	_passReceived(false), _nickReceived(false), _userReceived(false),
-	_isRegistered(false), _isOperator(false)
+	_isRegistered(false), _isOperator(false),
+	_lastPingTime(0), _lastPingToken("")
 {
 	_pfd.fd = 0;
 	_pfd.events = 0;
