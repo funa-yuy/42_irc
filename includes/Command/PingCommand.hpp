@@ -25,7 +25,7 @@ public:
 
 private:
 
-	bool	isValidCmd(const t_parsed & input, t_response & res) const;
+	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client) const;
 
 };
 
