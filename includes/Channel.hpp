@@ -21,7 +21,7 @@ class Channel {
 		Channel(std::string name, int createdBy);
 		std::string	getName() const;
 		const std::set<int>&	getClientFds() const;
-		int	getChannelOperatorFds() const;
+		const std::set<int>&	getChannelOperatorFds() const;
 		std::string	getTopic() const;
 
 		void	setName(std::string name);
@@ -33,7 +33,7 @@ class Channel {
 	private:
 		std::string				_name;
 		std::set<int>			_clientFds;
-		int						_channelOperatorFds;
+		std::set<int>			_channelOperatorFds;
 		std::string				_topic;
 	// ...他に必要に応じて（モードや制限など）
 };
