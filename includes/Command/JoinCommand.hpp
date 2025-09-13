@@ -8,6 +8,11 @@
 #include <iostream>
 #include "Command.hpp"
 
+struct s_join_item {
+	std::string	channel;
+	std::string	key;
+};
+
 // ------------------------------------------------
 // class
 // ------------------------------------------------

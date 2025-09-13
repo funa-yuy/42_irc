@@ -17,7 +17,7 @@ static void test_success() {
 	Database db("password");
 	JoinCommand join;
 
-	// 正常: 正しい チャンネルのみ
+	// 正常: 引数にチャンネルのみ
 	{
 		int	fd = 4;
 		Client* cl4 = db.addClient(fd);
@@ -72,7 +72,7 @@ static void test_success() {
 
 		// 3通（JOIN, 332, 353）
 		assert(res.size() == 3);
-		// JOIN通知のfdsに既存(4)と新規(40)の両方が含まれる
+		// JOIN通知のfdsに既存(4)と新規(40)の両方が含まれているか
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(fds.size() == 2);
 		assert(std::find(fds.begin(), fds.end(), existing_fd) != fds.end());
@@ -80,7 +80,7 @@ static void test_success() {
 		assert(res[0].reply.find("nick40 has joined #hoge") != std::string::npos);
 	}
 
-	// 正常: 正しい 複数のチャンネルと複数のキー
+	// 正常: 引数に複数のチャンネルと複数のキー
 	{
 		int	fd = 5;
 		Client* cl5 = db.addClient(fd);
@@ -117,7 +117,7 @@ static void test_success() {
 		assert(res[5].target_fds.size() == 1 && res[5].target_fds[0] == fd);
 	}
 
-	// 正常: 正しい 2つのチャンネルと1つのキー
+	// 正常: 引数に2つのチャンネルと1つのキー
 	{
 		int	fd = 6;
 		Client* cl6 = db.addClient(fd);
@@ -148,7 +148,7 @@ static void test_success() {
 		assert(res[5].reply.find(" 353 ") != std::string::npos);
 	}
 
-	// 正常: 正しい 1つのチャンネルと2つのキー(2つ目のキーは無視される)
+	// 正常: 引数に1つのチャンネルと2つのキー(2つ目のキーは無視される)
 	{
 		int	fd = 7;
 		Client* cl7 = db.addClient(fd);

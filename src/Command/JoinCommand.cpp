@@ -11,11 +11,6 @@ Command*	JoinCommand::createJoinCommand() {
 	return (new JoinCommand());
 }
 
-struct s_join_item {
-	std::string	channel;
-	std::string	key;
-};
-
 /*
 // ERR_NEEDMOREPARAMS(461)
 // 	十分なパラメーターがない
@@ -86,25 +81,22 @@ static bool is_containsChar(const std::string& str, char target) {
 	return (str.find(target) != std::string::npos);
 }
 
-static bool	is_validChannelName(std::vector<s_join_item> items, std::string* invalid_channelName) {
-	for (size_t i = 0; i < items.size(); i++)
-	{
-		std::string channel = items[i].channel;
-		if (channel.size() > 50) {
-			*invalid_channelName = channel;
-			return (false);
-		}
-		if (!(channel[0] == '&' || channel[0] == '#' || \
-			channel[0] == '+' || channel[0] == '!')) {
-			*invalid_channelName = channel;
-			return (false);
-			}
-		if (is_containsChar(channel, ' ') || \
-			is_containsChar(channel, 7) || \
-			is_containsChar(channel, ',')) {
-			*invalid_channelName = channel;
-			return (false);
-		}
+static bool	is_validChannelName(const s_join_item& item, std::string* invalid_channelName) {
+	std::string channel = item.channel;
+	if (channel.size() > 50) {
+		*invalid_channelName = channel;
+		return (false);
+	}
+	if (!(channel[0] == '&' || channel[0] == '#' || \
+		channel[0] == '+' || channel[0] == '!')) {
+		*invalid_channelName = channel;
+		return (false);
+	}
+	if (is_containsChar(channel, ' ') || \
+		is_containsChar(channel, 7) || \
+		is_containsChar(channel, ',')) {
+		*invalid_channelName = channel;
+		return (false);
 	}
 	return (true);
 }
@@ -125,13 +117,12 @@ static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
 	return (true);
 }
 
-static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, std::vector<s_join_item> items) {
-	// Client*		sender_client = db.getClient(input.client_fd);
+static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) {
 	(void) db;
 	std::string	command = "JOIN";
 	std::string invalid_channelName;
 
-	if (!is_validChannelName(items, &invalid_channelName))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
+	if (!is_validChannelName(item, &invalid_channelName))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
 	{
 		res->is_success = false;
 		res->should_send = true;
@@ -144,7 +135,7 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, st
 	return(true);
 }
 
-t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) {
+static t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) {
 	t_response	res;
 	const std::set<int>&	clientFds = channel->getClientFds();
 
@@ -156,7 +147,7 @@ t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* chann
 	return (res);
 }
 
-t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
+static t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
 	t_response	res;
 
 	res.is_success = true;
@@ -168,7 +159,7 @@ t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
 	return (res);
 }
 
-std::string	getNicknameList(Database& db, Channel* channel) {
+static std::string	getNicknameList(Database& db, Channel* channel) {
 	const std::set<int>& fds = channel->getClientFds();
 	const int operatorFds = channel->getChannelOperatorFds();
 
@@ -189,7 +180,7 @@ std::string	getNicknameList(Database& db, Channel* channel) {
 	return (names);
 }
 
-t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) {
+static t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) {
 	t_response	res;
 
 	res.is_success = true;
@@ -208,7 +199,7 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 	for (size_t i = 0; i < items.size(); i++)
 	{
 		t_response res;
-		if (!is_validCmd(input, &res, db, items)) {//todo: items[i]にする
+		if (!is_validCmd(input, &res, db, items[i])) {
 			list.push_back(res);
 		} else {
 			// update_database(input, db, items);//todo: 正常だった場合のデータ更新
@@ -219,7 +210,6 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 	}
 	return (list);
 }
-
 
 std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db) const {
 	std::vector<t_response> response_list;
@@ -234,7 +224,6 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	if (input.args[0] == "0")
 	{
 		// todo: すべてのチャンネルから退出する処理とレスポンス
-		response_list.push_back(res);
 		return (response_list);
 	}
 
