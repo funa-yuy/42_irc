@@ -18,7 +18,8 @@ int main()
 		assert(channel0.getName() == name0);
 		assert(clients.size() == 1);
 		assert(clients.find(ope0.getFd()) != clients.end());
-		assert(channel0.getChannelOperatorFds() == ope0.getFd());
+		const std::set<int>& ops = channel0.getChannelOperatorFds();
+		assert(ops.size() == 1 && ops.find(ope0.getFd()) != ops.end());
 	}
 
 	// [Test] チャンネル作成と参加者追加/トピック/登録確認
@@ -42,7 +43,8 @@ int main()
 		result = db.getChannel(name);
 		assert(result->getName() == name);
 		assert(result->getTopic() == "aaaa");
-		assert(result->getChannelOperatorFds() == ope.getFd());
+		const std::set<int>& ops = result->getChannelOperatorFds();
+		assert(ops.size() == 1 && ops.find(ope.getFd()) != ops.end());
 	}
 
 	// [Test] 別チャンネルの作成/登録確認/削除
@@ -60,7 +62,8 @@ int main()
 		result = db.getChannel(name);
 		assert(result->getName() == name);
 		assert(result->getTopic() == "bbbbb");
-		assert(result->getChannelOperatorFds() == ope.getFd());
+		const std::set<int>& ops = result->getChannelOperatorFds();
+		assert(ops.size() == 1 && ops.find(ope.getFd()) != ops.end());
 
 		// チャンネルを削除する
 		db.removeChannel(name);

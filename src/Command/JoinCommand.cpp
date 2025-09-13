@@ -76,22 +76,24 @@ static t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
 }
 
 static std::string	getNicknameList(Database& db, Channel* channel) {
-	const std::set<int>& fds = channel->getClientFds();
-	const int operatorFds = channel->getChannelOperatorFds();
+	const std::set<int>& memberFds = channel->getClientFds();
+	const std::set<int>& operatorFds = channel->getChannelOperatorFds();
 
 	std::string names;
-	if (operatorFds != -1) {
+	for (std::set<int>::const_iterator it = operatorFds.begin(); it != operatorFds.end(); ++it) {
+		if (!names.empty())
+			names += " ";
 		names += "@";
-		names += db.getClient(operatorFds)->getNickname();
+		names += db.getClient(*it)->getNickname();
 	}
-	for (std::set<int>::const_iterator it = fds.begin(); it != fds.end(); ++it) {
-		if (*it == operatorFds)
+	for (std::set<int>::const_iterator it = memberFds.begin(); it != memberFds.end(); ++it) {
+		if (operatorFds.find(*it) != operatorFds.end())
 			continue;
 		if (!names.empty())
 			names += " ";
 		//if (hasVoice(channel, *it)) todo: ボイス権限があるユーザーの処理
 			// names += "+";
-		names += db.getClient(*it) ->getNickname();
+		names += db.getClient(*it)->getNickname();
 	}
 	return (names);
 }
