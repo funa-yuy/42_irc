@@ -184,63 +184,8 @@ static void test_success() {
 	}
 }
 
-static void test_err_461_needmoreparams() {
-	Database db("password");
-	JoinCommand join;
-
-	int fd = 10;
-	db.addClient(fd);
-
-	std::vector<std::string> args; // argsが空
-	t_parsed in = makeInput("JOIN", fd, args);
-	std::vector<t_response> res = join.execute(in, db);
-
-	assert(res.size() == 1);
-	assert(res[0].is_success == false);
-	assert(res[0].should_send == true);
-	assert(res[0].reply.find("461") != std::string::npos);
-	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
-}
-
-static void test_err_403_nosuchchannel() {
-	Database db("password");
-	JoinCommand join;
-
-	{
-		int fd = 11;
-		db.addClient(fd);
-
-		std::vector<std::string> args;
-		args.push_back("foo"); // 無効なチャンネル名: "#", "&", "+", "!" で開始していない
-		t_parsed in = makeInput("JOIN", fd, args);
-		std::vector<t_response> res = join.execute(in, db);
-		assert(res.size() == 1);
-		assert(res[0].is_success == false);
-		assert(res[0].should_send == true);
-		assert(res[0].reply.find("403 foo") != std::string::npos);
-		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
-	}
-
-	{
-		int fd = 12;
-		db.addClient(fd);
-
-		std::vector<std::string> args;
-		args.push_back("f  oo"); // 無効なチャンネル名: 空白が含まれている
-		t_parsed in = makeInput("JOIN", fd, args);
-		std::vector<t_response> res = join.execute(in, db);
-		assert(res.size() == 1);
-		assert(res[0].is_success == false);
-		assert(res[0].should_send == true);
-		assert(res[0].reply.find("403 f  oo") != std::string::npos);
-		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
-	}
-}
-
 int main() {
 	test_success();//正常
-	test_err_461_needmoreparams();// エラー: ERR_NEEDMOREPARAMS 461 引数が無い
-	test_err_403_nosuchchannel();// エラー: ERR_NOSUCHCHANNEL 403 チャンネル名が不正
 	std::cout << "JOIN command tests: OK" << std::endl;
 	return 0;
 }

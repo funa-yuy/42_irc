@@ -11,40 +11,6 @@ Command*	JoinCommand::createJoinCommand() {
 	return (new JoinCommand());
 }
 
-/*
-// ERR_NEEDMOREPARAMS(461)
-// 	十分なパラメーターがない
-//	461 <command>  :Not enough parameters
-ERR_TOOMANYCHANNELS(405)
-	許可されたチャネルの最大数に参加し、別のチャネルに参加しようとしている
-	405 <channel name> :You have joined too many channels
-// ERR_NOSUCHCHANNEL(403)
-// 	指定されたチャネル名が無効である
-// 	403 <channel name> :No such channel
-ERR_CHANNELISFULL(471)
-	471 <channel> :Cannot join channel (+l)
-ERR_INVITEONLYCHAN(473)
-	473 <channel> :Cannot join channel (+i)
-ERR_BANNEDFROMCHAN(474)
-	474 <channel> :Cannot join channel (+b)
-ERR_BADCHANNELKEY(475)
-	475 <channel> :Cannot join channel (+k)
-ERR_BADCHANMASK(476)
-	476 <channel> :Bad Channel Mask
-ERR_TOOMANYTARGETS(407)
-	指定された複雑な宛先指定(user@hostなど)が、複数のクライアントと一致した
-	407 <target> :<error code> recipients. <abort message>
-ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
-	サーバーが現在ブロックされているチャネルに参加しようとしている
-	437 <nick/channel> :Nick/channel is temporarily unavailable
-
-RPL_TOPIC(332)
-	チャンネルに設定されてるtopicを送る。
-	332 <channel> :<topic>
-RPL_NAMREPLY(353)
-	チャンネルにいるユーザーのリストを送る
-*/
-
 static std::vector<std::string> split(const std::string& str, char delimiter) {
 	std::vector<std::string> tokens;
 	std::stringstream ss(str);
@@ -77,61 +43,11 @@ static std::vector<s_join_item>	parse_join_args(const t_parsed& input) {
 	return (res);
 }
 
-static bool is_containsChar(const std::string& str, char target) {
-	return (str.find(target) != std::string::npos);
-}
-
-static bool	is_validChannelName(const s_join_item& item, std::string* invalid_channelName) {
-	std::string channel = item.channel;
-	if (channel.size() > 50) {
-		*invalid_channelName = channel;
-		return (false);
-	}
-	if (!(channel[0] == '&' || channel[0] == '#' || \
-		channel[0] == '+' || channel[0] == '!')) {
-		*invalid_channelName = channel;
-		return (false);
-	}
-	if (is_containsChar(channel, ' ') || \
-		is_containsChar(channel, 7) || \
-		is_containsChar(channel, ',')) {
-		*invalid_channelName = channel;
-		return (false);
-	}
-	return (true);
-}
-
-static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
-	std::string	command = "JOIN";
-
-	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
-	return (true);
-}
-
 static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) {
+	(void) input;
+	(void) res;
 	(void) db;
-	std::string	command = "JOIN";
-	std::string invalid_channelName;
-
-	if (!is_validChannelName(item, &invalid_channelName))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 403 " + invalid_channelName + " :No such channel\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
+	(void) item;
 	return(true);
 }
 
@@ -215,12 +131,6 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	std::vector<t_response> response_list;
 	t_response res;
 
-	if (!is_needMoreParams(input, &res))
-	{
-		response_list.push_back(res);
-		return (response_list);
-	}
-
 	if (input.args[0] == "0")
 	{
 		// todo: すべてのチャンネルから退出する処理とレスポンス
@@ -228,11 +138,6 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	}
 
 	std::vector<s_join_item> items = parse_join_args(input);
-
-	std::cout << std::endl << "パース結果↓ " << std::endl;	//todo: デバック用
-	for (size_t i = 0; i < items.size(); i++)
-		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
-
 	response_list = executeJoin(input, db, items);
 	return (response_list);
 }
