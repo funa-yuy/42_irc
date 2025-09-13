@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/10 14:31:30 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/13 13:43:05 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,8 @@ SRC					:= \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
+					Command/PingCommand.cpp \
+					Command/PongCommand.cpp \
 					Command/PrivmsgCommand.cpp \
 					PrintLog.cpp
 
@@ -52,6 +54,8 @@ HEADERS				:= \
 					NickCommand.hpp \
 					PassCommand.hpp \
 					UserCommand.hpp \
+					PingCommand.hpp \
+					PongCommand.hpp \
 					PrivmsgCommand.hpp \
 					PrintLog.hpp
 
