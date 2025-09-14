@@ -156,13 +156,16 @@ static void test_err_401_nosuchnick() {
 	assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 }
 
-static Database set_db(Database& db)
+// /*
+
+// チャンネル参加者へのブロードキャスト
+static Database set_db_test_channel_broadcast(Database& db, int num)
 {
 	Channel channel;
 	std::map<int, Client> db_clients;
 	std::vector<Client *> clients;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < num; i++)
 	{
 		db.addClient(i + 2);
 		db.getClient(i + 2)->setNickname("aaa");
@@ -181,20 +184,63 @@ static void test_channel_broadcast()
 {
 	// db作成
 	Database db("pass");
-	db = set_db(db);
+	db = set_db_test_channel_broadcast(db, 1);
 
 	// パースド作成
 	t_parsed parse;
 	std::string target;
 	std::string msg;
+	t_response result;
+	PrivmsgCommand privmsg;
 
+	// チャンネル参加者が一人（送信者のみ）の場合
 	target = "";
 	msg = "";
 	parse.cmd = "PRIVMSG";
 	parse.client_fd = 3;
 	parse.args.push_back(target);
 	parse.args.push_back(msg);
+	result = privmsg.execute(parse, db);
+	assert(result.is_success == true);
+	assert(result.reply == "");
+	assert(result.should_disconnect == false);
+	assert(result.should_send == true);
+	assert(result.target_fds.size() == 1);
+	assert(result.target_fds[3] != NULL);
+
+	// チャンネル参加者が二人
+	Database db_2("db2");
+	db_2 = set_db_test_channel_broadcast(db_2, 2);
+
+	// チャンネル参加者が三人
+	Database db_2("db2");
+	db_2 = set_db_test_channel_broadcast(db_2, 2);
+
+	// 送信者がチャンネルに参加していない
+	target = "test";
+	msg = ":hello world";
+	parse.cmd = "PRIVMSG";
+	parse.client_fd = 10;
+	parse.args.push_back(target);
+	parse.args.push_back(msg);
+	result = privmsg.execute(parse, db);
+	assert(result.is_success == false);
+	assert(result.reply == "");
+	assert(result.should_disconnect == false);
+	assert(result.should_send == true);
+	assert(result.target_fds.size() == 1);
+	assert(result.target_fds[10] != NULL);
+
+	// 送信先のチャンネルが存在しない
+	target = "noexist";
+	msg = ":hello world";
+	parse.cmd = "PRIVMSG";
+	parse.client_fd = 3;
+	parse.args.push_back(target);
+	parse.args.push_back(msg);
 }
+
+// */
 
 int main() {
 	test_success();//正常
