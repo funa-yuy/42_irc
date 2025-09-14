@@ -78,39 +78,97 @@ std::vector<s_join_item> JoinCommand::parse_join_args(const t_parsed& input) con
 	return (res);
 }
 
-static bool is_containsChar(const std::string& str, char target) {
-	return (str.find(target) != std::string::npos);
+static bool isAllowedChanstringChar(char c)
+{
+	if (c == 0x00 || c == 0x07 || c == 0x0A || c == 0x0D || c == 0x20 || c == 0x2C || c == 0x3A)
+		return (false);
+	return (true);
 }
 
-static bool	is_validChannelName(const s_join_item& item, std::string* invalid_channelName) {
+static bool isValidChanstring(const std::string& s)
+{
+	if (s.empty())
+		return (false);
+
+	bool seenColon = false;
+	size_t lenFirst = 0;
+	size_t lenSecond = 0;
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		if (s[i] == ':')
+		{
+			if (seenColon)
+				return (false);
+			seenColon = true;
+			if (lenFirst == 0)
+				return (false);
+			continue;
+		}
+		if (!isAllowedChanstringChar(s[i]))
+	return (false);
+		if (!seenColon)
+			++lenFirst;
+		else
+			++lenSecond;
+	}
+
+	if (seenColon && lenSecond == 0)
+		return (false);
+	return (true);
+}
+
+bool	JoinCommand::isValidChannelName(const s_join_item& item) const {
 	std::string channel = item.channel;
-	if (channel.size() > 50) {
-		*invalid_channelName = channel;
+	if (channel.empty() || channel.size() < 2 || channel.size() > 50)
 		return (false);
-	}
-	if (!(channel[0] == '&' || channel[0] == '#' || \
-		channel[0] == '+' || channel[0] == '!')) {
-		*invalid_channelName = channel;
+
+	if (!(channel[0] == '#' || channel[0] == '+' || channel[0] == '&' || channel[0] == '!'))
 		return (false);
-	}
-	if (is_containsChar(channel, ' ') || \
-		is_containsChar(channel, 7) || \
-		is_containsChar(channel, ',')) {
-		*invalid_channelName = channel;
-		return (false);
+
+	if (channel[0] != '!') {
+		std::string rest = channel.substr(1);
+		if (!isValidChanstring(rest))
+			return (false);
 	}
 	return (true);
 }
 
-static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
-	std::string	command = "JOIN";
+static bool isValidChannelId(const std::string& id)
+{
+	if (id.size() != 5)
+		return (false);
+	for (size_t i = 0; i < id.size(); ++i)
+	{
+		if (!('A' <= id[i] && id[i] <= 'Z') && !('0' <= id[i] && id[i] <= '9'))
+			return (false);
+	}
+	return (true);
+}
 
+bool	JoinCommand::isValidChanMask(const s_join_item& item) const {
+	std::string channel = item.channel;
+	if (channel.empty())
+		return (false);
+
+	if (channel[0] == '!') {
+		std::string id = channel.substr(1, 5);
+		if (!isValidChannelId(id))
+			return (false);
+
+		std::string rest = channel.substr(6);
+		if (!isValidChanstring(rest))
+			return (false);
+	}
+	return (true);
+}
+
+bool	JoinCommand::isValidParamsSize(const t_parsed& input, t_response* res) const {
 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
 		res->is_success = false;
 		res->should_send = true;
 		res->should_disconnect = false;
-		res->reply = ":ft.irc 461 " + command + " :Not enough parameters\r\n";
+		res->reply = ":ft.irc 461 JOIN :Not enough parameters\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);
@@ -121,14 +179,23 @@ static bool	is_needMoreParams(const t_parsed& input, t_response* res) {
 bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const {
 	(void) db;
 	std::string	command = "JOIN";
-	std::string invalid_channelName;
 
-	if (!is_validChannelName(item, &invalid_channelName))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
+	if (!isValidChannelName(item))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
 	{
 		res->is_success = false;
 		res->should_send = true;
 		res->should_disconnect = false;
-		res->reply = ":ft.irc 403 " + invalid_channelName + " :No such channel\r\n";
+		res->reply = ":ft.irc 403 " + item.channel + " :No such channel\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	if (!isValidChanMask(item))//ERR_BADCHANMASK 476 !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->should_disconnect = false;
+		res->reply = ":ft.irc 476 " + item.channel + " :Bad Channel Mask\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);
@@ -140,7 +207,7 @@ void	JoinCommand::updateDatabase(const t_parsed& input, Database& db, const s_jo
 	std::string name = item.channel;
 	Channel* ch = db.getChannel(name);
 	if (ch == NULL) {
-		Channel new_channel(name, input.client_fd);
+		Channel new_channel(name, input.client_fd);//チャンネル名を大文字or小文字に正規化してから格納する
 		db.addChannel(new_channel);
 	} else {
 		ch->addClientFd(input.client_fd);
@@ -226,7 +293,7 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	std::vector<t_response> response_list;
 	t_response res;
 
-	if (!is_needMoreParams(input, &res))
+	if (!isValidParamsSize(input, &res))
 	{
 		response_list.push_back(res);
 		return (response_list);
