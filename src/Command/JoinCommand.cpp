@@ -13,15 +13,15 @@ Command*	JoinCommand::createJoinCommand() {
 
 
 /*
-// ERR_NEEDMOREPARAMS(461)
-// 	十分なパラメーターがない
-//	461 <command>  :Not enough parameters
-// ERR_TOOMANYCHANNELS(405)
+ERR_NEEDMOREPARAMS(461)
+	十分なパラメーターがない
+	461 <command>  :Not enough parameters
+// ERR_TOOMANYCHANNELS(405)→チャンネル数に制限を設けないので実装しない
 // 	許可されたチャネルの最大数に参加し、別のチャネルに参加しようとしている
 // 	405 <channel name> :You have joined too many channels
-// ERR_NOSUCHCHANNEL(403)
-// 	指定されたチャネル名が無効である
-// 	403 <channel name> :No such channel
+ERR_NOSUCHCHANNEL(403)
+	指定されたチャネル名が無効である
+	403 <channel name> :No such channel
 ERR_CHANNELISFULL(471)
 	471 <channel> :Cannot join channel (+l)
 ERR_INVITEONLYCHAN(473)

@@ -133,7 +133,7 @@ static void test_success() {
 		cl7->setNickname("nick7");
 
 		std::vector<std::string> args;
-		args.push_back("!hoge");
+		args.push_back("!ABC12hoge");
 		args.push_back("hogeKey,fugaKey");
 
 		t_parsed in = makeInput("JOIN", fd, args);
@@ -143,12 +143,12 @@ static void test_success() {
 		// JOIN
 		assert(res[0].is_success == true);
 		assert(res[0].should_send == true);
-		assert(res[0].reply.find("nick7 has joined !hoge") != std::string::npos);
+		assert(res[0].reply.find("nick7 has joined !ABC12hoge") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 		// 332 RPL_TOPIC
 		assert(res[1].is_success == true);
 		assert(res[1].should_send == true);
-		assert(res[1].reply.find(" 332 Topic for !hoge :") != std::string::npos);
+		assert(res[1].reply.find(" 332 Topic for !ABC12hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		// 353 RPL_NAMREPLY
 		assert(res[2].is_success == true);
@@ -210,7 +210,6 @@ static void test_err_403_nosuchchannel() {
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 	}
 
-
 	{
 		int fd = 13;
 		db.addClient(fd);
@@ -226,12 +225,108 @@ static void test_err_403_nosuchchannel() {
 		assert(res[0].reply.find("403 ") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 	}
+
+	{
+		int fd = 14;
+		db.addClient(fd);
+
+		std::vector<std::string> args;
+		args.push_back("#");//チャンネル名が空
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("403 ") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
+	}
+
+	{
+		int fd = 15;
+		db.addClient(fd);
+
+		std::vector<std::string> args;
+		args.push_back("#foo:"); // `:`の後に何もない
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("403 ") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
+	}
+
+	{
+		int fd = 16;
+		db.addClient(fd);
+
+		std::vector<std::string> args;
+		args.push_back("#foo:foo2:foo3"); // `:`が2つ以上ある
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("403 ") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
+	}
+}
+
+static void test_err_476_badchanmask() {
+	Database db("password");
+	JoinCommand join;
+
+	{
+		int fd = 16;
+		db.addClient(fd);
+
+		std::vector<std::string> args;
+		args.push_back("!ABC");//5文字以下
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("476 ") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
+	}
+
+	{
+		int fd = 17;
+		db.addClient(fd);
+
+		std::vector<std::string> args;
+		args.push_back("!abc123");//小文字になってる
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("476 ") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
+	}
+
+	{
+		int fd = 18;
+		db.addClient(fd);
+
+		std::vector<std::string> args;
+		args.push_back("!ABC12");//5文字の後にチャンネル名がない
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].is_success == false);
+		assert(res[0].should_send == true);
+		assert(res[0].reply.find("476 ") != std::string::npos);
+		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
+	}
 }
 
 int main() {
 	test_success();//正常
 	test_err_461_needmoreparams();// エラー: ERR_NEEDMOREPARAMS 461 引数が無い
 	test_err_403_nosuchchannel();// エラー: ERR_NOSUCHCHANNEL 403 チャンネル名が不正
+	test_err_476_badchanmask();// エラー: ERR_BADCHANMASK 476 !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない場合
 	std::cout << "JOIN command tests: OK" << std::endl;
 	return 0;
 }
