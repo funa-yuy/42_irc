@@ -67,9 +67,13 @@ std::vector<int> PrivmsgCommand::get_fd_ByChannel(std::string	target, Database& 
 	target.erase(0, 1);
 	if (db.getChannel(target) == NULL)
 		return (fds);
-	std::vector<Client *> clients= db.getChannel(target)->getClients();
-	for (int i = 0; i < (int)clients.size(); i++)
-		fds.push_back(clients[i]->getFd());
+	const std::set<int>& clients = db.getChannel(target)->getClientFds();
+	std::set<int>::const_iterator it = clients.begin();
+	while (it != clients.end())
+	{
+		fds.push_back(*it);
+		it++;
+	}
 	return (fds);
 }
 
@@ -106,15 +110,19 @@ bool	PrivmsgCommand::is_validCmd(const t_parsed& input, t_response* res, Databas
 	return(true);
 }
 
-const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
-	t_response	res;	
+std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database& db) const {
+	std::vector<t_response> response_list;
+	t_response	res;
 
 	res.is_success = false;
 	res.should_send = false;
 	res.should_disconnect = false;
 
 	if (!is_validCmd(input, &res, db))
-		return (res);
+	{
+		response_list.push_back(res);
+		return (response_list);
+	}
 
 	Client * sender = db.getClient(input.client_fd);
 	std::string	nick = sender->getNickname();
@@ -131,7 +139,9 @@ const t_response	PrivmsgCommand::execute(const t_parsed& input, Database& db) co
 	res.should_send = true;
 	res.reply = line;
 	res.target_fds = fds;
-	return (res);
+
+	response_list.push_back(res);
+	return (response_list);
 }
 
 bool	PrivmsgCommand::return_false_set_reply(t_response *res, 

@@ -9,8 +9,9 @@
 // valgrind ./test_irc
 // ```
 
-t_response	handleInput(const t_parsed& input, Database& db) {
+std::vector<t_response>	handleInput(const t_parsed& input, Database& db) {
 	Command* cmd = NULL;
+	std::vector<t_response> response_list;
 
 	if (input.cmd == "PASS") {
 		cmd = new PassCommand();
@@ -25,11 +26,12 @@ t_response	handleInput(const t_parsed& input, Database& db) {
 		t_response res;
 		res.reply = "Unknown command\n";
 		res.target_fds.push_back(0);
-		return (res);
+		response_list.push_back(res);
+		return (response_list);
 	}
-	t_response	res = cmd->execute(input, db);
+	response_list = cmd->execute(input, db);
 	delete	cmd;
-	return (res);
+	return (response_list);
 }
 
 int	main() {
@@ -56,8 +58,12 @@ int	main() {
 
 	for (int i = 0; i < n; ++i)
 	{
-		t_response res = handleInput(inputs[i], db);
-		std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
+		std::vector<t_response> response_list = handleInput(inputs[i], db);
+		for (size_t j = 0; j < response_list.size(); ++j)
+		{
+			const t_response & res = response_list[j];
+			std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
+		}
 	}
 
 	return (0);

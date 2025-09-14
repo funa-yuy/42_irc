@@ -22,7 +22,7 @@ class PrivmsgCommand : public Command {
 		PrivmsgCommand();
 		~PrivmsgCommand();
 		static Command* createPrivmsgCommand();
-		const t_response	execute(const t_parsed& input, Database& db) const;
+		std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
 	
 	private:
 		bool				is_channel(std::string target) const;
