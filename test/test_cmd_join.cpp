@@ -159,7 +159,7 @@ static void test_success() {
 		db.addChannel(ch_hoge4);
 
 		std::vector<std::string> args;
-		args.push_back("!hoge,");
+		args.push_back("!hoge");
 		args.push_back("hogeKey,fugaKey");
 
 		t_parsed in = makeInput("JOIN", fd, args);
