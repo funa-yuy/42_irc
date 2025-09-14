@@ -39,7 +39,8 @@ public:
 
 	time_t				getLastPingTime(void) const;
 	std::string			getLastPingToken(void) const;
-	
+
+	void				setFd(int fd);
 	void				setNickname(const std::string& nickname);
 	void				setUsername(const std::string& username);
 	void				setRealname(const std::string& realname);
@@ -69,8 +70,11 @@ private:
 	bool			_isRegistered;
 	bool			_isOperator;
 
+
 	time_t			_lastPingTime;
 	std::string		_lastPingToken;
+
+	//todo: 参加してるチャンネル名を保持する(?)
 
 };
 

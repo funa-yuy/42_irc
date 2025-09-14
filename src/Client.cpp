@@ -79,6 +79,7 @@ bool	Client::getIsRegistered() const {
 	return (_isRegistered);
 }
 
+
 time_t	Client::getLastPingTime(void) const
 {
 	return (_lastPingTime);
@@ -87,6 +88,12 @@ time_t	Client::getLastPingTime(void) const
 std::string	Client::getLastPingToken(void) const
 {
 	return (_lastPingToken);
+}
+
+void	Client::setFd(int fd)
+{
+	_fd = fd;
+	return ;
 }
 
 void	Client::setUsername(const std::string & username)

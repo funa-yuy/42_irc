@@ -206,7 +206,7 @@ void	Server::disconnectClient(int fd)
 	}
 
 	_db.removeClient(fd);
-
+	// todo: チャンネルからも対象のクライアントを退出させるべき？
 	return ;
 }
 
