@@ -16,9 +16,9 @@ Command*	JoinCommand::createJoinCommand() {
 // ERR_NEEDMOREPARAMS(461)
 // 	十分なパラメーターがない
 //	461 <command>  :Not enough parameters
-ERR_TOOMANYCHANNELS(405)
-	許可されたチャネルの最大数に参加し、別のチャネルに参加しようとしている
-	405 <channel name> :You have joined too many channels
+// ERR_TOOMANYCHANNELS(405)
+// 	許可されたチャネルの最大数に参加し、別のチャネルに参加しようとしている
+// 	405 <channel name> :You have joined too many channels
 // ERR_NOSUCHCHANNEL(403)
 // 	指定されたチャネル名が無効である
 // 	403 <channel name> :No such channel
@@ -30,14 +30,14 @@ ERR_INVITEONLYCHAN(473)
 // 	474 <channel> :Cannot join channel (+b)
 ERR_BADCHANNELKEY(475)
 	475 <channel> :Cannot join channel (+k)
-ERR_BADCHANMASK(476)
+ERR_BADCHANMASK(476) → !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない場合
 	476 <channel> :Bad Channel Mask
-ERR_TOOMANYTARGETS(407)
-	指定された複雑な宛先指定(user@hostなど)が、複数のクライアントと一致した
-	407 <target> :<error code> recipients. <abort message>
-ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
-	サーバーが現在ブロックされているチャネルに参加しようとしている
-	437 <nick/channel> :Nick/channel is temporarily unavailable
+// ERR_TOOMANYTARGETS(407)
+// 	指定された複雑な宛先指定(user@hostなど)が、複数のクライアントと一致した
+// 	407 <target> :<error code> recipients. <abort message>
+// ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
+// 	サーバーが現在ブロックされているチャネルに参加しようとしている
+// 	437 <nick/channel> :Nick/channel is temporarily unavailable
 
 // RPL_TOPIC(332)
 // 	チャンネルに設定されてるtopicを送る。
