@@ -51,6 +51,17 @@ static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, co
 	return(true);
 }
 
+static void	updateDatabase(const t_parsed& input, Database& db, const s_join_item& item) {
+	std::string name = item.channel;
+	Channel* ch = db.getChannel(name);
+	if (ch == NULL) {
+		Channel new_channel(name, input.client_fd);
+		db.addChannel(new_channel);
+	} else {
+		ch->addClientFd(input.client_fd);
+	}
+}
+
 static t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) {
 	t_response	res;
 	const std::set<int>&	clientFds = channel->getClientFds();
@@ -120,7 +131,7 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 		if (!is_validCmd(input, &res, db, items[i])) {
 			list.push_back(res);
 		} else {
-			// update_database(input, db, items);//todo: 正常だった場合のデータ更新
+			updateDatabase(input, db, items[i]);
 			list.push_back(makeJoinBroadcast(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
 			list.push_back(makeRplTopic(input, db.getChannel(items[i].channel))); //RPL_TOPIC
 			list.push_back(makeRplNamreply(input, db, db.getChannel(items[i].channel))); //RPL_NAMREPLY

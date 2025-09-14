@@ -23,10 +23,6 @@ static void test_success() {
 		Client* cl4 = db.addClient(fd);
 		cl4->setNickname("nick4");
 
-		Channel ch_hoge("#hoge", fd);
-		ch_hoge.setTopic("Topic is hoge!");
-		db.addChannel(ch_hoge);
-
 		std::vector<std::string> args;
 		args.push_back("#hoge");
 
@@ -44,7 +40,7 @@ static void test_success() {
 		assert(res[1].is_success == true);
 		assert(res[1].should_send == true);
 		assert(res[1].should_disconnect == false);
-		assert(res[1].reply.find(" 332 Topic for #hoge : Topic is hoge!") != std::string::npos);
+		assert(res[1].reply.find(" 332 Topic for #hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		// 353 RPL_NAMREPLY
 		assert(res[2].is_success == true);
@@ -60,10 +56,6 @@ static void test_success() {
 		int joiner_fd = 40;
 		Client* cl40 = db.addClient(joiner_fd);
 		cl40->setNickname("nick40");
-
-		std::string name = "#hoge";
-		Channel* ch = db.getChannel(name);
-		ch->addClientFd(joiner_fd);//新たに、チャンネルにクライアントを追加
 
 		std::vector<std::string> args;
 		args.push_back("#hoge");
@@ -86,13 +78,6 @@ static void test_success() {
 		Client* cl5 = db.addClient(fd);
 		cl5->setNickname("nick5");
 
-		Channel ch_hoge2("&hoge", fd);
-		ch_hoge2.setTopic("Topic is hoge!");
-		db.addChannel(ch_hoge2);
-		Channel ch_fuga2("&fuga", fd);
-		ch_fuga2.setTopic("Topic is fuga!");
-		db.addChannel(ch_fuga2);
-
 		std::vector<std::string> args;
 		args.push_back("&hoge,&fuga");
 		args.push_back("hogeKey,fugaKey");
@@ -104,14 +89,14 @@ static void test_success() {
 		// 1つ目チャンネル: JOIN通知, 332, 353
 		assert(res[0].reply.find("nick5 has joined &hoge") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
-		assert(res[1].reply.find(" 332 Topic for &hoge : Topic is hoge!") != std::string::npos);
+		assert(res[1].reply.find(" 332 Topic for &hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		assert(res[2].reply.find(" 353 ") != std::string::npos);
 		assert(res[2].target_fds.size() == 1 && res[2].target_fds[0] == fd);
 		// 2つ目チャンネル: JOIN通知, 332, 353
 		assert(res[3].reply.find("nick5 has joined &fuga") != std::string::npos);
 		assert(res[3].target_fds.size() == 1 && res[3].target_fds[0] == fd);
-		assert(res[4].reply.find(" 332 Topic for &fuga : Topic is fuga!") != std::string::npos);
+		assert(res[4].reply.find(" 332 Topic for &fuga :") != std::string::npos);
 		assert(res[4].target_fds.size() == 1 && res[4].target_fds[0] == fd);
 		assert(res[5].reply.find(" 353 ") != std::string::npos);
 		assert(res[5].target_fds.size() == 1 && res[5].target_fds[0] == fd);
@@ -123,13 +108,6 @@ static void test_success() {
 		Client* cl6 = db.addClient(fd);
 		cl6->setNickname("nick6");
 
-		Channel ch_hoge3("+hoge", fd);
-		ch_hoge3.setTopic("Topic is hoge!");
-		db.addChannel(ch_hoge3);
-		Channel ch_fuga3("+fuga", fd);
-		ch_fuga3.setTopic("Topic is fuga!");
-		db.addChannel(ch_fuga3);
-
 		std::vector<std::string> args;
 		args.push_back("+hoge,+fuga");
 		args.push_back("hogeKey");
@@ -140,11 +118,11 @@ static void test_success() {
 		assert(res.size() == 6);
 		// 1つ目チャンネル: JOIN通知, 332, 353
 		assert(res[0].reply.find("nick6 has joined +hoge") != std::string::npos);
-		assert(res[1].reply.find(" 332 Topic for +hoge : Topic is hoge!") != std::string::npos);
+		assert(res[1].reply.find(" 332 Topic for +hoge :") != std::string::npos);
 		assert(res[2].reply.find(" 353 ") != std::string::npos);
 		// 2つ目チャンネル: JOIN通知, 332, 353
 		assert(res[3].reply.find("nick6 has joined +fuga") != std::string::npos);
-		assert(res[4].reply.find(" 332 Topic for +fuga : Topic is fuga!") != std::string::npos);
+		assert(res[4].reply.find(" 332 Topic for +fuga :") != std::string::npos);
 		assert(res[5].reply.find(" 353 ") != std::string::npos);
 	}
 
@@ -153,10 +131,6 @@ static void test_success() {
 		int	fd = 7;
 		Client* cl7 = db.addClient(fd);
 		cl7->setNickname("nick7");
-
-		Channel ch_hoge4("!hoge", fd);
-		ch_hoge4.setTopic("Topic is hoge!");
-		db.addChannel(ch_hoge4);
 
 		std::vector<std::string> args;
 		args.push_back("!hoge,");
@@ -174,7 +148,7 @@ static void test_success() {
 		// 332 RPL_TOPIC
 		assert(res[1].is_success == true);
 		assert(res[1].should_send == true);
-		assert(res[1].reply.find(" 332 Topic for !hoge : Topic is hoge!") != std::string::npos);
+		assert(res[1].reply.find(" 332 Topic for !hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		// 353 RPL_NAMREPLY
 		assert(res[2].is_success == true);
