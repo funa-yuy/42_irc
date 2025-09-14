@@ -58,17 +58,12 @@ int	main() {
 
 	for (int i = 0; i < n; ++i)
 	{
-<<<<<<< HEAD
 		std::vector<t_response> response_list = handleInput(inputs[i], db);
 		for (size_t j = 0; j < response_list.size(); ++j)
 		{
 			const t_response & res = response_list[j];
 			std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
 		}
-=======
-		t_response res = handleInput(inputs[i], db);
-		// std::cout << "コマンド: " << inputs[i].cmd << " → 実行結果: " << res.reply << std::endl;
->>>>>>> ad6c508ebf53c02e959a031799de306e0fe2825b
 	}
 
 	return (0);
