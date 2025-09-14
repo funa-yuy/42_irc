@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
+#include <ctime>
 
 #include "Parser.hpp"
 
@@ -23,12 +24,16 @@
 #include "Command/PassCommand.hpp"
 #include "Command/NickCommand.hpp"
 #include "Command/UserCommand.hpp"
+#include "Command/PingCommand.hpp"
+#include "Command/PongCommand.hpp"
 #include "Command/PrivmsgCommand.hpp"
 
 #include "PrintLog.hpp"
 
 #define MAX_CLIENTS 10
 #define BUF_SIZE 512
+#define TIMEOUT_MS 0
+#define PING_INTERVAL 60
 
 class Server
 {
@@ -56,6 +61,10 @@ private:
 	typedef Command*				(*_cmdFunc)();
 	std::map<std::string, _cmdFunc>	_cmd_map;
 
+	time_t		_last_ping;
+	int			_ping_interval;
+	int			_timeout_ms;
+
 	void		acceptNewClient(void);
 	void		handleClientInput(int fd);
 	void		disconnectClient(int fd);
@@ -65,6 +74,9 @@ private:
 	void		sendResponses(const t_response & res);
 	bool		tryRegister(Client & client);
 	void		sendWelcome(Client & client);
+
+	void		sendPing(void);
+	void		checkClientTimeout(void);
 	
 	std::string	displayNick(const Client & client) const;
 	void		broadcast(int sender_fd, std::string const & msg);
