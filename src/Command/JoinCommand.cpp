@@ -22,8 +22,8 @@ static std::vector<std::string> split(const std::string& str, char delimiter) {
 	return tokens;
 }
 
-static std::vector<s_join_item>	parse_join_args(const t_parsed& input) {
-	std::vector<s_join_item>	res;
+std::vector<s_join_item> JoinCommand::parse_join_args(const t_parsed& input) const {
+	std::vector<s_join_item> res;
 	std::vector<std::string> channels;
 	std::vector<std::string> keys;
 
@@ -43,7 +43,7 @@ static std::vector<s_join_item>	parse_join_args(const t_parsed& input) {
 	return (res);
 }
 
-static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) {
+bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const {
 	(void) input;
 	(void) res;
 	(void) db;
@@ -62,7 +62,7 @@ static void	updateDatabase(const t_parsed& input, Database& db, const s_join_ite
 	}
 }
 
-static t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) {
+t_response	JoinCommand::makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) const {
 	t_response	res;
 	const std::set<int>&	clientFds = channel->getClientFds();
 
@@ -74,7 +74,7 @@ static t_response	makeJoinBroadcast(const t_parsed& input, Database& db, Channel
 	return (res);
 }
 
-static t_response	makeRplTopic(const t_parsed& input, Channel* channel) {
+t_response	JoinCommand::makeRplTopic(const t_parsed& input, Channel* channel) const {
 	t_response	res;
 
 	res.is_success = true;
@@ -107,7 +107,7 @@ static std::string	getNicknameList(Database& db, Channel* channel) {
 	return (names);
 }
 
-static t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) {
+t_response	JoinCommand::makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) const {
 	t_response	res;
 
 	res.is_success = true;
@@ -119,7 +119,7 @@ static t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* 
 	return (res);
 }
 
-static const std::vector<t_response>	executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) {
+const std::vector<t_response> JoinCommand::executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) const {
 	std::vector<t_response>	list;
 
 	for (size_t i = 0; i < items.size(); i++)

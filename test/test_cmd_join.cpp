@@ -133,7 +133,7 @@ static void test_success() {
 		cl7->setNickname("nick7");
 
 		std::vector<std::string> args;
-		args.push_back("!hoge,");
+		args.push_back("!hoge");
 		args.push_back("hogeKey,fugaKey");
 
 		t_parsed in = makeInput("JOIN", fd, args);
