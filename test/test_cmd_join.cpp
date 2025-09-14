@@ -46,7 +46,7 @@ static void test_success() {
 		assert(res[2].is_success == true);
 		assert(res[2].should_send == true);
 		assert(res[2].should_disconnect == false);
-		assert(res[2].reply.find(" 353 ") != std::string::npos);
+		assert(res[2].reply.find(" 353 =#hoge ") != std::string::npos);
 		assert(res[2].target_fds.size() == 1 && res[2].target_fds[0] == fd);
 	}
 

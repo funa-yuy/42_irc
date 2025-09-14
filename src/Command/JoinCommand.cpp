@@ -102,8 +102,6 @@ static std::string	getNicknameList(Database& db, Channel* channel) {
 			continue;
 		if (!names.empty())
 			names += " ";
-		//if (hasVoice(channel, *it)) todo: ボイス権限があるユーザーの処理
-			// names += "+";
 		names += db.getClient(*it)->getNickname();
 	}
 	return (names);
@@ -115,8 +113,7 @@ static t_response	makeRplNamreply(const t_parsed& input, Database& db, Channel* 
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	// std::string status = getChannelStatus(channel);//todo: チャンネルのステータスを実装する
-	res.reply = ":ft.irc 353 " + channel->getName() + " : " + getNicknameList(db, channel) + "\r\n";
+	res.reply = ":ft.irc 353 =" + channel->getName() + " : " + getNicknameList(db, channel) + "\r\n";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
 	return (res);
@@ -132,9 +129,9 @@ static const std::vector<t_response>	executeJoin(const t_parsed& input, Database
 			list.push_back(res);
 		} else {
 			updateDatabase(input, db, items[i]);
-			list.push_back(makeJoinBroadcast(input, db, db.getChannel(items[i].channel))); //JOIN成功メッセージ
-			list.push_back(makeRplTopic(input, db.getChannel(items[i].channel))); //RPL_TOPIC
-			list.push_back(makeRplNamreply(input, db, db.getChannel(items[i].channel))); //RPL_NAMREPLY
+			list.push_back(makeJoinBroadcast(input, db, db.getChannel(items[i].channel)));
+			list.push_back(makeRplTopic(input, db.getChannel(items[i].channel)));
+			list.push_back(makeRplNamreply(input, db, db.getChannel(items[i].channel)));
 		}
 	}
 	return (list);
