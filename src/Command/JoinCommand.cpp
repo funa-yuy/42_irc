@@ -11,41 +11,6 @@ Command*	JoinCommand::createJoinCommand() {
 	return (new JoinCommand());
 }
 
-
-/*
-ERR_NEEDMOREPARAMS(461)
-	十分なパラメーターがない
-	461 <command>  :Not enough parameters
-// ERR_TOOMANYCHANNELS(405)→チャンネル数に制限を設けないので実装しない
-// 	許可されたチャネルの最大数に参加し、別のチャネルに参加しようとしている
-// 	405 <channel name> :You have joined too many channels
-ERR_NOSUCHCHANNEL(403)
-	指定されたチャネル名が無効である
-	403 <channel name> :No such channel
-ERR_CHANNELISFULL(471)
-	471 <channel> :Cannot join channel (+l)
-ERR_INVITEONLYCHAN(473)
-	473 <channel> :Cannot join channel (+i)
-// ERR_BANNEDFROMCHAN(474) ←bモードは要件外なので実装しない
-// 	474 <channel> :Cannot join channel (+b)
-ERR_BADCHANNELKEY(475)
-	475 <channel> :Cannot join channel (+k)
-ERR_BADCHANMASK(476) → !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない場合
-	476 <channel> :Bad Channel Mask
-// ERR_TOOMANYTARGETS(407)
-// 	指定された複雑な宛先指定(user@hostなど)が、複数のクライアントと一致した
-// 	407 <target> :<error code> recipients. <abort message>
-// ERR_UNAVAILRESOURCE(437) ←多分実装する必要ない
-// 	サーバーが現在ブロックされているチャネルに参加しようとしている
-// 	437 <nick/channel> :Nick/channel is temporarily unavailable
-
-// RPL_TOPIC(332)
-// 	チャンネルに設定されてるtopicを送る。
-// 	332 <channel> :<topic>
-// RPL_NAMREPLY(353)
-// 	チャンネルにいるユーザーのリストを送る
-*/
-
 static std::vector<std::string> split(const std::string& str, char delimiter) {
 	std::vector<std::string> tokens;
 	std::stringstream ss(str);
@@ -207,7 +172,7 @@ void	JoinCommand::updateDatabase(const t_parsed& input, Database& db, const s_jo
 	std::string name = item.channel;
 	Channel* ch = db.getChannel(name);
 	if (ch == NULL) {
-		Channel new_channel(name, input.client_fd);//チャンネル名を大文字or小文字に正規化してから格納する
+		Channel new_channel(name, input.client_fd);//todo: チャンネル名を大文字or小文字に正規化してから格納する
 		db.addChannel(new_channel);
 	} else {
 		ch->addClientFd(input.client_fd);
@@ -306,10 +271,6 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	}
 
 	std::vector<s_join_item> items = parse_join_args(input);
-
-	std::cout << std::endl << "パース結果↓ " << std::endl;	//todo: デバック用
-	for (size_t i = 0; i < items.size(); i++)
-		std::cout << "channel: " << items[i].channel <<  " key: "  << items[i].key << std::endl;
 
 	response_list = executeJoin(input, db, items);
 	return (response_list);
