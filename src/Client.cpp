@@ -4,7 +4,8 @@ Client::Client()
 :	_fd(0), _buffer(""),
 	_nickname(""), _username(""), _realname(""),
 	_passReceived(false), _nickReceived(false), _userReceived(false),
-	_isRegistered(false), _isOperator(false)
+	_isRegistered(false), _isOperator(false),
+	_lastPingTime(0), _lastPingToken("")
 {
 	_pfd.fd = 0;
 	_pfd.events = 0;
@@ -78,6 +79,17 @@ bool	Client::getIsRegistered() const {
 	return (_isRegistered);
 }
 
+
+time_t	Client::getLastPingTime(void) const
+{
+	return (_lastPingTime);
+}
+
+std::string	Client::getLastPingToken(void) const
+{
+	return (_lastPingToken);
+}
+
 void	Client::setFd(int fd)
 {
 	_fd = fd;
@@ -127,5 +139,17 @@ void	Client::setPassReceived(bool val)
 void	Client::setNickReceived(bool val)
 {
 	_nickReceived = val;
+	return ;
+}
+
+void	Client::setLastPingTime(time_t time)
+{
+	_lastPingTime = time;
+	return ;
+}
+
+void	Client::setLastPingToken(std::string token)
+{
+	_lastPingToken = token;
 	return ;
 }

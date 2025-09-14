@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/11 17:49:42 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/14 20:13:47 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,8 @@ SRC					:= \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
+					Command/PingCommand.cpp \
+					Command/PongCommand.cpp \
 					Command/PrivmsgCommand.cpp \
 					Command/JoinCommand.cpp \
 					PrintLog.cpp \
@@ -53,6 +55,8 @@ HEADERS				:= \
 					NickCommand.hpp \
 					PassCommand.hpp \
 					UserCommand.hpp \
+					PingCommand.hpp \
+					PongCommand.hpp \
 					PrivmsgCommand.hpp \
 					JoinCommand.hpp \
 					PrintLog.hpp \
