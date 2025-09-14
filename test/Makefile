@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
+#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/13 13:43:05 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/14 20:13:47 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,8 @@ SRC					:= \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
 					Command/PrivmsgCommand.cpp \
-					PrintLog.cpp
+					Command/JoinCommand.cpp \
+					PrintLog.cpp \
 
 HEADERS				:= \
 					irc.hpp \
@@ -57,7 +58,8 @@ HEADERS				:= \
 					PingCommand.hpp \
 					PongCommand.hpp \
 					PrivmsgCommand.hpp \
-					PrintLog.hpp
+					JoinCommand.hpp \
+					PrintLog.hpp \
 
 
 OBJ					:= $(addprefix $(OBJ_DIR)/src/, $(SRC:.cpp=.o)) \

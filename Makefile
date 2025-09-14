@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
+#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/12 21:00:25 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/14 20:13:39 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,10 +38,11 @@ SRC					:= \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
+					Command/PrivmsgCommand.cpp \
+					Command/JoinCommand.cpp \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
 					PrintLog.cpp \
-					Command/PrivmsgCommand.cpp
 
 HEADERS				:= \
 					irc.hpp \
@@ -54,10 +55,11 @@ HEADERS				:= \
 					Command/NickCommand.hpp \
 					Command/PassCommand.hpp \
 					Command/UserCommand.hpp \
+					Command/PrivmsgCommand.hpp \
+					Command/JoinCommand.hpp \
 					Command/PingCommand.hpp \
 					Command/PongCommand.hpp \
 					PrintLog.hpp \
-					Command/PrivmsgCommand.hpp
 
 OBJ					:= \
 					$(addprefix $(OBJ_DIR)/, \
