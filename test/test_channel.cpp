@@ -95,20 +95,33 @@ int main()
 		assert(test.find(3) == test.end());
 	}
 
-	// [Test] チャンネル名の正規化（小文字化）
+	// [Test] チャンネル名の正規化（小文字化） コンストラクタとgetChannel()
 	{
 		Client op;
 		op.setFd(20);
-		std::string upperName = "ChannelUPPER";
-		Channel ch(upperName, op.getFd());
+		Channel ch("ChannelUPPER", op.getFd());
 		assert(ch.getName() == "channelupper");
 
 		// Database へ登録して小文字キーで取得できることを確認
 		db.addChannel(ch);
-		std::string key = "ChannelUpper";
-		const Channel* got = db.getChannel(key);
+		std::string name = "ChannelUpper";
+		const Channel* got = db.getChannel(name);
 		assert(got != NULL);
 		assert(got->getName() == "channelupper");
+	}
+
+	// [Test] removeChannel()の大小無視削除
+	{
+		Client op2;
+		op2.setFd(21);
+		Channel ch2("MiXeDName", op2.getFd());
+		db.addChannel(ch2);
+
+		// 異なる大文字小文字で削除して、取得できないことを確認
+		std::string removeName = "MIXEDNAME";
+		db.removeChannel(removeName);
+		std::string name = "mixedname";
+		assert(db.getChannel(name) == NULL);
 	}
 
 	return (0);

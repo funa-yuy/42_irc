@@ -71,7 +71,8 @@ Channel *		Database::getChannel(std::string & name)
 
 void Database::removeChannel(std::string& name)
 {
-	std::map<std::string, Channel>::iterator it = _channels.find(name);
+	std::string normalized = toLowerCase(name);
+	std::map<std::string, Channel>::iterator it = _channels.find(normalized);
 	if (it != _channels.end())
 		_channels.erase(it);
 }
