@@ -223,7 +223,6 @@ static void test_channel_broadcast()
 	assert(result[0].should_disconnect == false);
 	assert(result[0].should_send == true);
 	assert(result[0].target_fds.size() == 1);
-	assert(result[0].target_fds.size() == 1);
 	assert(result[0].target_fds[0] == parse.client_fd);
 	result.clear();
 	parse.args.clear();
