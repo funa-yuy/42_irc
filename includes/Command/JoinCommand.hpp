@@ -6,6 +6,9 @@
 // ------------------------------------------------
 
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
 #include "Command.hpp"
 
 struct s_join_item {
@@ -27,7 +30,11 @@ class JoinCommand : public Command {
 	private:
 		const std::vector<t_response>	executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) const;
 		bool							is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const;
+		bool							isValidParamsSize(const t_parsed& input, t_response* res) const;
+		bool							isValidChannelName(const s_join_item& item) const;
+		bool							isValidChanMask(const s_join_item& item) const;
 		std::vector<s_join_item>		parse_join_args(const t_parsed& input) const;
+		void							updateDatabase(const t_parsed& input, Database& db, const s_join_item& item) const;
 		t_response						makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) const;
 		t_response						makeRplTopic(const t_parsed& input, Channel* channel) const;
 		t_response						makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) const;

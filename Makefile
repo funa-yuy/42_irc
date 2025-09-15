@@ -43,6 +43,7 @@ SRC					:= \
 					Command/JoinCommand.cpp \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
+					Utils.cpp \
 					PrintLog.cpp \
 
 HEADERS				:= \
@@ -61,6 +62,7 @@ HEADERS				:= \
 					Command/JoinCommand.hpp \
 					Command/PingCommand.hpp \
 					Command/PongCommand.hpp \
+					Utils.hpp \
 					PrintLog.hpp \
 
 OBJ					:= \
