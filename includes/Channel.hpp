@@ -8,8 +8,9 @@
 #include <iostream>
 #include <string>
 #include <set>
+#include <cctype>
 #include "Client.hpp"
-
+#include "Utils.hpp"
 
 // ------------------------------------------------
 // class

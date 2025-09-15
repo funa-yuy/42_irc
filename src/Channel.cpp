@@ -30,7 +30,7 @@ const std::set<int>& Channel::getChannelOperatorFds() const
 
 void Channel::setName(std::string name)
 {
-	_name = name;
+	_name = toLowerCase(name);
 }
 
 void Channel::addClientFd(int fd)
