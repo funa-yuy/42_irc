@@ -159,77 +159,135 @@ static void test_err_401_nosuchnick() {
 // /*
 
 // チャンネル参加者へのブロードキャスト
-static Database set_db_test_channel_broadcast(Database& db, int num)
+static Database *set_db_test_channel_broadcast(Database *db)
 {
-	Channel channel;
+	Channel channel1;
+	Channel channel2;
+	Channel channel3;
 	std::map<int, Client> db_clients;
-	std::vector<Client *> clients;
 
-	for (int i = 0; i < num; i++)
-	{
-		db.addClient(i + 2);
-		db.getClient(i + 2)->setNickname("aaa");
-		db.getClient(i + 2)->setUsername("bbb");
-		db.getClient(i + 2)->setRealname("ccc");
+	// channel
+	channel1.setName("#test1");
+	channel1.setTopic("chanel1");
+	channel1.addClientFd(3);
 
-		db_clients[i + 2] = *(db.getClient(i + 2));
-	}
+	channel2.setName("#test2");
+	channel2.setTopic("chanel2");
+	channel2.addClientFd(3);
+	channel2.addClientFd(4);
 
-	channel.setName("test");
-	channel.setClients(clients);
+	channel3.setName("#test3");
+	channel3.setTopic("chanel3");
+	channel3.addClientFd(3);
+	channel3.addClientFd(4);
+	channel3.addClientFd(5);
+
+	db->addChannel(channel1);
+	db->addChannel(channel2);
+	db->addChannel(channel3);
+
+	// client
+	db->addClient(3);
+	db->addClient(4);
+	db->addClient(5);
+	db->getClient(3)->setNickname("client1");
+	db->getClient(4)->setNickname("client2");
+	db->getClient(5)->setNickname("client3");
 	return (db);
 }
 
 static void test_channel_broadcast()
 {
 	// db作成
-	Database db("pass");
-	db = set_db_test_channel_broadcast(db, 1);
+	Database *db = new Database("pass");
+	db = set_db_test_channel_broadcast(db);
 
-	// パースド作成
 	t_parsed parse;
 	std::string target;
 	std::string msg;
-	t_response result;
+	std::vector<t_response> result;
 	PrivmsgCommand privmsg;
 
 	// チャンネル参加者が一人（送信者のみ）の場合
-	target = "";
-	msg = "";
+	target = "#test1";
+	msg = "only one";
 	parse.cmd = "PRIVMSG";
 	parse.client_fd = 3;
 	parse.args.push_back(target);
 	parse.args.push_back(msg);
-	result = privmsg.execute(parse, db);
-	assert(result.is_success == true);
-	assert(result.reply == "");
-	assert(result.should_disconnect == false);
-	assert(result.should_send == true);
-	assert(result.target_fds.size() == 1);
-	assert(result.target_fds[3] != NULL);
+	result = privmsg.execute(parse, *db);
+
+	assert(result.size() == 1);
+	assert(result[0].is_success == true);
+	assert(result[0].reply == ":client1!@ft.irc PRIVMSG #test1 :only one\r\n");
+	assert(result[0].should_disconnect == false);
+	assert(result[0].should_send == true);
+	assert(result[0].target_fds.size() == 1);
+	assert(result[0].target_fds.size() == 1);
+	assert(result[0].target_fds[0] == parse.client_fd);
+	result.clear();
+	parse.args.clear();
 
 	// チャンネル参加者が二人
-	Database db_2("db2");
-	db_2 = set_db_test_channel_broadcast(db_2, 2);
+	target = "#test2";
+	msg = "member 2";
+	parse.cmd = "PRIVMSG";
+	parse.client_fd = 3;
+	parse.args.push_back(target);
+	parse.args.push_back(msg);
+	result = privmsg.execute(parse, *db);
+
+	assert(result.size() == 1);
+	assert(result[0].is_success == true);
+	assert(result[0].reply == ":client1!@ft.irc PRIVMSG #test2 :member 2\r\n");
+	assert(result[0].should_disconnect == false);
+	assert(result[0].should_send == true);
+	assert(result[0].target_fds.size() == 2);
+	assert(result[0].target_fds[0] == parse.client_fd);
+	assert(result[0].target_fds[1] == 4);
+	result.clear();
+	parse.args.clear();
 
 	// チャンネル参加者が三人
-	Database db_2("db2");
-	db_2 = set_db_test_channel_broadcast(db_2, 2);
+	target = "#test3";
+	msg = "member 3 full!";
+	parse.cmd = "PRIVMSG";
+	parse.client_fd = 3;
+	parse.args.push_back(target);
+	parse.args.push_back(msg);
+	result = privmsg.execute(parse, *db);
 
+	assert(result.size() == 1);
+	assert(result[0].is_success == true);
+	assert(result[0].reply == ":client1!@ft.irc PRIVMSG #test3 :member 3 full!\r\n");
+	assert(result[0].should_disconnect == false);
+	assert(result[0].should_send == true);
+	assert(result[0].target_fds.size() == 3);
+	assert(result[0].target_fds[0] == parse.client_fd);
+	assert(result[0].target_fds[1] == 4);
+	assert(result[0].target_fds[2] == 5);
+	result.clear();
+	parse.args.clear();
+
+	// エラー
 	// 送信者がチャンネルに参加していない
-	target = "test";
+	target = "#test1";
 	msg = ":hello world";
 	parse.cmd = "PRIVMSG";
 	parse.client_fd = 10;
 	parse.args.push_back(target);
 	parse.args.push_back(msg);
-	result = privmsg.execute(parse, db);
-	assert(result.is_success == false);
-	assert(result.reply == "");
-	assert(result.should_disconnect == false);
-	assert(result.should_send == true);
-	assert(result.target_fds.size() == 1);
-	assert(result.target_fds[10] != NULL);
+	result = privmsg.execute(parse, *db);
+
+	assert(result.size() == 1);
+	assert(result[0].is_success == false);
+	assert(result[0].reply == ":ft.irc 404 :You are not in this channel.\r\n");
+	assert(result[0].should_disconnect == false);
+	assert(result[0].should_send == true);
+	assert(result[0].target_fds.size() == 1);
+	assert(result[0].target_fds[0] == 10);
+	result.clear();
+	parse.args.clear();
 
 	// 送信先のチャンネルが存在しない
 	target = "noexist";
@@ -238,6 +296,20 @@ static void test_channel_broadcast()
 	parse.client_fd = 3;
 	parse.args.push_back(target);
 	parse.args.push_back(msg);
+	result = privmsg.execute(parse, *db);
+
+	assert(result.size() == 1);
+	assert(result[0].is_success == false);
+	// :ft.irc 401 :No such nick/channel\r\nではない？
+	assert(result[0].reply == ":ft.irc 401 noexist :No such nick/channel\r\n");
+	assert(result[0].should_disconnect == false);
+	assert(result[0].should_send == true);
+	assert(result[0].target_fds.size() == 1);
+	assert(result[0].target_fds[0] == 3);
+	result.clear();
+	parse.args.clear();
+
+	delete(db);
 }
 
 // */
@@ -248,6 +320,7 @@ int main() {
 	test_err_411_norecipient();// エラー：　ERR_NORECIPIENT 411 受信者が指定されていない
 	test_err_412_notexttosend();// エラー：　ERR_NOTEXTTOSEND 412 送信テキストがない
 	test_err_401_nosuchnick();// エラー：　ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
+	test_channel_broadcast(); // チャンネルに所属している全員にブロードキャストを行う
 	std::cout << "PRIVMSG command tests: OK" << std::endl;
 	return 0;
 }

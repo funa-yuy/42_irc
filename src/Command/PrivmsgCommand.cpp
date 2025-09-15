@@ -53,18 +53,20 @@ std::vector<int> PrivmsgCommand::get_fd_ByChannel(std::string	target, Database& 
 
 	// チャンネル名は以下で開始される[&, #, +, !]
 	// ！始まりの場合5文字の英数字 (A-Zまたは0-9) で構成
-	if (target[0] == '!' && target.size() == EXCLAMATION_CHANNEL_LEN)
-	{
-		for (int i = 1; i < EXCLAMATION_CHANNEL_LEN;i++)
-		{
-			if (!std::isalnum(target[i]))
-				return (fds);
-		}
-	}
-	else
-		return (fds);
 
-	target.erase(0, 1);
+	// いらないかも
+	// if (target[0] == '!' && target.size() == EXCLAMATION_CHANNEL_LEN)
+	// {
+	// 	for (int i = 1; i < EXCLAMATION_CHANNEL_LEN;i++)
+	// 	{
+	// 		if (!std::isalnum(target[i]))
+	// 			return (fds);
+	// 	}
+	// }
+	// else
+	// 	return (fds);
+
+	// target.erase(0, 1);
 	if (db.getChannel(target) == NULL)
 		return (fds);
 	const std::set<int>& clients = db.getChannel(target)->getClientFds();
@@ -98,15 +100,15 @@ std::vector<int>	PrivmsgCommand::get_target_fd(std::string target, Database& db)
 bool	PrivmsgCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db) const {
 
 	if (input.args.size() < 1)//ERR_NORECIPIENT 411 受信者が指定されていない
-		return (return_false_set_reply(res, input, "411 :No recipient given PRIVMSG"));
+		return (return_false_set_reply(res, input, " 411 :No recipient given PRIVMSG"));
 	else if (input.args.size() < 2)//ERR_NOTEXTTOSEND 412 送信テキストがない
-		return (return_false_set_reply(res, input, "412 :No text to send"));
+		return (return_false_set_reply(res, input, " 412 :No text to send"));
 	else if (get_target_fd(input.args[0], db).empty()) //ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
-		return (return_false_set_reply(res, input, "401 " + input.args[0] + " :No such nick/channel"));
+		return (return_false_set_reply(res, input, " 401 " + input.args[0] + " :No such nick/channel"));
 
 	//チャンネルに参加していないとき
 	if (is_channel(input.args[0]) && !is_belong_channel(input, db))
-		return (return_false_set_reply(res, input, "442 " + input.args[0] + " :You are not in this channel."));
+		return (return_false_set_reply(res, input, " 404 :You are not in this channel."));
 	return(true);
 }
 
@@ -144,8 +146,8 @@ std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database&
 	return (response_list);
 }
 
-bool	PrivmsgCommand::return_false_set_reply(t_response *res, 
-												const t_parsed& input, 
+bool	PrivmsgCommand::return_false_set_reply(t_response *res,
+												const t_parsed& input,
 												std::string msg) const
 {
 	res->is_success = false;
