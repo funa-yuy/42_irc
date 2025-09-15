@@ -143,12 +143,12 @@ static void test_success() {
 		// JOIN
 		assert(res[0].is_success == true);
 		assert(res[0].should_send == true);
-		assert(res[0].reply.find("nick7 has joined !ABC12hoge") != std::string::npos);
+		assert(res[0].reply.find("nick7 has joined !abc12hoge") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 		// 332 RPL_TOPIC
 		assert(res[1].is_success == true);
 		assert(res[1].should_send == true);
-		assert(res[1].reply.find(" 332 Topic for !ABC12hoge :") != std::string::npos);
+		assert(res[1].reply.find(" 332 Topic for !abc12hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		// 353 RPL_NAMREPLY
 		assert(res[2].is_success == true);

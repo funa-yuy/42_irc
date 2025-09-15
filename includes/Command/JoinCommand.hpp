@@ -6,6 +6,9 @@
 // ------------------------------------------------
 
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
 #include "Command.hpp"
 
 struct s_join_item {

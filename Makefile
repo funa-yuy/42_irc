@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/14 20:13:39 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/15 13:52:57 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,6 +42,7 @@ SRC					:= \
 					Command/JoinCommand.cpp \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
+					Utils.cpp \
 					PrintLog.cpp \
 
 HEADERS				:= \
@@ -59,6 +60,7 @@ HEADERS				:= \
 					Command/JoinCommand.hpp \
 					Command/PingCommand.hpp \
 					Command/PongCommand.hpp \
+					Utils.hpp \
 					PrintLog.hpp \
 
 OBJ					:= \

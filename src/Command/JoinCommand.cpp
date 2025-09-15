@@ -1,7 +1,4 @@
 #include "Command/JoinCommand.hpp"
-#include <string>
-#include <sstream>
-#include <vector>
 
 JoinCommand::JoinCommand() {}
 
@@ -172,7 +169,7 @@ void	JoinCommand::updateDatabase(const t_parsed& input, Database& db, const s_jo
 	std::string name = item.channel;
 	Channel* ch = db.getChannel(name);
 	if (ch == NULL) {
-		Channel new_channel(name, input.client_fd);//todo: チャンネル名を大文字or小文字に正規化してから格納する
+		Channel new_channel(name, input.client_fd);
 		db.addChannel(new_channel);
 	} else {
 		ch->addClientFd(input.client_fd);

@@ -8,6 +8,7 @@
 #include <map>
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Utils.hpp"
 
 
 // ------------------------------------------------

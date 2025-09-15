@@ -95,5 +95,21 @@ int main()
 		assert(test.find(3) == test.end());
 	}
 
+	// [Test] チャンネル名の正規化（小文字化）
+	{
+		Client op;
+		op.setFd(20);
+		std::string upperName = "ChannelUPPER";
+		Channel ch(upperName, op.getFd());
+		assert(ch.getName() == "channelupper");
+
+		// Database へ登録して小文字キーで取得できることを確認
+		db.addChannel(ch);
+		std::string key = "ChannelUpper";
+		const Channel* got = db.getChannel(key);
+		assert(got != NULL);
+		assert(got->getName() == "channelupper");
+	}
+
 	return (0);
 }
