@@ -6,7 +6,7 @@
 #    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/15 17:02:32 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/15 17:10:35 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,7 +53,7 @@ HEADERS				:= \
 					Client.hpp \
 					Database.hpp \
 					Command/Command.hpp \
-					Comamnd/CapCommand.hpp \
+					Command/CapCommand.hpp \
 					Command/NickCommand.hpp \
 					Command/PassCommand.hpp \
 					Command/UserCommand.hpp \
