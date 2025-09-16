@@ -65,3 +65,11 @@ bool	Channel::isMember(int fd)
 		return (false);
 	return (true);
 }
+
+bool	Channel::isOperator(int fd)
+{
+	std::set<int>::iterator	it = _channelOperatorFds.find(fd);
+	if (it == _channelOperatorFds.end())
+		return (false);
+	return (true);
+}

@@ -82,13 +82,13 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 						+ " :is already on channel\r\n";
 			return (false);
 		}
-		// if (/*チャンネルが招待制（Invite only） かつ inviterがオペレータではない*/)
-		// {
-		// 	res.reply = ":ft_irc 482 "
-		// 				+ inviter->getNickname() + input.args[1]
-		// 				+ "You're not channel operator\r\n";
-		// 	return (false);
-		// }
+		if (ch->isOperator(inviter->getFd()))
+		{
+			res.reply = ":ft_irc 482 "
+						+ inviter->getNickname() + input.args[1]
+						+ "You're not channel operator\r\n";
+			return (false);
+		}
 	}
 	else
 	{
@@ -112,7 +112,7 @@ t_response	InviteCommand::makeInviteLine(Client & inviter, Client & invitee, Cha
 {
 	t_response	res;
 
-	res.reply = ":" + inviter.getNickname() + "!" + inviter.getUsername() + "@" + "ft.irc"
+	res.reply = ":" + inviter.getNickname() + "!" + inviter.getUsername() + "@ft.irc"
 				+ " INVITE " + invitee.getNickname() + " :" + ch.getName() + "\r\n";
 	res.target_fds.push_back(invitee.getFd());
 	return (res);
