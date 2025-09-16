@@ -57,3 +57,11 @@ void	Channel::removeClientFd(int fd)
 	_channelOperatorFds.erase(fd);//todo: オペレーターが全員退出した場合の処理を考える。
 	_clientFds.erase(it);
 }
+
+bool	Channel::isMember(int fd)
+{
+	std::set<int>::iterator	it = _clientFds.find(fd);
+	if (it == _clientFds.end())
+		return (false);
+	return (true);
+}
