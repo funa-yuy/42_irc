@@ -11,6 +11,109 @@ std::vector<t_response>	InviteCommand::execute(const t_parsed & input, Database 
 	std::vector<t_response>	responses;
 	t_response				res;
 
-	responses.push_back(res);
+	res.is_success = false;
+	res.should_disconnect = false;
+	if (!isValidCmd(input, res, db))
+	{
+		responses.push_back(res);
+		return (responses);
+	}
+
+	Client *	inviter = db.getClient(input.client_fd);
+
+	std::string	iniviteeNick = input.args[0];
+	Client *	invitee = db.getClient(iniviteeNick);
+
+	std::string	chName = input.args[1];
+	Channel *	ch = db.getChannel(chName);
+
+	responses.push_back(makeRplInviting(*inviter, *invitee, *ch));
+	responses.push_back(makeInviteLine(*inviter, *invitee, *ch));
+	
 	return (responses);
+}
+
+bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Database & db) const
+{
+	res.should_send = true;
+	res.target_fds.push_back(input.client_fd);
+
+	Client *	inviter = db.getClient(input.client_fd);
+	if (!inviter)
+	{
+		res.should_send = false;
+		return (false);
+	}
+
+	if (input.args.size() < 2)
+	{
+		res.reply = ":ft.irc 461 "
+					+ inviter->getNickname()
+					+ " INVITE :Not enough parameters\r\n";
+		return (false);
+	}
+
+	std::string	inviteeNick = input.args[0];
+	std::string	chName = input.args[1];
+
+	Client *	invitee = db.getClient(inviteeNick);
+	if (!invitee)
+	{
+		res.reply = ":ft.irc 401 "
+					+ inviter->getNickname() + inviteeNick
+					+ " :No such nick/channel\r\n";
+		return (false);
+	}
+
+	Channel *	ch = db.getChannel(chName);
+	if (ch)
+	{
+		if (ch->isMember(inviter->getFd()))
+		{
+			res.reply = ":ft.irc 442 "
+						+ inviter->getNickname() + chName
+						+ " :You're not on that channel\r\n";
+			return (false);
+		}
+		if (ch->isMember(invitee->getFd()))
+		{
+			res.reply = ":ft.irc 443 "
+						+ inviter->getNickname() + invitee->getNickname() + chName
+						+ " :is already on channel\r\n";
+			return (false);
+		}
+		// if (/*チャンネルが招待制（Invite only） かつ inviterがオペレータではない*/)
+		// {
+		// 	res.reply = ":ft_irc 482 "
+		// 				+ inviter->getNickname() + input.args[1]
+		// 				+ "You're not channel operator\r\n";
+		// 	return (false);
+		// }
+	}
+	else
+	{
+		// チャンネルが存在しない場合の処理を考える
+	}
+
+	res.is_success = true;
+	return (true);
+}
+
+t_response	InviteCommand::makeRplInviting(Client & inviter, Client & invitee, Channel & ch) const
+{
+	t_response	res;
+
+	res.reply = ":ft.irc 341 " + inviter.getNickname() + " " + invitee.getNickname() + " " + ch.getName() + "\r\n";
+	res.target_fds.push_back(inviter.getFd());
+	return (res);
+}
+
+t_response	InviteCommand::makeInviteLine(Client & inviter, Client & invitee, Channel & ch) const
+{
+	t_response	res;
+
+	res.reply = ":" + inviter.getNickname() + "!" + inviter.getUsername() + "@" + "ft.irc"
+				+ " INVITE " + invitee.getNickname() + " :" + ch.getName() + "\r\n";
+	res.target_fds.push_back(invitee.getFd());
+	return (res);
 }

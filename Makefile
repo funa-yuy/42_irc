@@ -6,7 +6,7 @@
 #    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/16 15:11:55 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/16 15:49:09 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,6 @@ SRC					:= \
 					Command/UserCommand.cpp \
 					Command/PrivmsgCommand.cpp \
 					Command/JoinCommand.cpp \
-					Command/InviteCommand.cpp \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
 					Utils.cpp \
@@ -59,7 +58,6 @@ HEADERS				:= \
 					Command/UserCommand.hpp \
 					Command/PrivmsgCommand.hpp \
 					Command/JoinCommand.hpp \
-					Command/InviteCommand.hpp \
 					Command/PingCommand.hpp \
 					Command/PongCommand.hpp \
 					Utils.hpp \
