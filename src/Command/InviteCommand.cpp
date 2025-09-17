@@ -27,6 +27,8 @@ std::vector<t_response>	InviteCommand::execute(const t_parsed & input, Database 
 	std::string	chName = input.args[1];
 	Channel *	ch = db.getChannel(chName);
 
+	// ch->addClientFd(invitee->getFd());
+
 	responses.push_back(makeRplInviting(*inviter, *invitee, *ch));
 	responses.push_back(makeInviteLine(*inviter, *invitee, *ch));
 	
@@ -60,7 +62,7 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 	if (!invitee)
 	{
 		res.reply = ":ft.irc 401 "
-					+ inviter->getNickname() + inviteeNick
+					+ inviter->getNickname() + " " + inviteeNick
 					+ " :No such nick/channel\r\n";
 		return (false);
 	}
@@ -68,31 +70,27 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 	Channel *	ch = db.getChannel(chName);
 	if (ch)
 	{
-		if (ch->isMember(inviter->getFd()))
+		if (!ch->isOperator(inviter->getFd()))
+		{
+			res.reply = ":ft.irc 482 "
+						+ inviter->getNickname() + " " + chName
+						+ " :You're not channel operator\r\n";
+			return (false);
+		}
+		if (!ch->isMember(inviter->getFd()))
 		{
 			res.reply = ":ft.irc 442 "
-						+ inviter->getNickname() + chName
+						+ inviter->getNickname() + " " + chName
 						+ " :You're not on that channel\r\n";
 			return (false);
 		}
 		if (ch->isMember(invitee->getFd()))
 		{
 			res.reply = ":ft.irc 443 "
-						+ inviter->getNickname() + invitee->getNickname() + chName
+						+ inviter->getNickname() + " " + invitee->getNickname() + " " + chName
 						+ " :is already on channel\r\n";
 			return (false);
 		}
-		if (ch->isOperator(inviter->getFd()))
-		{
-			res.reply = ":ft_irc 482 "
-						+ inviter->getNickname() + input.args[1]
-						+ "You're not channel operator\r\n";
-			return (false);
-		}
-	}
-	else
-	{
-		// チャンネルが存在しない場合の処理を考える
 	}
 
 	res.is_success = true;
