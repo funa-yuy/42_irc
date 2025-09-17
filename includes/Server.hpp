@@ -21,6 +21,7 @@
 #include "Database.hpp"
 
 #include "Command/Command.hpp"
+#include "Command/CapCommand.hpp"
 #include "Command/PassCommand.hpp"
 #include "Command/NickCommand.hpp"
 #include "Command/UserCommand.hpp"
