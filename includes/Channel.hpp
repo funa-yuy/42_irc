@@ -31,6 +31,9 @@ class Channel {
 		void	addClientFd(int fd);
 		void	removeClientFd(int fd);
 
+		bool	isMember(int fd);
+		bool	isOperator(int fd);
+
 	private:
 		std::string				_name;
 		std::set<int>			_clientFds;
