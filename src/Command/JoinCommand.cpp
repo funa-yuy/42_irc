@@ -139,7 +139,6 @@ bool	JoinCommand::isValidParamsSize(const t_parsed& input, t_response* res) cons
 }
 
 bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const {
-	(void) db;
 	std::string	command = "JOIN";
 
 	if (!isValidChannelName(item))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
@@ -158,6 +157,37 @@ bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		res->should_send = true;
 		res->should_disconnect = false;
 		res->reply = ":ft.irc 476 " + item.channel + " :Bad Channel Mask\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	Channel *c =  db.getChannel(item.channel);
+	if (c->getLimit() >= c->getClientFds().size())//ERR_CHANNELISFULL 471 参加できるユーザー数を超えている
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->should_disconnect = false;
+		res->reply = ":ft.irc 471 " + item.channel + " :Cannot join channel (+l)\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	if (c->getInviteOnly() && !c->isInvited(input.client_fd))//ERR_INVITEONLYCHAN 473 招待されていない
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->should_disconnect = false;
+		res->reply = ":ft.irc 473 " + item.channel + " :Cannot join channel (+i)\r\n";
+		res->target_fds.resize(1);
+		res->target_fds[0] = input.client_fd;
+		return(false);
+	}
+	if(c->getHaskey() && c->getKey() != item.key)//ERR_BADCHANNELKEY 475 keyが間違っている
+	{
+		res->is_success = false;
+		res->should_send = true;
+		res->should_disconnect = false;
+		res->reply = ":ft.irc 475 " + item.channel + " :Cannot join channel (+k)\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
 		return(false);

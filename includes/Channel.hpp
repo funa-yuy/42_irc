@@ -36,6 +36,14 @@ class Channel {
 		std::set<int>			_clientFds;
 		std::set<int>			_channelOperatorFds;
 		std::string				_topic;
+		bool					_inviteOnly;
+		std::set<int>			_inviteList;
+		bool					_hasKey;
+		std::string				_key;
+		bool					_haslimit;
+		std::string				_limit;
+
+
 	// ...他に必要に応じて（モードや制限など）
 };
 
