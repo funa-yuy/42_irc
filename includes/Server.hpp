@@ -28,6 +28,7 @@
 #include "Command/PingCommand.hpp"
 #include "Command/PongCommand.hpp"
 #include "Command/PrivmsgCommand.hpp"
+#include "Command/JoinCommand.hpp"
 
 #include "PrintLog.hpp"
 
