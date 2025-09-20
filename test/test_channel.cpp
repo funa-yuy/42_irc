@@ -124,5 +124,72 @@ int main()
 		assert(db.getChannel(name) == NULL);
 	}
 
+	// [Test] 招待制 (+i/-i) と招待リスト操作、clearInvitesでフラグも降りる
+	{
+		Client op;
+		op.setFd(30);
+		Channel ch("inviteOnly", op.getFd());
+		assert(ch.getInviteOnly() == false);
+
+		ch.setInviteOnly(true);//+i
+		assert(ch.getInviteOnly() == true);
+
+		int userFd = 31;
+		assert(ch.isInvited(userFd) == false);
+		ch.addInvite(userFd);
+		assert(ch.isInvited(userFd) == true);
+		ch.removeInvite(userFd);
+		assert(ch.isInvited(userFd) == false);
+		ch.addInvite(userFd);
+
+		ch.clearInvites();//-i
+		assert(ch.isInvited(userFd) == false);
+		assert(ch.getInviteOnly() == false);
+	}
+
+	// [Test] トピック保護 (+t/-t)
+	{
+		Client op;
+		op.setFd(32);
+		Channel ch("topicRestricted", op.getFd());
+		assert(ch.getTopicRestricted() == true);//tは、デフォルトでtrue
+
+		ch.setTopicRestricted(false);//-t
+		assert(ch.getTopicRestricted() == false);
+		ch.setTopicRestricted(true);//+t
+		assert(ch.getTopicRestricted() == true);
+	}
+
+	// [Test] キー (+k/-k)
+	{
+		Client op;
+		op.setFd(33);
+		Channel ch("withKey", op.getFd());
+		assert(ch.getHasKey() == false);
+
+		ch.setKey("secret");//+k
+		assert(ch.getHasKey() == true);
+		assert(ch.getKey() == std::string("secret"));
+
+		ch.clearKey();//-k
+		assert(ch.getHasKey() == false);
+		assert(ch.getKey() == std::string(""));
+	}
+
+	// [Test] リミット (+l/-l)
+	{
+		Client op;
+		op.setFd(34);
+		Channel ch("withLimit", op.getFd());
+		assert(ch.getHasLimit() == false);
+
+		ch.setLimit("42");//+l
+		assert(ch.getHasLimit() == true);
+		assert(ch.getLimit() == std::string("42"));
+		ch.clearLimit();//-l
+		assert(ch.getHasLimit() == false);
+		assert(ch.getLimit() == std::string(""));
+	}
+
 	return (0);
 }
