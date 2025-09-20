@@ -124,41 +124,34 @@ bool	JoinCommand::isValidChanMask(const s_join_item& item) const {
 	return (true);
 }
 
+static void	set_err_res(t_response *res, const t_parsed& input, std::string errmsg) {
+	res->is_success = false;
+	res->should_send = true;
+	res->should_disconnect = false;
+	res->reply = ":ft.irc " + errmsg + "\r\n";
+	res->target_fds.resize(1);
+	res->target_fds[0] = input.client_fd;
+}
+
 bool	JoinCommand::isValidParamsSize(const t_parsed& input, t_response* res) const {
 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 461 JOIN :Not enough parameters\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
+		set_err_res(res, input, "461 JOIN :Not enough parameters");
 		return(false);
 	}
 	return (true);
 }
 
 bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const {
-	std::string	command = "JOIN";
 
 	if (!isValidChannelName(item))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 403 " + item.channel + " :No such channel\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
+		set_err_res(res, input, "403 " + item.channel + " :No such channel");
 		return(false);
 	}
 	if (!isValidChanMask(item))//ERR_BADCHANMASK 476 !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 476 " + item.channel + " :Bad Channel Mask\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
+		set_err_res(res, input, "476 " + item.channel + " :Bad Channel Mask");
 		return(false);
 	}
 	const Channel *c =  db.getChannel(item.channel);
@@ -166,32 +159,17 @@ bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		return (true);
 	if (c->getHasLimit() && c->getClientFds().size() >= c->getLimit())//ERR_CHANNELISFULL 471 参加できるユーザー数を超えている
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 471 " + item.channel + " :Cannot join channel (+l)\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
+		set_err_res(res, input, "471 " + item.channel + " :Cannot join channel (+l)");
 		return(false);
 	}
 	if (c->getInviteOnly() && !c->isInvited(input.client_fd))//ERR_INVITEONLYCHAN 473 招待されていない
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 473 " + item.channel + " :Cannot join channel (+i)\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
+		set_err_res(res, input, "473 " + item.channel + " :Cannot join channel (+i)");
 		return(false);
 	}
 	if(c->getHasKey() && c->getKey() != item.key)//ERR_BADCHANNELKEY 475 keyが間違っている
 	{
-		res->is_success = false;
-		res->should_send = true;
-		res->should_disconnect = false;
-		res->reply = ":ft.irc 475 " + item.channel + " :Cannot join channel (+k)\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
+		set_err_res(res, input, "475 " + item.channel + " :Cannot join channel (+k)");
 		return(false);
 	}
 	return(true);
