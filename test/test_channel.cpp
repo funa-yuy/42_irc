@@ -183,12 +183,12 @@ int main()
 		Channel ch("withLimit", op.getFd());
 		assert(ch.getHasLimit() == false);
 
-		ch.setLimit("42");//+l
+		ch.setLimit(42);//+l
 		assert(ch.getHasLimit() == true);
-		assert(ch.getLimit() == std::string("42"));
+		assert(ch.getLimit() == 42);
 		ch.clearLimit();//-l
 		assert(ch.getHasLimit() == false);
-		assert(ch.getLimit() == std::string(""));
+		assert(ch.getLimit() == 0);
 	}
 
 	return (0);

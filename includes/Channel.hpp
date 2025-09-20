@@ -47,8 +47,8 @@ class Channel {
 		void		clearKey();
 
 		bool		getHasLimit() const;
-		std::string	getLimit() const;
-		void		setLimit(const std::string& limit);
+		unsigned int	getLimit() const;
+		void		setLimit(unsigned int limit);
 		void		clearLimit();
 
 	private:
@@ -62,7 +62,7 @@ class Channel {
 		bool					_hasKey;
 		std::string				_key;
 		bool					_haslimit;
-		std::string				_limit;
+		unsigned int				_limit;
 };
 
 // ------------------------------------------------
