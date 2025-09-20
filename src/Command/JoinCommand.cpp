@@ -161,7 +161,7 @@ bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	Channel *c =  db.getChannel(item.channel);
+	const Channel *c =  db.getChannel(item.channel);
 	if (c->getLimit() >= c->getClientFds().size())//ERR_CHANNELISFULL 471 参加できるユーザー数を超えている
 	{
 		res->is_success = false;
@@ -182,7 +182,7 @@ bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		res->target_fds[0] = input.client_fd;
 		return(false);
 	}
-	if(c->getHaskey() && c->getKey() != item.key)//ERR_BADCHANNELKEY 475 keyが間違っている
+	if(c->getHasKey() && c->getKey() != item.key)//ERR_BADCHANNELKEY 475 keyが間違っている
 	{
 		res->is_success = false;
 		res->should_send = true;

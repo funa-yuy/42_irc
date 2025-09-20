@@ -69,6 +69,15 @@ Channel *		Database::getChannel(std::string & name)
 	return (&it->second);
 }
 
+const Channel *		Database::getChannel(const std::string& name) const
+{
+	std::string normalized = toLowerCase(name);
+	std::map<std::string, Channel>::const_iterator it = _channels.find(normalized);
+	if (it == _channels.end())
+		return (NULL);
+	return (&it->second);
+}
+
 void Database::removeChannel(std::string& name)
 {
 	std::string normalized = toLowerCase(name);
