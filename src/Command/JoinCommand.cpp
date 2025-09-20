@@ -162,7 +162,9 @@ bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		return(false);
 	}
 	const Channel *c =  db.getChannel(item.channel);
-	if (c->getLimit() >= c->getClientFds().size())//ERR_CHANNELISFULL 471 参加できるユーザー数を超えている
+	if (c == NULL)
+		return (true);
+	if (c->getHasLimit() && c->getClientFds().size() >= c->getLimit())//ERR_CHANNELISFULL 471 参加できるユーザー数を超えている
 	{
 		res->is_success = false;
 		res->should_send = true;

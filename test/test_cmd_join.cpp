@@ -322,11 +322,104 @@ static void test_err_476_badchanmask() {
 	}
 }
 
+static void test_err_471_channelisfull() {
+	Database db("password");
+	JoinCommand join;
+
+	int op_fd = 50;
+	Client* op = db.addClient(op_fd);
+	op->setNickname("op50");
+
+	// 事前にチャンネルを作成しlimit=1に設定（opのみ入室可）
+	Channel ch("#full", op_fd);
+	ch.setLimit(1);
+	db.addChannel(ch);
+
+	// 新規クライアントがJOINすると満員エラー 471
+	int joiner_fd = 51;
+	Client* cl = db.addClient(joiner_fd);
+	cl->setNickname("nick51");
+
+	std::vector<std::string> args;
+	args.push_back("#full");
+	t_parsed in = makeInput("JOIN", joiner_fd, args);
+	std::vector<t_response> res = join.execute(in, db);
+
+	assert(res.size() == 1);
+	assert(res[0].is_success == false);
+	assert(res[0].should_send == true);
+	assert(res[0].reply.find(" 471 #full ") != std::string::npos);
+	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == joiner_fd);
+}
+
+static void test_err_473_inviteonly() {
+	Database db("password");
+	JoinCommand join;
+
+	int op_fd = 60;
+	Client* op = db.addClient(op_fd);
+	op->setNickname("op60");
+
+	// 招待制チャンネル作成（招待なし）
+	Channel ch("#invite", op_fd);
+	ch.setInviteOnly(true);
+	db.addChannel(ch);
+
+	int joiner_fd = 61;
+	Client* cl = db.addClient(joiner_fd);
+	cl->setNickname("nick61");
+
+	std::vector<std::string> args;
+	args.push_back("#invite");
+	t_parsed in = makeInput("JOIN", joiner_fd, args);
+	std::vector<t_response> res = join.execute(in, db);
+
+	assert(res.size() == 1);
+	assert(res[0].is_success == false);
+	assert(res[0].should_send == true);
+	assert(res[0].reply.find(" 473 #invite ") != std::string::npos);
+	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == joiner_fd);
+}
+
+static void test_err_475_badchannelkey() {
+	Database db("password");
+	JoinCommand join;
+
+	int op_fd = 70;
+	Client* op = db.addClient(op_fd);
+	op->setNickname("op70");
+
+	// キー付きチャンネル作成
+	Channel ch("#keychan", op_fd);
+	ch.setKey("secret");
+	db.addChannel(ch);
+
+	int joiner_fd = 71;
+	Client* cl = db.addClient(joiner_fd);
+	cl->setNickname("nick71");
+
+	// 間違ったキーでJOIN
+	std::vector<std::string> args;
+	args.push_back("#keychan");
+	args.push_back("wrongkey");
+	t_parsed in = makeInput("JOIN", joiner_fd, args);
+	std::vector<t_response> res = join.execute(in, db);
+
+	assert(res.size() == 1);
+	assert(res[0].is_success == false);
+	assert(res[0].should_send == true);
+	assert(res[0].reply.find(" 475 #keychan ") != std::string::npos);
+	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == joiner_fd);
+}
+
 int main() {
 	test_success();//正常
 	test_err_461_needmoreparams();// エラー: ERR_NEEDMOREPARAMS 461 引数が無い
 	test_err_403_nosuchchannel();// エラー: ERR_NOSUCHCHANNEL 403 チャンネル名が不正
 	test_err_476_badchanmask();// エラー: ERR_BADCHANMASK 476 !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない場合
+	test_err_471_channelisfull();// エラー: ERR_CHANNELISFULL 471 参加できるユーザー数を超過
+	test_err_473_inviteonly();// エラー: ERR_INVITEONLYCHAN 473 招待制で未招待
+	test_err_475_badchannelkey();// エラー: ERR_BADCHANNELKEY 475 キー不一致
 	std::cout << "JOIN command tests: OK" << std::endl;
 	return 0;
 }
