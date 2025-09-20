@@ -23,28 +23,46 @@ class Channel {
 		std::string	getName() const;
 		const std::set<int>&	getClientFds() const;
 		const std::set<int>&	getChannelOperatorFds() const;
-		std::string	getTopic() const;
-
 		void	setName(std::string name);
 		void	setChannelOperatorFds(int fd);
-		void	setTopic(std::string);
 		void	addClientFd(int fd);
 		void	removeClientFd(int fd);
+
+		bool		getTopicRestricted() const;
+		void		setTopicRestricted(bool val);
+		std::string	getTopic() const;
+		void		setTopic(std::string);
+
+		bool		getInviteOnly() const;
+		void		setInviteOnly(bool val);
+		const std::set<int>&	getInviteList() const;
+		bool		isInvited(int fd) const;
+		void		addInvite(int fd);
+		void		removeInvite(int fd);
+		void		clearInvites();
+
+		bool		getHasKey() const;
+		std::string	getKey() const;
+		void		setKey(const std::string& key);
+		void		clearKey();
+
+		bool		getHasLimit() const;
+		unsigned int	getLimit() const;
+		void		setLimit(unsigned int limit);
+		void		clearLimit();
 
 	private:
 		std::string				_name;
 		std::set<int>			_clientFds;
 		std::set<int>			_channelOperatorFds;
+		bool					_topicRestricted;
 		std::string				_topic;
 		bool					_inviteOnly;
 		std::set<int>			_inviteList;
 		bool					_hasKey;
 		std::string				_key;
 		bool					_haslimit;
-		std::string				_limit;
-
-
-	// ...他に必要に応じて（モードや制限など）
+		unsigned int				_limit;
 };
 
 // ------------------------------------------------
