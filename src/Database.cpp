@@ -62,19 +62,19 @@ void Database::addChannel(Channel& channel)
 	_channels[channel.getName()] = channel;
 }
 
-const Channel *		Database::getChannel(std::string & name) const
+Channel *		Database::getChannel(const std::string & name)
 {
 	std::string normalized = toLowerCase(name);
-	std::map<std::string, Channel>::const_iterator it = _channels.find(normalized);
+	std::map<std::string, Channel>::iterator it = _channels.find(normalized);
 	if (it == _channels.end())
 		return (NULL);
 	return (&it->second);
 }
 
-Channel *		Database::getChannel(std::string & name)
+const Channel *		Database::getChannel(const std::string& name) const
 {
 	std::string normalized = toLowerCase(name);
-	std::map<std::string, Channel>::iterator it = _channels.find(normalized);
+	std::map<std::string, Channel>::const_iterator it = _channels.find(normalized);
 	if (it == _channels.end())
 		return (NULL);
 	return (&it->second);

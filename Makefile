@@ -6,7 +6,7 @@
 #    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/16 15:49:09 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/21 16:43:08 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,7 @@ SRC					:= \
 					Client.cpp \
 					Database.cpp \
 					Command/Command.cpp \
+					Command/CapCommand.cpp \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
@@ -53,6 +54,7 @@ HEADERS				:= \
 					Client.hpp \
 					Database.hpp \
 					Command/Command.hpp \
+					Command/CapCommand.hpp \
 					Command/NickCommand.hpp \
 					Command/PassCommand.hpp \
 					Command/UserCommand.hpp \

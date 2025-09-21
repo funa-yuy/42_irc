@@ -22,14 +22,14 @@ PRIVMSG Angel :yes I'm receiving it !
 	- ホストマスク`#mask`
 */
 
-static bool is_channel(std::string target)
+bool PrivmsgCommand::is_channel(std::string target) const
 {
 	if (target.size() > 0 && (target[0] == '#' || target[0] == '&' || target[0] == '+' || target[0] == '!'))
 		return (true);
 	return (false);
 }
 
-static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
+std::vector<int>	PrivmsgCommand::get_fd_ByNickname(std::string	msgtarget, Database& db) const {
 	std::vector<int>	res;
 
 	std::map<int, Client> Clients = db.getAllClient();
@@ -46,25 +46,27 @@ static	std::vector<int>	get_fd_ByNickname(std::string	msgtarget, Database& db) {
 	return (res);
 }
 
-static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
+std::vector<int> PrivmsgCommand::get_fd_ByChannel(std::string	target, Database& db) const
 {
 	std::vector<int>	fds;
 	std::string channelName;
 
 	// チャンネル名は以下で開始される[&, #, +, !]
 	// ！始まりの場合5文字の英数字 (A-Zまたは0-9) で構成
-	if (target[0] == '!' && target.size() == EXCLAMATION_CHANNEL_MAX)
-	{
-		for (int i = 1; i < EXCLAMATION_CHANNEL_MAX;i++)
-		{
-			if (!std::isalnum(target[i]))
-				return (fds);
-		}
-	}
-	else
-		return (fds);
 
-	target.erase(0, 1);
+	// いらないかも
+	// if (target[0] == '!' && target.size() == EXCLAMATION_CHANNEL_LEN)
+	// {
+	// 	for (int i = 1; i < EXCLAMATION_CHANNEL_LEN;i++)
+	// 	{
+	// 		if (!std::isalnum(target[i]))
+	// 			return (fds);
+	// 	}
+	// }
+	// else
+	// 	return (fds);
+
+	// target.erase(0, 1);
 	if (db.getChannel(target) == NULL)
 		return (fds);
 	const std::set<int>& clients = db.getChannel(target)->getClientFds();
@@ -77,7 +79,7 @@ static std::vector<int> get_fd_ByChannel(std::string	target, Database& db)
 	return (fds);
 }
 
-static bool is_belong_channel(const t_parsed& input, Database& db)
+bool PrivmsgCommand::is_belong_channel(const t_parsed& input, Database& db) const
 {
 	std::vector<int> fds =  get_fd_ByChannel(input.args[0], db);
 	for (int i = 0; i < (int)fds.size();i++)
@@ -88,52 +90,25 @@ static bool is_belong_channel(const t_parsed& input, Database& db)
 	return (false);
 }
 
-static	std::vector<int>	get_target_fd(std::string target, Database& db) {
+std::vector<int>	PrivmsgCommand::get_target_fd(std::string target, Database& db) const{
 
 	if (target.size() > 0 && is_channel(target))
 		return (get_fd_ByChannel(target, db));
 	return (get_fd_ByNickname(target, db));
 }
 
-static bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
+bool	PrivmsgCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db) const {
 
 	if (input.args.size() < 1)//ERR_NORECIPIENT 411 受信者が指定されていない
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->reply = ":ft.irc 411 :No recipient given PRIVMSG\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
+		return (return_false_set_reply(res, input, " 411 :No recipient given PRIVMSG"));
 	else if (input.args.size() < 2)//ERR_NOTEXTTOSEND 412 送信テキストがない
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->reply = ":ft.irc 412 :No text to send\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
+		return (return_false_set_reply(res, input, " 412 :No text to send"));
 	else if (get_target_fd(input.args[0], db).empty()) //ERR_NOSUCHNICK 401 指定されたニックネーム/チャンネルがない
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->reply = ":ft.irc 401 " + input.args[0] + " :No such nick/channel\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
+		return (return_false_set_reply(res, input, " 401 " + input.args[0] + " :No such nick/channel"));
 
-	if (is_channel(input.args[0]) && !is_belong_channel(input, db)) //チャンネルに参加していない、もしくはBANされている時
-	{
-		res->is_success = false;
-		res->should_send = true;
-		res->reply = ":ft.irc 442 " + input.args[0] + " :You are not in this channel.\r\n";
-		res->target_fds.resize(1);
-		res->target_fds[0] = input.client_fd;
-		return(false);
-	}
+	//チャンネルに参加していないとき
+	if (is_channel(input.args[0]) && !is_belong_channel(input, db))
+		return (return_false_set_reply(res, input, " 404 :You are not in this channel."));
 	return(true);
 }
 
@@ -154,14 +129,13 @@ std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database&
 	Client * sender = db.getClient(input.client_fd);
 	std::string	nick = sender->getNickname();
 	std::string	user = sender->getUsername();
-	std::string	host = "ft.irc";
 
 	std::string	target = input.args[0];
 	std::string	text = input.args[1];
 
 	std::vector<int>	fds = get_target_fd(target, db);
 
-	std::string line =	":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + text + "\r\n";
+	std::string line =	":" + nick + "!" + user + "@" + SERVER_NAME + " PRIVMSG " + target + " :" + text + "\r\n";
 
 	res.is_success = true;
 	res.should_send = true;
@@ -170,4 +144,16 @@ std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database&
 
 	response_list.push_back(res);
 	return (response_list);
+}
+
+bool	PrivmsgCommand::return_false_set_reply(t_response *res,
+												const t_parsed& input,
+												std::string msg) const
+{
+	res->is_success = false;
+	res->should_send = true;
+	res->reply = SERVER_PREFIX + msg + "\r\n";
+	res->target_fds.resize(1);
+	res->target_fds[0] = input.client_fd;
+	return (false);
 }
