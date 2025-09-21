@@ -282,11 +282,11 @@ static void test_join_zero() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(std::find(fds.begin(), fds.end(), op_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick81 has joined #keyok") != std::string::npos);
+		assert(res[0].reply.find("JOIN #keyok") != std::string::npos);
 	}
 
 	// 正常: 招待されているクライアント
@@ -309,11 +309,11 @@ static void test_join_zero() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(std::find(fds.begin(), fds.end(), op_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick83 has joined #inviteok") != std::string::npos);
+		assert(res[0].reply.find("JOIN #inviteok") != std::string::npos);
 	}
 
 	// 正常: チャンネル参加可能人数を超えていない
@@ -335,11 +335,11 @@ static void test_join_zero() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(std::find(fds.begin(), fds.end(), op_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick85 has joined #limitok") != std::string::npos);
+		assert(res[0].reply.find("JOIN #limitok") != std::string::npos);
 	}
 }
 
