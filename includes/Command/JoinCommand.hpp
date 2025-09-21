@@ -28,6 +28,7 @@ class JoinCommand : public Command {
 		std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
 
 	private:
+		const std::vector<t_response>	leaveAllJoinedChannels(const t_parsed& input, Database& db) const;
 		const std::vector<t_response>	executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) const;
 		bool							is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const;
 		bool							isValidParamsSize(const t_parsed& input, t_response* res) const;

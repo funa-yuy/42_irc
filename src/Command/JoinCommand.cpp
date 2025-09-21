@@ -233,6 +233,36 @@ t_response	JoinCommand::makeRplNamreply(const t_parsed& input, Database& db, Cha
 	return (res);
 }
 
+const std::vector<t_response> JoinCommand::leaveAllJoinedChannels(const t_parsed& input, Database& db) const {
+	std::vector<t_response> response_list;
+	std::vector<std::string> allNames = db.getAllChannelNames();
+
+	for (size_t i = 0; i < allNames.size(); ++i)
+	{
+		Channel* ch = db.getChannel(allNames[i]);
+		if (ch == NULL)
+			continue;
+		const std::set<int>& members = ch->getClientFds();
+		if (members.find(input.client_fd) == members.end())
+			continue;
+
+		ch->removeClientFd(input.client_fd);
+		if (!ch->getClientFds().empty())
+		{
+			t_response res;
+			res.is_success = true;
+			res.should_send = true;
+			res.should_disconnect = false;
+			res.reply = ":ft.irc " + db.getClient(input.client_fd)->getNickname() + " has left " + ch->getName() + "\r\n";
+			res.target_fds.assign(ch->getClientFds().begin(), ch->getClientFds().end());
+			response_list.push_back(res);
+		}
+		if (ch->getClientFds().empty())
+			db.removeChannel(allNames[i]);
+	}
+	return (response_list);
+}
+
 const std::vector<t_response> JoinCommand::executeJoin(const t_parsed& input, Database& db, std::vector<s_join_item> items) const {
 	std::vector<t_response>	list;
 
@@ -263,7 +293,7 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 
 	if (input.args.size() > 0 && input.args[0] == "0")
 	{
-		// todo: すべてのチャンネルから退出する処理とレスポンス
+		response_list = leaveAllJoinedChannels(input, db);
 		return (response_list);
 	}
 
