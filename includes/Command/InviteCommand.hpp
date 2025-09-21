@@ -17,8 +17,8 @@ public:
 private:
 
 	bool		isValidCmd(const t_parsed & input, t_response & res, Database & db) const;
-	t_response	makeRplInviting(Client & inviter, Client & invitee, Channel & ch) const;
-	t_response	makeInviteLine(Client & inviter, Client & invitee, Channel & ch) const;
+	t_response	makeRplInviting(Client & inviter, Client & invitee, const std::string chName) const;
+	t_response	makeInviteLine(Client & inviter, Client & invitee, const std::string chName) const;
 
 };
 

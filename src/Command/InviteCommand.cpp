@@ -20,24 +20,27 @@ std::vector<t_response>	InviteCommand::execute(const t_parsed & input, Database 
 	}
 
 	Client *	inviter = db.getClient(input.client_fd);
-
-	std::string	iniviteeNick = input.args[0];
-	Client *	invitee = db.getClient(iniviteeNick);
-
-	std::string	chName = input.args[1];
+	const std::string	inviteeNick = input.args[0];
+	Client *	invitee = db.getClient(inviteeNick);
+	const std::string	chName = input.args[1];
 	Channel *	ch = db.getChannel(chName);
 
-	ch->addInvite(invitee);
+	if (!invitee || !inviter)
+		return (responses);
 
-	responses.push_back(makeRplInviting(*inviter, *invitee, *ch));
-	responses.push_back(makeInviteLine(*inviter, *invitee, *ch));
-	
+	if (ch)
+		ch->addInvite(invitee->getFd());
+
+	responses.push_back(makeRplInviting(*inviter, *invitee, chName));
+	responses.push_back(makeInviteLine(*inviter, *invitee, chName));
+
 	return (responses);
 }
 
 bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Database & db) const
 {
 	res.should_send = true;
+	res.target_fds.clear();
 	res.target_fds.push_back(input.client_fd);
 
 	Client *	inviter = db.getClient(input.client_fd);
@@ -55,8 +58,8 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 		return (false);
 	}
 
-	std::string	inviteeNick = input.args[0];
-	std::string	chName = input.args[1];
+	const std::string	inviteeNick = input.args[0];
+	const std::string	chName = input.args[1];
 
 	Client *	invitee = db.getClient(inviteeNick);
 	if (!invitee)
@@ -70,18 +73,18 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 	Channel *	ch = db.getChannel(chName);
 	if (ch)
 	{
-		if (!ch->isOperator(inviter->getFd()))
-		{
-			res.reply = ":ft.irc 482 "
-						+ inviter->getNickname() + " " + chName
-						+ " :You're not channel operator\r\n";
-			return (false);
-		}
 		if (!ch->isMember(inviter->getFd()))
 		{
 			res.reply = ":ft.irc 442 "
 						+ inviter->getNickname() + " " + chName
 						+ " :You're not on that channel\r\n";
+			return (false);
+		}
+		if (!ch->isOperator(inviter->getFd()))
+		{
+			res.reply = ":ft.irc 482 "
+						+ inviter->getNickname() + " " + chName
+						+ " :You're not channel operator\r\n";
 			return (false);
 		}
 		if (ch->isMember(invitee->getFd()))
@@ -97,21 +100,31 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 	return (true);
 }
 
-t_response	InviteCommand::makeRplInviting(Client & inviter, Client & invitee, Channel & ch) const
+t_response	InviteCommand::makeRplInviting(Client & inviter, Client & invitee, const std::string & chName) const
 {
 	t_response	res;
 
-	res.reply = ":ft.irc 341 " + inviter.getNickname() + " " + invitee.getNickname() + " " + ch.getName() + "\r\n";
+	res.should_disconnect = false;
+	res.should_send = true;
+
+	res.reply = ":ft.irc 341 " + inviter.getNickname() + " " + invitee.getNickname() + " " + chName + "\r\n";
 	res.target_fds.push_back(inviter.getFd());
+
+	res.is_success = true;
 	return (res);
 }
 
-t_response	InviteCommand::makeInviteLine(Client & inviter, Client & invitee, Channel & ch) const
+t_response	InviteCommand::makeInviteLine(Client & inviter, Client & invitee, const std::string & chName) const
 {
 	t_response	res;
 
+	res.should_disconnect = false;
+	res.should_send = true;
+
 	res.reply = ":" + inviter.getNickname() + "!" + inviter.getUsername() + "@ft.irc"
-				+ " INVITE " + invitee.getNickname() + " :" + ch.getName() + "\r\n";
+				+ " INVITE " + invitee.getNickname() + " " + chName + "\r\n";
 	res.target_fds.push_back(invitee.getFd());
+
+	res.is_success = true;
 	return (res);
 }
