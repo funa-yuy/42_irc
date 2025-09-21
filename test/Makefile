@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/20 19:16:26 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/21 18:43:02 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,6 +41,7 @@ SRC					:= \
 					Command/UserCommand.cpp \
 					Command/PrivmsgCommand.cpp \
 					Command/JoinCommand.cpp \
+					Command/InviteCommand.cpp \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
 					Utils.cpp \
@@ -60,6 +61,7 @@ HEADERS				:= \
 					UserCommand.hpp \
 					PrivmsgCommand.hpp \
 					JoinCommand.hpp \
+					InviteCommand.hpp \
 					PingCommand.hpp \
 					PongCommand.hpp \
 					Utils.hpp \
