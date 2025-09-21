@@ -277,25 +277,17 @@ const std::vector<t_response> JoinCommand::leaveAllJoinedChannels(const t_parsed
 		if (members.find(input.client_fd) == members.end())
 			continue;
 
+		t_response res;
+		res.is_success = true;
+		res.should_send = true;
+		res.should_disconnect = false;
+		Client* client = db.getClient(input.client_fd);
+		std::string source = ":" + client->getNickname() + "!" + client->getUsername() + "@ft.irc";
+		res.reply = source + " PART " + ch->getName() + "\r\n";
+		res.target_fds.assign(ch->getClientFds().begin(), ch->getClientFds().end());
+		response_list.push_back(res);
+
 		ch->removeClientFd(input.client_fd);
-		if (!ch->getClientFds().empty())
-		{
-			t_response res;
-
-			Client* client = db.getClient(input.client_fd);
-			std::string nick = client->getNickname();
-			std::string chanName = ch->getName();
-			std::string user = client->getUsername();
-			std::string source = ":" + nick + "!" + user + "@ft.irc";
-
-			res.is_success = true;
-			res.should_send = true;
-			res.should_disconnect = false;
-			res.reply = source + " PART " + chanName + "\r\n";
-			// res.reply = ":ft.irc " + nick + " has left " + chanName + "\r\n";
-			res.target_fds.assign(ch->getClientFds().begin(), ch->getClientFds().end());
-			response_list.push_back(res);
-		}
 		if (ch->getClientFds().empty())
 			db.removeChannel(allNames[i]);
 	}
@@ -331,10 +323,9 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 		return (response_list);
 	}
 
-	if (input.args.size() > 0 && input.args[0] == "#0")
+	if (input.args.size() > 0 && input.args[0] == "0")
 	{
 		response_list = leaveAllJoinedChannels(input, db);
-		std::cout << "test!!!!" << std::endl;
 		return (response_list);
 	}
 

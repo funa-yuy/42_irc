@@ -188,8 +188,9 @@ static void test_join_zero() {
 			std::vector<std::string> args;
 			args.push_back("0");
 			std::vector<t_response> res = join.execute(makeInput("JOIN", fd, args), db);
-			// 残メンバーがいないため通知0件、チャンネルは削除
-			assert(res.size() == 0);
+			assert(res.size() == 1);
+			assert(res[0].reply.find("nick101!@ft.irc PART #alone") != std::string::npos);
+			// 残メンバーがいないためチャンネルは削除
 			std::string name = std::string("#alone");
 			assert(db.getChannel(name) == NULL);
 		}
@@ -222,13 +223,14 @@ static void test_join_zero() {
 			std::vector<std::string> args;
 			args.push_back("0");
 			std::vector<t_response> res = join.execute(makeInput("JOIN", fd_test2, args), db);
-			assert(res.size() == 1);
+			assert(res.size() == 2);
 			assert(res[0].reply.find("test2!@ft.irc PART #futari") != std::string::npos);
+			assert(res[1].reply.find("test2!@ft.irc PART #solo") != std::string::npos);
 
-			// 通知先に test1 の fd が含まれ、test2 の fd は含まれない
+			// 通知先に test1 と test2の両方含まれている
 			const std::vector<int>& fds = res[0].target_fds;
 			assert(std::find(fds.begin(), fds.end(), fd_test1) != fds.end());
-			assert(std::find(fds.begin(), fds.end(), fd_test2) == fds.end());
+			assert(std::find(fds.begin(), fds.end(), fd_test2) != fds.end());
 
 			// #solo は削除されている
 			std::string solo = std::string("#solo");
