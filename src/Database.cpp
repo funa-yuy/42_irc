@@ -48,6 +48,17 @@ Client *	Database::getClient(std::string & nickname)
 		return (&it->second);
 }
 
+// Client const *	Database::getClient(const std::string & nickname)
+// {
+// 	std::map<int, Client>::const_iterator it = _clients.begin();
+// 	while (it->second.getNickname() != nickname)
+// 		++it;
+// 	if (it == _clients.end())
+// 		return (NULL);
+// 	else
+// 		return (it->second);
+// }
+
 const std::string&	Database::getPassword() const {
 	return (_password);
 }

@@ -20,7 +20,7 @@ std::vector<t_response>	InviteCommand::execute(const t_parsed & input, Database 
 	}
 
 	Client *	inviter = db.getClient(input.client_fd);
-	const std::string	inviteeNick = input.args[0];
+	std::string	inviteeNick = input.args[0];
 	Client *	invitee = db.getClient(inviteeNick);
 	const std::string	chName = input.args[1];
 	Channel *	ch = db.getChannel(chName);
@@ -58,7 +58,7 @@ bool	InviteCommand::isValidCmd(const t_parsed & input, t_response & res, Databas
 		return (false);
 	}
 
-	const std::string	inviteeNick = input.args[0];
+	std::string	inviteeNick = input.args[0];
 	const std::string	chName = input.args[1];
 
 	Client *	invitee = db.getClient(inviteeNick);
