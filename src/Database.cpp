@@ -39,25 +39,23 @@ Client const *	Database::getClient(int fd) const
 
 Client *	Database::getClient(std::string & nickname)
 {
-	std::map<int, Client>::iterator	it = _clients.begin();
-	while (it->second.getNickname() != nickname)
-		++it;
-	if(it == _clients.end())
-		return (NULL);
-	else
-		return (&it->second);
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second.getNickname() == nickname)
+			return (&it->second);
+	}
+	return (NULL);
 }
 
-// Client const *	Database::getClient(const std::string & nickname)
-// {
-// 	std::map<int, Client>::const_iterator it = _clients.begin();
-// 	while (it->second.getNickname() != nickname)
-// 		++it;
-// 	if (it == _clients.end())
-// 		return (NULL);
-// 	else
-// 		return (it->second);
-// }
+Client const *	Database::getClient(const std::string & nickname)
+{
+	for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second.getNickname() == nickname)
+			return (&it->second);
+	}
+	return (NULL);
+}
 
 const std::string&	Database::getPassword() const {
 	return (_password);
