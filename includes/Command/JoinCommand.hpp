@@ -37,8 +37,9 @@ class JoinCommand : public Command {
 		std::vector<s_join_item>		parse_join_args(const t_parsed& input) const;
 		void							updateDatabase(const t_parsed& input, Database& db, const s_join_item& item) const;
 		t_response						makeJoinBroadcast(const t_parsed& input, Database& db, Channel* channel) const;
-		t_response						makeRplTopic(const t_parsed& input, Channel* channel) const;
+		t_response						makeRplTopic(const t_parsed& input, Database& db, Channel* channel) const;
 		t_response						makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) const;
+		t_response						makeEndofnames(const t_parsed& input, Database& db, Channel* channel) const;
 };
 
 // ------------------------------------------------

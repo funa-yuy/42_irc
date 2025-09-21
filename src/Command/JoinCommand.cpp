@@ -180,21 +180,32 @@ t_response	JoinCommand::makeJoinBroadcast(const t_parsed& input, Database& db, C
 	t_response	res;
 	const std::set<int>&	clientFds = channel->getClientFds();
 
+	Client* client = db.getClient(input.client_fd);
+	std::string nick = client->getNickname();
+	std::string user = client->getUsername();
+	std::string chanName = channel->getName();
+	std::string source = ":" + nick + "!" + user + "@ft.irc";
+
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = ":ft.irc " + db.getClient(input.client_fd)->getNickname() + " has joined " + channel->getName() + "\r\n";
+	res.reply = source + " JOIN " + chanName + "\r\n";
 	res.target_fds.assign(clientFds.begin(), clientFds.end());
 	return (res);
 }
 
-t_response	JoinCommand::makeRplTopic(const t_parsed& input, Channel* channel) const {
+t_response	JoinCommand::makeRplTopic(const t_parsed& input, Database& db, Channel* channel) const {
 	t_response	res;
+
+	Client* client = db.getClient(input.client_fd);
+	std::string nick = client->getNickname();
+	std::string chanName = channel->getName();
+	std::string topic = channel->getTopic();
 
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = ":ft.irc 332 Topic for " + channel->getName() + " : " + channel->getTopic() + "\r\n";
+	res.reply = ":ft.irc 332 " + nick + " " + chanName + " :" + topic + "\r\n";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
 	return (res);
@@ -224,10 +235,30 @@ static std::string	getNicknameList(Database& db, Channel* channel) {
 t_response	JoinCommand::makeRplNamreply(const t_parsed& input, Database& db, Channel* channel) const {
 	t_response	res;
 
+	Client* client = db.getClient(input.client_fd);
+	std::string nick = client->getNickname();
+	std::string chanName = channel->getName();
+
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = ":ft.irc 353 =" + channel->getName() + " : " + getNicknameList(db, channel) + "\r\n";
+	res.reply = ":ft.irc 353 " +  nick + " = " + chanName + " :" + getNicknameList(db, channel) + "\r\n";
+	res.target_fds.resize(1);
+	res.target_fds[0] = input.client_fd;
+	return (res);
+}
+
+t_response	JoinCommand::makeEndofnames(const t_parsed& input, Database& db, Channel* channel) const {
+	t_response	res;
+
+	Client* client = db.getClient(input.client_fd);
+	std::string nick = client->getNickname();
+	std::string chanName = channel->getName();
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+	res.reply = ":ft.irc 366 " + nick + " " + chanName + " :End of /NAMES list\r\n";
 	res.target_fds.resize(1);
 	res.target_fds[0] = input.client_fd;
 	return (res);
@@ -250,10 +281,18 @@ const std::vector<t_response> JoinCommand::leaveAllJoinedChannels(const t_parsed
 		if (!ch->getClientFds().empty())
 		{
 			t_response res;
+
+			Client* client = db.getClient(input.client_fd);
+			std::string nick = client->getNickname();
+			std::string chanName = ch->getName();
+			std::string user = client->getUsername();
+			std::string source = ":" + nick + "!" + user + "@ft.irc";
+
 			res.is_success = true;
 			res.should_send = true;
 			res.should_disconnect = false;
-			res.reply = ":ft.irc " + db.getClient(input.client_fd)->getNickname() + " has left " + ch->getName() + "\r\n";
+			res.reply = source + " PART " + chanName + "\r\n";
+			// res.reply = ":ft.irc " + nick + " has left " + chanName + "\r\n";
 			res.target_fds.assign(ch->getClientFds().begin(), ch->getClientFds().end());
 			response_list.push_back(res);
 		}
@@ -274,8 +313,9 @@ const std::vector<t_response> JoinCommand::executeJoin(const t_parsed& input, Da
 		} else {
 			updateDatabase(input, db, items[i]);
 			list.push_back(makeJoinBroadcast(input, db, db.getChannel(items[i].channel)));
-			list.push_back(makeRplTopic(input, db.getChannel(items[i].channel)));
+			list.push_back(makeRplTopic(input, db, db.getChannel(items[i].channel)));
 			list.push_back(makeRplNamreply(input, db, db.getChannel(items[i].channel)));
+			list.push_back(makeEndofnames(input, db, db.getChannel(items[i].channel)));
 		}
 	}
 	return (list);
@@ -291,9 +331,10 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 		return (response_list);
 	}
 
-	if (input.args.size() > 0 && input.args[0] == "0")
+	if (input.args.size() > 0 && input.args[0] == "#0")
 	{
 		response_list = leaveAllJoinedChannels(input, db);
+		std::cout << "test!!!!" << std::endl;
 		return (response_list);
 	}
 
