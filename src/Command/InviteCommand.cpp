@@ -27,7 +27,7 @@ std::vector<t_response>	InviteCommand::execute(const t_parsed & input, Database 
 	std::string	chName = input.args[1];
 	Channel *	ch = db.getChannel(chName);
 
-	// ch->addClientFd(invitee->getFd());
+	ch->addInvite(invitee);
 
 	responses.push_back(makeRplInviting(*inviter, *invitee, *ch));
 	responses.push_back(makeInviteLine(*inviter, *invitee, *ch));
