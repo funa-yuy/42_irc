@@ -30,6 +30,7 @@ public:
 
 	Client *			getClient(int fd);
 	Client const *		getClient(int fd) const;
+	Client *			getClient(std::string & nickname);
 	Channel const *		getChannel(const std::string& name) const;
 	Channel *			getChannel(const std::string& name);
 	const std::string&	getPassword() const;
