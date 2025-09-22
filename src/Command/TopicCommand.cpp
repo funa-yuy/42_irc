@@ -31,7 +31,7 @@ t_response	TopicCommand::makeRplNotopic(Client& client, const std::string& chNam
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = "ft.irc 331 " + client.getNickname() + " " + chName + " :No topic is set\r\n";
+	res.reply = ":ft.irc 331 " + client.getNickname() + " " + chName + " :No topic is set\r\n";
 	res.target_fds.push_back(client.getFd());
 
 	return (res);
@@ -44,7 +44,7 @@ t_response	TopicCommand::makeRplTopic(Client& client, Channel& ch) const
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	res.reply = "ft.irc 332 " + client.getNickname() + " " + ch.getName() + " :" + ch.getTopic() + "\r\n";
+	res.reply = ":ft.irc 332 " + client.getNickname() + " " + ch.getName() + " :" + ch.getTopic() + "\r\n";
 	res.target_fds.push_back(client.getFd());
 
 	return (res);
@@ -62,7 +62,7 @@ t_response	TopicCommand::makeRplTopicWhoTime(Client& client, Channel& ch, Databa
 	Client* who = db.getClient(ch.getTopicWho());
 	if (who)
 		topicWho = who->getNickname();
-	res.reply = "ft.irc 333 " + client.getNickname() + " " + ch.getName() + " " + topicWho + " " + toString(ch.getTopicTime()) + "\r\n";
+	res.reply = ":ft.irc 333 " + client.getNickname() + " " + ch.getName() + " " + topicWho + " " + toString(ch.getTopicTime()) + "\r\n";
 	res.target_fds.push_back(client.getFd());
 
 	return (res);
@@ -116,24 +116,24 @@ bool	TopicCommand::isValidCmd(const t_parsed & input, t_response* res, Database 
 	Client*	client = db.getClient(input.client_fd);
 	if (input.args.size() < 1)
 	{
-		set_err_res(res, input, ":ft.irc 461 " + client->getNickname() + " TOPIC :Not enough parameters\r\n");
+		set_err_res(res, input, "461 " + client->getNickname() + " TOPIC :Not enough parameters\r\n");
 		return (false);
 	}
 
 	Channel*	ch = db.getChannel(input.args[0]);
 	if (ch == NULL)
 	{
-		set_err_res(res, input, ":ft.irc 403 " + client->getNickname() + " " + input.args[0] + " :No such channel\r\n");
+		set_err_res(res, input, "403 " + client->getNickname() + " " + input.args[0] + " :No such channel\r\n");
 		return (false);
 	}
 	if (!ch->isMember(input.client_fd))
 	{
-		set_err_res(res, input, ":ft.irc 442 " + client->getNickname() + " " + input.args[0] + " :You're not on that channel\r\n");
+		set_err_res(res, input, "442 " + client->getNickname() + " " + input.args[0] + " :You're not on that channel\r\n");
 		return (false);
 	}
 	if (ch->getTopicRestricted() && !ch->isOperator(input.client_fd))
 	{
-		set_err_res(res, input, ":ft.irc 482 " + client->getNickname() + " " + input.args[0] + " :You're not channel operator\r\n");
+		set_err_res(res, input, "482 " + client->getNickname() + " " + input.args[0] + " :You're not channel operator\r\n");
 		return (false);
 	}
 	return (true);

@@ -50,22 +50,6 @@ static void test_success() {
 		assert(std::find(fds.begin(), fds.end(), member_fd) != fds.end());
 	}
 
-	// 設定済みトピックの 332/333 を確認（who と time を検証）
-	{
-	int fd = 40; // 上でトピックを設定した OP
-		std::vector<std::string> args;
-		args.push_back("#v3");
-		t_parsed in = makeInput("TOPIC", fd, args);
-		std::vector<t_response> res = topic.execute(in, db);
-
-		assert(res.size() == 2);
-		std::cout << "[TOPICコマンド 時間確認] " << res[1].reply;
-		assert(res[1].reply.find(" 333 ") != std::string::npos);
-		// who (ニックネーム) を検証
-		assert(res[1].reply.find(" #v3 op40 ") != std::string::npos);
-		// time の詳細検証はスキップ
-	}
-
 	// TOPIC channel のみ（トピック設定済み）→ 332 と 333 を送信者に
 	{
 		int fd = 31;
