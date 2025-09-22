@@ -1,6 +1,8 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 
 #include "Database.hpp"
 #include "Command/TopicCommand.hpp"
@@ -48,6 +50,22 @@ static void test_success() {
 		assert(std::find(fds.begin(), fds.end(), member_fd) != fds.end());
 	}
 
+	// 設定済みトピックの 332/333 を確認（who と time を検証）
+	{
+	int fd = 40; // 上でトピックを設定した OP
+		std::vector<std::string> args;
+		args.push_back("#v3");
+		t_parsed in = makeInput("TOPIC", fd, args);
+		std::vector<t_response> res = topic.execute(in, db);
+
+		assert(res.size() == 2);
+		std::cout << "[TOPICコマンド 時間確認] " << res[1].reply;
+		assert(res[1].reply.find(" 333 ") != std::string::npos);
+		// who (ニックネーム) を検証
+		assert(res[1].reply.find(" #v3 op40 ") != std::string::npos);
+		// time の詳細検証はスキップ
+	}
+
 	// TOPIC channel のみ（トピック設定済み）→ 332 と 333 を送信者に
 	{
 		int fd = 31;
@@ -56,6 +74,8 @@ static void test_success() {
 
 		Channel ch("#ok_topic", fd);
 		ch.setTopic("This is topic!!");
+		ch.setTopicWho(fd);
+		ch.setTopicTime(time(NULL));
 		db.addChannel(ch);
 
 		std::vector<std::string> args;
@@ -69,7 +89,7 @@ static void test_success() {
 			assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 		}
 		if (res[1].reply.find(" 333 ") != std::string::npos) {
-			assert(res[1].reply.find(" #ok_topic") != std::string::npos);
+			assert(res[1].reply.find(" #ok_topic u31 ") != std::string::npos);
 			assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		}
 
