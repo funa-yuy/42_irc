@@ -108,7 +108,7 @@ static void	set_err_res(t_response *res, const t_parsed& input, std::string errm
 bool	TopicCommand::isValidCmd(const t_parsed & input, t_response* res, Database & db) const
 {
 	Client*	client = db.getClient(input.client_fd);
-	if (input.args.size() > 0)
+	if (input.args.size() < 1)
 	{
 		set_err_res(res, input, ":ft.irc 461 " + client->getNickname() + " TOPIC :Not enough parameters\r\n");
 		return (false);
