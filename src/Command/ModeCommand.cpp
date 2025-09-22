@@ -1,4 +1,4 @@
-#include "ModeCommand.hpp"
+#include "Command/ModeCommand.hpp"
 
 static bool	isDigits(const std::string & s);
 static int	findFdByNickInChannel(Database & db, Channel & ch, const std::string & nick);
