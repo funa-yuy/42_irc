@@ -116,24 +116,24 @@ bool	TopicCommand::isValidCmd(const t_parsed & input, t_response* res, Database 
 	Client*	client = db.getClient(input.client_fd);
 	if (input.args.size() < 1)
 	{
-		set_err_res(res, input, "461 " + client->getNickname() + " TOPIC :Not enough parameters\r\n");
+		set_err_res(res, input, "461 " + client->getNickname() + " TOPIC :Not enough parameters");
 		return (false);
 	}
 
 	Channel*	ch = db.getChannel(input.args[0]);
 	if (ch == NULL)
 	{
-		set_err_res(res, input, "403 " + client->getNickname() + " " + input.args[0] + " :No such channel\r\n");
+		set_err_res(res, input, "403 " + client->getNickname() + " " + input.args[0] + " :No such channel");
 		return (false);
 	}
 	if (!ch->isMember(input.client_fd))
 	{
-		set_err_res(res, input, "442 " + client->getNickname() + " " + input.args[0] + " :You're not on that channel\r\n");
+		set_err_res(res, input, "442 " + client->getNickname() + " " + input.args[0] + " :You're not on that channel");
 		return (false);
 	}
-	if (ch->getTopicRestricted() && !ch->isOperator(input.client_fd))
+	if (input.args.size() >= 2 && ch->getTopicRestricted() && !ch->isOperator(input.client_fd))
 	{
-		set_err_res(res, input, "482 " + client->getNickname() + " " + input.args[0] + " :You're not channel operator\r\n");
+		set_err_res(res, input, "482 " + client->getNickname() + " " + input.args[0] + " :You're not channel operator");
 		return (false);
 	}
 	return (true);
