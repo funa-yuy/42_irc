@@ -6,6 +6,7 @@
 // ------------------------------------------------
 
 #include <iostream>
+#include <cctype>
 #include "Command.hpp"
 
 // ------------------------------------------------
@@ -27,6 +28,7 @@ private:
 
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
+	void	buildChannelModeReply(Channel & ch, std::string & modes, std::vector<std::string> & params);
 	bool	isKnownMode(char c);
 	bool	needsParameter(char c, char sign);
 
