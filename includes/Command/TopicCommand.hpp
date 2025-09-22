@@ -20,7 +20,7 @@ private:
 	t_response	makeRplBroadcast(Client& client, Channel& ch) const;
 	t_response	makeRplNotopic(Client& client, const std::string& chName) const;
 	t_response	makeRplTopic(Client& client, Channel& ch) const;
-	t_response	makeRplTopicWhoTime(Client& client, Channel& ch) const;
+	t_response	makeRplTopicWhoTime(Client& client, Channel& ch, Database & db) const;
 };
 
 #endif

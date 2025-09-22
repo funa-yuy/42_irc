@@ -2,6 +2,9 @@
 
 Channel::Channel()
 : _topicRestricted(true)
+, _topic("")
+, _topicTime(0)
+, _topicWho(-1)
 , _inviteOnly(false)
 , _hasKey(false)
 , _haslimit(false)
@@ -10,6 +13,9 @@ Channel::Channel()
 
 Channel::Channel(std::string name, int createdBy)
 : _topicRestricted(true)
+, _topic("")
+, _topicTime(0)
+, _topicWho(-1)
 , _inviteOnly(false)
 , _hasKey(false)
 , _haslimit(false)
@@ -53,6 +59,33 @@ void Channel::addClientFd(int fd)
 void Channel::setTopic(std::string topic)
 {
 	_topic = topic;
+}
+
+void	Channel::clearTopic()
+{
+	_topic.clear();
+	_topicWho = -1;
+	_topicTime = 0;
+}
+
+time_t		Channel::getTopicTime() const
+{
+	return (_topicTime);
+}
+
+void	Channel::setTopicTime(time_t val)
+{
+	_topicTime = val;
+}
+
+int		Channel::getTopicWho() const
+{
+	return (_topicWho);
+}
+
+void	Channel::setTopicWho(int fd)
+{
+	_topicWho = fd;
 }
 
 void Channel::setChannelOperatorFds(int fd)

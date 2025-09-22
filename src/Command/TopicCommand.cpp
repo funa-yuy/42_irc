@@ -50,15 +50,19 @@ t_response	TopicCommand::makeRplTopic(Client& client, Channel& ch) const
 	return (res);
 }
 
-t_response	TopicCommand::makeRplTopicWhoTime(Client& client, Channel& ch) const
+t_response	TopicCommand::makeRplTopicWhoTime(Client& client, Channel& ch, Database & db) const
 {
 	t_response	res;
 
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	// res.reply = "ft.irc 333 " + client.getNickname() + " " + ch.getName() + " " + ch.getTopicWho() + " " + ch.getTopicTime() + "\r\n";
-	res.reply = "ft.irc 333 " + client.getNickname() + " " + ch.getName() + "\r\n";
+
+	std::string topicWho = "";
+	Client* who = db.getClient(ch.getTopicWho());
+	if (who)
+		topicWho = who->getNickname();
+	res.reply = "ft.irc 333 " + client.getNickname() + " " + ch.getName() + " " + topicWho + " " + toString(ch.getTopicTime()) + "\r\n";
 	res.target_fds.push_back(client.getFd());
 
 	return (res);
@@ -82,17 +86,19 @@ std::vector<t_response>	TopicCommand::execute(const t_parsed & input, Database &
 			responses.push_back(makeRplNotopic(*client, ch->getName()));
 		} else {
 			responses.push_back(makeRplTopic(*client, *ch));
-			responses.push_back(makeRplTopicWhoTime(*client, *ch));
+			responses.push_back(makeRplTopicWhoTime(*client, *ch, db));
 		}
-
+		return (responses);
 	}
-	else {
+
+	if (input.args[1] == "") {
+		ch->clearTopic();
+	} else {
 		ch->setTopic(input.args[1]);
-		//whoのset
-		//timeのsetat
-		responses.push_back(makeRplBroadcast(*client, *ch));
+		ch->setTopicWho(input.client_fd);
+		ch->setTopicTime(time(NULL));
 	}
-
+	responses.push_back(makeRplBroadcast(*client, *ch));
 	return (responses);
 }
 
