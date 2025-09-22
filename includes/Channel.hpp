@@ -28,6 +28,9 @@ class Channel {
 		void	addClientFd(int fd);
 		void	removeClientFd(int fd);
 
+		bool	isMember(int fd);
+		bool	isOperator(int fd);
+
 		bool		getTopicRestricted() const;
 		void		setTopicRestricted(bool val);
 		std::string	getTopic() const;

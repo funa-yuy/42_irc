@@ -70,6 +70,22 @@ void	Channel::removeClientFd(int fd)
 	_clientFds.erase(it);
 }
 
+bool	Channel::isMember(int fd)
+{
+	std::set<int>::iterator	it = _clientFds.find(fd);
+	if (it == _clientFds.end())
+		return (false);
+	return (true);
+}
+
+bool	Channel::isOperator(int fd)
+{
+	std::set<int>::iterator	it = _channelOperatorFds.find(fd);
+	if (it == _channelOperatorFds.end())
+		return (false);
+	return (true);
+}
+
 bool	Channel::getInviteOnly() const
 {
 	return (_inviteOnly);

@@ -31,8 +31,10 @@ public:
 
 	Client *			getClient(int fd);
 	Client const *		getClient(int fd) const;
-	Channel const *		getChannel(const std::string & name) const;
-	Channel *			getChannel(const std::string & name);
+	Client *			getClient(std::string & nickname);
+	Client const *		getClient(const std::string & nickname);
+	Channel const *		getChannel(const std::string& name) const;
+	Channel *			getChannel(const std::string& name);
 	std::vector<std::string>	getAllChannelNames() const;
 	const std::string&	getPassword() const;
 	std::map<int, Client>&		getAllClient();
