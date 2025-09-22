@@ -70,6 +70,14 @@ void	Channel::removeClientFd(int fd)
 	_clientFds.erase(it);
 }
 
+void	Channel::removeChannelOperatorFd(int fd)
+{
+	std::set<int>::iterator	it = _channelOperatorFds.find(fd);
+	if (it == _channelOperatorFds.end())
+		return ;
+	_channelOperatorFds.erase(fd);
+}
+
 bool	Channel::isMember(int fd)
 {
 	std::set<int>::iterator	it = _clientFds.find(fd);
