@@ -27,6 +27,9 @@ private:
 
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
+	bool	isKnownMode(char c);
+	bool	needsParameter(char c, char sign);
+
 };
 
 // ------------------------------------------------

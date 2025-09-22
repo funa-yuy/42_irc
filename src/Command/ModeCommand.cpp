@@ -74,3 +74,13 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 
 	return (true);
 }
+
+bool	ModeCommand::isKnownMode(char c)
+{
+	return (true);
+}
+
+bool	ModeCommand::needsParameter(char c, char sign)
+{
+	return (true);
+}
