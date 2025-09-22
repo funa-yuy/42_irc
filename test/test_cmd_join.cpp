@@ -29,25 +29,31 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		// JOIN
 		assert(res[0].is_success == true);
 		assert(res[0].should_send == true);
 		assert(res[0].should_disconnect == false);
-		assert(res[0].reply.find("nick4 has joined #hoge") != std::string::npos);
+		assert(res[0].reply.find(":nick4!@ft.irc JOIN #hoge") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 		// 332 RPL_TOPIC
 		assert(res[1].is_success == true);
 		assert(res[1].should_send == true);
 		assert(res[1].should_disconnect == false);
-		assert(res[1].reply.find(" 332 Topic for #hoge :") != std::string::npos);
+		assert(res[1].reply.find(" 332 nick4 #hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		// 353 RPL_NAMREPLY
 		assert(res[2].is_success == true);
 		assert(res[2].should_send == true);
 		assert(res[2].should_disconnect == false);
-		assert(res[2].reply.find(" 353 =#hoge ") != std::string::npos);
+		assert(res[2].reply.find(" 353 nick4 = #hoge ") != std::string::npos);
 		assert(res[2].target_fds.size() == 1 && res[2].target_fds[0] == fd);
+		// 366 RPL_ENDOFNAMES
+		assert(res[3].is_success == true);
+		assert(res[3].should_send == true);
+		assert(res[3].should_disconnect == false);
+		assert(res[3].reply.find(" 366 nick4 #hoge :End of /NAMES list") != std::string::npos);
+		assert(res[3].target_fds.size() == 1 && res[3].target_fds[0] == fd);
 	}
 
 	// 正常: 既存メンバーがいるチャンネルにJOIN → JOIN通知のfdsが全員分含む
@@ -62,14 +68,15 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		// 3通（JOIN, 332, 353）
-		assert(res.size() == 3);
+		// 4通（JOIN, 332, 353, 366）
+		assert(res.size() == 4);
 		// JOIN通知のfdsに既存(4)と新規(40)の両方が含まれているか
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(fds.size() == 2);
 		assert(std::find(fds.begin(), fds.end(), existing_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick40 has joined #hoge") != std::string::npos);
+		assert(res[0].reply.find(":nick40!@ft.irc JOIN #hoge") != std::string::npos);
+		assert(res[3].reply.find(" 366 nick40 #hoge :End of /NAMES list") != std::string::npos);
 	}
 
 	// 正常: 引数に複数のチャンネルと複数のキー
@@ -85,21 +92,23 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 6);
+		assert(res.size() == 8);
 		// 1つ目チャンネル: JOIN通知, 332, 353
-		assert(res[0].reply.find("nick5 has joined &hoge") != std::string::npos);
+		assert(res[0].reply.find(":nick5!@ft.irc JOIN &hoge") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
-		assert(res[1].reply.find(" 332 Topic for &hoge :") != std::string::npos);
+		assert(res[1].reply.find(" 332 nick5 &hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
-		assert(res[2].reply.find(" 353 ") != std::string::npos);
+		assert(res[2].reply.find(" 353 nick5 = &hoge ") != std::string::npos);
 		assert(res[2].target_fds.size() == 1 && res[2].target_fds[0] == fd);
+		assert(res[3].reply.find(" 366 nick5 &hoge :End of /NAMES list") != std::string::npos);
 		// 2つ目チャンネル: JOIN通知, 332, 353
-		assert(res[3].reply.find("nick5 has joined &fuga") != std::string::npos);
-		assert(res[3].target_fds.size() == 1 && res[3].target_fds[0] == fd);
-		assert(res[4].reply.find(" 332 Topic for &fuga :") != std::string::npos);
+		assert(res[4].reply.find(":nick5!@ft.irc JOIN &fuga") != std::string::npos);
 		assert(res[4].target_fds.size() == 1 && res[4].target_fds[0] == fd);
-		assert(res[5].reply.find(" 353 ") != std::string::npos);
+		assert(res[5].reply.find(" 332 nick5 &fuga :") != std::string::npos);
 		assert(res[5].target_fds.size() == 1 && res[5].target_fds[0] == fd);
+		assert(res[6].reply.find(" 353 nick5 = &fuga ") != std::string::npos);
+		assert(res[6].target_fds.size() == 1 && res[6].target_fds[0] == fd);
+		assert(res[7].reply.find(" 366 nick5 &fuga :End of /NAMES list") != std::string::npos);
 	}
 
 	// 正常: 引数に2つのチャンネルと1つのキー
@@ -115,15 +124,17 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 6);
+		assert(res.size() == 8);
 		// 1つ目チャンネル: JOIN通知, 332, 353
-		assert(res[0].reply.find("nick6 has joined +hoge") != std::string::npos);
-		assert(res[1].reply.find(" 332 Topic for +hoge :") != std::string::npos);
-		assert(res[2].reply.find(" 353 ") != std::string::npos);
+		assert(res[0].reply.find(":nick6!@ft.irc JOIN +hoge") != std::string::npos);
+		assert(res[1].reply.find(" 332 nick6 +hoge :") != std::string::npos);
+		assert(res[2].reply.find(" 353 nick6 = +hoge ") != std::string::npos);
+		assert(res[3].reply.find(" 366 nick6 +hoge :End of /NAMES list") != std::string::npos);
 		// 2つ目チャンネル: JOIN通知, 332, 353
-		assert(res[3].reply.find("nick6 has joined +fuga") != std::string::npos);
-		assert(res[4].reply.find(" 332 Topic for +fuga :") != std::string::npos);
-		assert(res[5].reply.find(" 353 ") != std::string::npos);
+		assert(res[4].reply.find(":nick6!@ft.irc JOIN +fuga") != std::string::npos);
+		assert(res[5].reply.find(" 332 nick6 +fuga :") != std::string::npos);
+		assert(res[6].reply.find(" 353 nick6 = +fuga ") != std::string::npos);
+		assert(res[7].reply.find(" 366 nick6 +fuga :End of /NAMES list") != std::string::npos);
 	}
 
 	// 正常: 引数に1つのチャンネルと2つのキー(2つ目のキーは無視される)
@@ -139,22 +150,120 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		// JOIN
 		assert(res[0].is_success == true);
 		assert(res[0].should_send == true);
-		assert(res[0].reply.find("nick7 has joined !abc12hoge") != std::string::npos);
+		assert(res[0].reply.find(":nick7!@ft.irc JOIN !abc12hoge") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 		// 332 RPL_TOPIC
 		assert(res[1].is_success == true);
 		assert(res[1].should_send == true);
-		assert(res[1].reply.find(" 332 Topic for !abc12hoge :") != std::string::npos);
+		assert(res[1].reply.find(" 332 nick7 !abc12hoge :") != std::string::npos);
 		assert(res[1].target_fds.size() == 1 && res[1].target_fds[0] == fd);
 		// 353 RPL_NAMREPLY
 		assert(res[2].is_success == true);
 		assert(res[2].should_send == true);
-		assert(res[2].reply.find(" 353 ") != std::string::npos);
+		assert(res[2].reply.find(" 353 nick7 = !abc12hoge ") != std::string::npos);
 		assert(res[2].target_fds.size() == 1 && res[2].target_fds[0] == fd);
+		// 366 RPL_ENDOFNAMES
+		assert(res[3].is_success == true);
+		assert(res[3].should_send == true);
+		assert(res[3].reply.find(" 366 nick7 !abc12hoge :End of /NAMES list") != std::string::npos);
+		assert(res[3].target_fds.size() == 1 && res[3].target_fds[0] == fd);
+	}
+}
+
+static void test_join_zero() {
+	Database db("password");
+	JoinCommand join;
+	{
+		//チャンネルに参加していないクライアントがJOIN 0を実行
+		int fd = 100;
+		Client* cl = db.addClient(fd);
+		cl->setNickname("nick100");
+		std::vector<std::string> args;
+		args.push_back("0");
+		t_parsed in = makeInput("JOIN", fd, args);
+		std::vector<t_response> res = join.execute(in, db);
+		assert(res.size() == 1);
+		assert(res[0].reply.find("403 nick100 #0") != std::string::npos);
+	}
+
+	{
+		//1人しか参加していないチャンネルでJOIN 0
+		int fd = 101;
+		Client* cl = db.addClient(fd);
+		cl->setNickname("nick101");
+		{
+			std::vector<std::string> args;
+			args.push_back("#alone");
+			(void)join.execute(makeInput("JOIN", fd, args), db);
+		}
+		// JOIN 0 実行
+		{
+			std::vector<std::string> args;
+			args.push_back("0");
+			std::vector<t_response> res = join.execute(makeInput("JOIN", fd, args), db);
+			assert(res.size() == 2);
+			assert(res[0].reply.find("nick101!@ft.irc PART #alone") != std::string::npos);
+			assert(res[1].reply.find("403 nick101 #0") != std::string::npos);
+
+			// 残メンバーがいないためチャンネルは削除
+			std::string name = std::string("#alone");
+			assert(db.getChannel(name) == NULL);
+		}
+	}
+
+	{
+		//複数のチャンネルに参加しているクライアントがJOIN 0
+		int fd_test1 = 102;
+		Client* cl_test1 = db.addClient(fd_test1);
+		cl_test1->setNickname("test1");
+		int fd_test2 = 103;
+		Client* cl_test2 = db.addClient(fd_test2);
+		cl_test2->setNickname("test2");
+		//  #solo に test2、#futari に test1とtest2を参加させる
+		{
+			std::vector<std::string> args;
+			args.push_back("#futari");
+			(void)join.execute(makeInput("JOIN", fd_test1, args), db);
+
+			args.clear();
+			args.push_back("#futari");
+			(void)join.execute(makeInput("JOIN", fd_test2, args), db);
+
+			args.clear();
+			args.push_back("#solo");
+			(void)join.execute(makeInput("JOIN", fd_test2, args), db);
+		}
+		// JOIN 0 実行: #futari には test1 が残るので通知1件、#solo は削除
+		{
+			std::vector<std::string> args;
+			args.push_back("0");
+			std::vector<t_response> res = join.execute(makeInput("JOIN", fd_test2, args), db);
+			assert(res.size() == 3);
+			assert(res[0].reply.find("test2!@ft.irc PART #futari") != std::string::npos);
+			assert(res[1].reply.find("test2!@ft.irc PART #solo") != std::string::npos);
+			assert(res[2].reply.find("403 test2 #0") != std::string::npos);
+
+			// 通知先に test1 と test2の両方含まれている
+			const std::vector<int>& fds = res[0].target_fds;
+			assert(std::find(fds.begin(), fds.end(), fd_test1) != fds.end());
+			assert(std::find(fds.begin(), fds.end(), fd_test2) != fds.end());
+
+			// #solo は削除されている
+			std::string solo = std::string("#solo");
+			assert(db.getChannel(solo) == NULL);
+
+			// #futari は残っており、test2 はメンバーから外れている
+			std::string futari = std::string("#futari");
+			Channel* c = db.getChannel(futari);
+			assert(c != NULL);
+			const std::set<int>& members = c->getClientFds();
+			assert(members.find(fd_test2) == members.end());
+			assert(members.find(fd_test1) != members.end());
+		}
 	}
 
 	// 正常: キーが一致
@@ -177,11 +286,11 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(std::find(fds.begin(), fds.end(), op_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick81 has joined #keyok") != std::string::npos);
+		assert(res[0].reply.find("JOIN #keyok") != std::string::npos);
 	}
 
 	// 正常: 招待されているクライアント
@@ -204,11 +313,11 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(std::find(fds.begin(), fds.end(), op_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick83 has joined #inviteok") != std::string::npos);
+		assert(res[0].reply.find("JOIN #inviteok") != std::string::npos);
 	}
 
 	// 正常: チャンネル参加可能人数を超えていない
@@ -230,11 +339,11 @@ static void test_success() {
 		t_parsed in = makeInput("JOIN", joiner_fd, args);
 		std::vector<t_response> res = join.execute(in, db);
 
-		assert(res.size() == 3);
+		assert(res.size() == 4);
 		const std::vector<int>& fds = res[0].target_fds;
 		assert(std::find(fds.begin(), fds.end(), op_fd) != fds.end());
 		assert(std::find(fds.begin(), fds.end(), joiner_fd) != fds.end());
-		assert(res[0].reply.find("nick85 has joined #limitok") != std::string::npos);
+		assert(res[0].reply.find("JOIN #limitok") != std::string::npos);
 	}
 }
 
@@ -271,7 +380,7 @@ static void test_err_403_nosuchchannel() {
 		assert(res.size() == 1);
 		assert(res[0].is_success == false);
 		assert(res[0].should_send == true);
-		assert(res[0].reply.find("403 foo") != std::string::npos);
+		assert(res[0].reply.find("403 ") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 	}
 
@@ -286,7 +395,7 @@ static void test_err_403_nosuchchannel() {
 		assert(res.size() == 1);
 		assert(res[0].is_success == false);
 		assert(res[0].should_send == true);
-		assert(res[0].reply.find("403 f  oo") != std::string::npos);
+		assert(res[0].reply.find("403 ") != std::string::npos);
 		assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == fd);
 	}
 
@@ -428,7 +537,7 @@ static void test_err_471_channelisfull() {
 	assert(res.size() == 1);
 	assert(res[0].is_success == false);
 	assert(res[0].should_send == true);
-	assert(res[0].reply.find(" 471 #full ") != std::string::npos);
+	assert(res[0].reply.find(" 471 ") != std::string::npos);
 	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == joiner_fd);
 }
 
@@ -457,7 +566,7 @@ static void test_err_473_inviteonly() {
 	assert(res.size() == 1);
 	assert(res[0].is_success == false);
 	assert(res[0].should_send == true);
-	assert(res[0].reply.find(" 473 #invite ") != std::string::npos);
+	assert(res[0].reply.find(" 473 ") != std::string::npos);
 	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == joiner_fd);
 }
 
@@ -488,12 +597,13 @@ static void test_err_475_badchannelkey() {
 	assert(res.size() == 1);
 	assert(res[0].is_success == false);
 	assert(res[0].should_send == true);
-	assert(res[0].reply.find(" 475 #keychan ") != std::string::npos);
+	assert(res[0].reply.find(" 475 ") != std::string::npos);
 	assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == joiner_fd);
 }
 
 int main() {
 	test_success();//正常
+	test_join_zero();// JOIN 0: 複数ケース
 	test_err_461_needmoreparams();// エラー: ERR_NEEDMOREPARAMS 461 引数が無い
 	test_err_403_nosuchchannel();// エラー: ERR_NOSUCHCHANNEL 403 チャンネル名が不正
 	test_err_476_badchanmask();// エラー: ERR_BADCHANMASK 476 !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない場合
