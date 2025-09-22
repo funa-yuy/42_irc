@@ -1,8 +1,20 @@
 #include "Channel.hpp"
 
-Channel::Channel() {}
+Channel::Channel()
+: _topicRestricted(true)
+, _inviteOnly(false)
+, _hasKey(false)
+, _haslimit(false)
+, _limit(0)
+{}
 
-Channel::Channel(std::string name, int createdBy) {
+Channel::Channel(std::string name, int createdBy)
+: _topicRestricted(true)
+, _inviteOnly(false)
+, _hasKey(false)
+, _haslimit(false)
+, _limit(0)
+{
 	setName(name);
 	addClientFd(createdBy);
 	setChannelOperatorFds(createdBy);
@@ -54,6 +66,112 @@ void	Channel::removeClientFd(int fd)
 	std::set<int>::iterator it = _clientFds.find(fd);
 	if (it == _clientFds.end())
 		return ;
-	_channelOperatorFds.erase(fd);//todo: オペレーターが全員退出した場合の処理を考える。
+	_channelOperatorFds.erase(fd);
 	_clientFds.erase(it);
+}
+
+bool	Channel::isMember(int fd)
+{
+	std::set<int>::iterator	it = _clientFds.find(fd);
+	if (it == _clientFds.end())
+		return (false);
+	return (true);
+}
+
+bool	Channel::isOperator(int fd)
+{
+	std::set<int>::iterator	it = _channelOperatorFds.find(fd);
+	if (it == _channelOperatorFds.end())
+		return (false);
+	return (true);
+}
+
+bool	Channel::getInviteOnly() const
+{
+	return (_inviteOnly);
+}
+
+void	Channel::setInviteOnly(bool val)
+{
+	_inviteOnly = val;
+}
+
+const std::set<int>& Channel::getInviteList() const
+{
+	return (_inviteList);
+}
+
+bool	Channel::isInvited(int fd) const
+{
+	return (_inviteList.find(fd) != _inviteList.end());
+}
+
+void	Channel::addInvite(int fd)
+{
+	_inviteList.insert(fd);
+}
+
+void	Channel::removeInvite(int fd)
+{
+	_inviteList.erase(fd);
+}
+
+void	Channel::clearInvites()
+{
+	_inviteOnly = false;
+	_inviteList.clear();
+}
+
+bool	Channel::getTopicRestricted() const
+{
+	return (_topicRestricted);
+}
+
+void	Channel::setTopicRestricted(bool val)
+{
+	_topicRestricted = val;
+}
+
+bool	Channel::getHasKey() const
+{
+	return (_hasKey);
+}
+
+std::string Channel::getKey() const
+{
+	return (_key);
+}
+
+void	Channel::setKey(const std::string& key)
+{
+	_hasKey = true;
+	_key = key;
+}
+
+void	Channel::clearKey()
+{
+	_hasKey = false;
+	_key.clear();
+}
+
+bool	Channel::getHasLimit() const
+{
+	return (_haslimit);
+}
+
+unsigned int Channel::getLimit() const
+{
+	return (_limit);
+}
+
+void	Channel::setLimit(unsigned int limit)
+{
+	_haslimit = true;
+	_limit = limit;
+}
+
+void	Channel::clearLimit()
+{
+	_haslimit = false;
+	_limit = 0;
 }

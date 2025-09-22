@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/15 13:52:57 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/21 18:39:30 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,11 +35,13 @@ SRC					:= \
 					Client.cpp \
 					Database.cpp \
 					Command/Command.cpp \
+					Command/CapCommand.cpp \
 					Command/NickCommand.cpp \
 					Command/PassCommand.cpp \
 					Command/UserCommand.cpp \
 					Command/PrivmsgCommand.cpp \
 					Command/JoinCommand.cpp \
+					Command/InviteCommand.cpp \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
 					Utils.cpp \
@@ -53,11 +55,13 @@ HEADERS				:= \
 					Client.hpp \
 					Database.hpp \
 					Command/Command.hpp \
+					Command/CapCommand.hpp \
 					Command/NickCommand.hpp \
 					Command/PassCommand.hpp \
 					Command/UserCommand.hpp \
 					Command/PrivmsgCommand.hpp \
 					Command/JoinCommand.hpp \
+					Command/InviteCommand.hpp \
 					Command/PingCommand.hpp \
 					Command/PongCommand.hpp \
 					Utils.hpp \

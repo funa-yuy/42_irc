@@ -29,12 +29,14 @@ _last_ping(time(NULL)), _ping_interval(PING_INTERVAL), _timeout_ms(TIMEOUT_MS)
 
 	if (_cmd_map.empty())
 	{
+		_cmd_map["CAP"] = &CapCommand::createCapCommand;
 		_cmd_map["PASS"] = &PassCommand::createPassCommand;
 		_cmd_map["NICK"] = &NickCommand::createNickCommand;
 		_cmd_map["USER"] = &UserCommand::createUserCommand;
 		_cmd_map["PING"] = &PingCommand::createPingCommand;
 		_cmd_map["PONG"] = &PongCommand::createPongCommand;
 		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
+		_cmd_map["JOIN"] = &JoinCommand::createJoinCommand;
 	}
 }
 
