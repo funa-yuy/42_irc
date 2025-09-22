@@ -97,3 +97,10 @@ void Database::removeChannel(std::string& name)
 		_channels.erase(it);
 }
 
+std::vector<std::string> Database::getAllChannelNames() const
+{
+    std::vector<std::string> names;
+    for (std::map<std::string, Channel>::const_iterator it = _channels.begin(); it != _channels.end(); ++it)
+        names.push_back(it->first);
+    return (names);
+}

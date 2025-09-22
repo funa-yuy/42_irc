@@ -28,6 +28,7 @@
 #include "Command/PingCommand.hpp"
 #include "Command/PongCommand.hpp"
 #include "Command/PrivmsgCommand.hpp"
+#include "Command/JoinCommand.hpp"
 
 #include "PrintLog.hpp"
 
@@ -78,7 +79,7 @@ private:
 
 	void		sendPing(void);
 	void		checkClientTimeout(void);
-	
+
 	std::string	displayNick(const Client & client) const;
 	void		broadcast(int sender_fd, std::string const & msg);
 	void		exitError(std::string const & error_msg);
