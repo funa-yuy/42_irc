@@ -133,25 +133,26 @@ static void	set_err_res(t_response *res, const t_parsed& input, std::string errm
 	res->target_fds[0] = input.client_fd;
 }
 
-bool	JoinCommand::isValidParamsSize(const t_parsed& input, t_response* res) const {
+bool	JoinCommand::isValidParamsSize(const t_parsed& input, t_response* res, Database& db) const {
 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
-		set_err_res(res, input, "461 JOIN :Not enough parameters");
+		set_err_res(res, input, "461 " + db.addClient(input.client_fd)->getNickname() + " JOIN :Not enough parameters");
 		return(false);
 	}
 	return (true);
 }
 
 bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& db, const s_join_item& item) const {
+	std::string nick = db.getClient(input.client_fd)->getNickname() ;
 
 	if (!isValidChannelName(item))//ERR_NOSUCHCHANNEL 403 指定されたチャネル名が無効である
 	{
-		set_err_res(res, input, "403 " + item.channel + " :No such channel");
+		set_err_res(res, input, "403 " + nick + " " + item.channel + " :No such channel");
 		return(false);
 	}
 	if (!isValidChanMask(item))//ERR_BADCHANMASK 476 !で始まるチャンネル名が英数5文字 + 1文字以上の名前を満たさない
 	{
-		set_err_res(res, input, "476 " + item.channel + " :Bad Channel Mask");
+		set_err_res(res, input, "476 " + nick + " " + item.channel + " :Bad Channel Mask");
 		return(false);
 	}
 	const Channel *c =  db.getChannel(item.channel);
@@ -159,17 +160,17 @@ bool JoinCommand::is_validCmd(const t_parsed& input, t_response* res, Database& 
 		return (true);
 	if (c->getHasLimit() && c->getClientFds().size() >= c->getLimit())//ERR_CHANNELISFULL 471 参加できるユーザー数を超えている
 	{
-		set_err_res(res, input, "471 " + item.channel + " :Cannot join channel (+l)");
+		set_err_res(res, input, "471 " + nick + " " + item.channel + " :Cannot join channel (+l)");
 		return(false);
 	}
 	if (c->getInviteOnly() && !c->isInvited(input.client_fd))//ERR_INVITEONLYCHAN 473 招待されていない
 	{
-		set_err_res(res, input, "473 " + item.channel + " :Cannot join channel (+i)");
+		set_err_res(res, input, "473 " + nick + " " + item.channel + " :Cannot join channel (+i)");
 		return(false);
 	}
 	if(c->getHasKey() && c->getKey() != item.key)//ERR_BADCHANNELKEY 475 keyが間違っている
 	{
-		set_err_res(res, input, "475 " + item.channel + " :Cannot join channel (+k)");
+		set_err_res(res, input, "475 " + nick + " " + item.channel + " :Cannot join channel (+k)");
 		return(false);
 	}
 	return(true);
@@ -233,7 +234,7 @@ static std::string	getNicknameList(Database& db, Channel* channel) {
 		names += db.getClient(*it)->getNickname();
 	}
 	for (std::set<int>::const_iterator it = memberFds.begin(); it != memberFds.end(); ++it) {
-		if (operatorFds.find(*it) != operatorFds.end())
+		if (channel->isOperator(*it))
 			continue;
 		if (!names.empty())
 			names += " ";
@@ -331,15 +332,17 @@ std::vector<t_response>	JoinCommand::execute(const t_parsed& input, Database& db
 	std::vector<t_response> response_list;
 	t_response res;
 
-	if (!isValidParamsSize(input, &res))
+	if (!isValidParamsSize(input, &res, db))
 	{
 		response_list.push_back(res);
 		return (response_list);
 	}
 
-	if (input.args.size() > 0 && input.args[0] == "0")
+	if (input.args.size() > 0 && (input.args[0] == "0" ||  input.args[0] == "#0"))
 	{
 		response_list = leaveAllJoinedChannels(input, db);
+		set_err_res(&res, input, "403 " + db.getClient(input.client_fd)->getNickname() + " #0 :No such channel");
+		response_list.push_back(res);
 		return (response_list);
 	}
 
