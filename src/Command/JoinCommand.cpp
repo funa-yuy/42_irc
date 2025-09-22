@@ -313,11 +313,15 @@ const std::vector<t_response> JoinCommand::executeJoin(const t_parsed& input, Da
 		if (!is_validCmd(input, &res, db, items[i])) {
 			list.push_back(res);
 		} else {
+			Channel* ch = db.getChannel(items[i].channel);
+			if (ch != NULL && ch->isMember(input.client_fd))
+				continue;
 			updateDatabase(input, db, items[i]);
-			list.push_back(makeJoinBroadcast(input, db, db.getChannel(items[i].channel)));
-			list.push_back(makeRplTopic(input, db, db.getChannel(items[i].channel)));
-			list.push_back(makeRplNamreply(input, db, db.getChannel(items[i].channel)));
-			list.push_back(makeEndofnames(input, db, db.getChannel(items[i].channel)));
+			ch = db.getChannel(items[i].channel);
+			list.push_back(makeJoinBroadcast(input, db, ch));
+			list.push_back(makeRplTopic(input, db, ch));
+			list.push_back(makeRplNamreply(input, db, ch));
+			list.push_back(makeEndofnames(input, db, ch));
 		}
 	}
 	return (list);
