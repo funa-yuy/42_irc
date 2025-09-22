@@ -136,7 +136,7 @@ static void	set_err_res(t_response *res, const t_parsed& input, std::string errm
 bool	JoinCommand::isValidParamsSize(const t_parsed& input, t_response* res, Database& db) const {
 	if (input.args.size() < 1)//ERR_NEEDMOREPARAMS 461 引数が無効
 	{
-		set_err_res(res, input, "461 " + db.addClient(input.client_fd)->getNickname() + " JOIN :Not enough parameters");
+		set_err_res(res, input, "461 " + db.getClient(input.client_fd)->getNickname() + " JOIN :Not enough parameters");
 		return(false);
 	}
 	return (true);
