@@ -42,6 +42,7 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 
 	if (input.args.size() == 1)
 	{
+		// チャンネル参加 + オペレータ権限チェック
 		std::string	modes = "+"; // todo: ch->getCurrentModes() を実装
 		res.reply = ":ft.irc 324 " + sender_client->getNickname() + " " + chName + " " + modes + "\r\n";
 		res.target_fds.push_back(input.client_fd);
@@ -56,13 +57,6 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 {
 	res.should_send = true;
 
-	if (input.args.empty())
-	{
-		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
-		return (false);
-	}
-
 	std::string	chName = input.args[0];
 	Channel *	ch = db.getChannel(chName);
 	if (!ch)
@@ -72,15 +66,78 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 		return (false);
 	}
 
+	if (input.args.size() == 1)
+		return (true);
+
+	std::string &	modeStr = input.args[1];
+	if (modeStr.empty())
+	{
+		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+		res.target_fds.push_back(input.client_fd);
+		return (false);
+	}
+
+	// エラー442と482チェック（チャンネル参加必須 + オペレータ必須）
+
+	char	sign = 0;
+	size_t	needsParams = 0;
+
+	for (size_t i = 0; i < modeStr.size(); ++i)
+	{
+		char	c = modeStr[i];
+		if (c == '+' || c == '-')
+		{
+			sign = c;
+			continue ; 
+		}
+
+		if (sign == 0 || !isKnownMode(c))
+		{
+			res.reply = ":ft.irc 472 " + client.getNickname() + " " + std::string(1, c) + " :is unknown mode char to me\r\n";
+			res.target_fds.push_back(input.client_fd);
+			return (false);
+		}
+
+		if (needsParameter(c, sign))
+			++needsParams;
+	}
+
+	size_t	givenParams = 0;
+	if (input.args.size() > 2)
+		givenParams = input.args.size() - 2;
+
+	if (givenParams < needsParams)
+	{
+		res.reply = ":ft.irc 461 " + client.getNickname() + "MODE :Not enough parameters\r\n";
+		res.target_fds.push_back(input.client_fd);
+		return (false);
+	}
+
 	return (true);
 }
 
 bool	ModeCommand::isKnownMode(char c)
 {
-	return (true);
+	switch (c)
+	{
+		case 'i':
+		case 't':
+		case 'k':
+		case 'o':
+		case 'l':
+			return (true);
+		default:
+			return (false);
+	}
 }
 
 bool	ModeCommand::needsParameter(char c, char sign)
 {
-	return (true);
+	if (c == 'o')
+		return (true);
+	else if (c == 'k')
+		return (sign == '+');
+	else if (c == 'l')
+		return (sign == '+');
+	return (false);
 }
