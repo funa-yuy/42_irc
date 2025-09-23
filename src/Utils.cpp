@@ -7,3 +7,10 @@ std::string toLowerCase(const std::string& input)
 		lowered[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(lowered[i])));
 	return (lowered);
 }
+
+std::string	toString(int num)
+{
+	std::ostringstream oss;
+	oss << num;
+	return (oss.str());
+}

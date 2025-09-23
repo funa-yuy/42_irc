@@ -170,7 +170,7 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 
 		if (c == 'l' && sign == '+')
 		{
-			std::string & limStr = input.args[paramIndex++];
+			const std::string & limStr = input.args[paramIndex++];
 			if (!isDigits(limStr))
 			{
 				res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
@@ -180,7 +180,7 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 		}
 		else if (c == 'k')
 		{
-			std::string & key = input.args[paramIndex++];
+			const std::string & key = input.args[paramIndex++];
 			if (key.empty())
 			{
 				res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
@@ -190,7 +190,7 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 		}
 		else if (c == 'o')
 		{
-			std::string & nick = input.args[paramIndex++];
+			const std::string & nick = input.args[paramIndex++];
 			int fd = findFdByNickInChannel(db, *ch, nick);
 			if (fd < 0)
 			{
@@ -204,7 +204,7 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	return (true);
 }
 
-void	ModeCommand::buildChannelModeReply(Channel & ch, std::string & modes, std::vector<std::string> & params)
+void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const
 {
 	modes.clear();
 	params.clear();
@@ -225,7 +225,7 @@ void	ModeCommand::buildChannelModeReply(Channel & ch, std::string & modes, std::
 	}
 }
 
-bool	ModeCommand::isKnownMode(char c)
+bool	ModeCommand::isKnownMode(char c) const
 {
 	switch (c)
 	{
@@ -240,7 +240,7 @@ bool	ModeCommand::isKnownMode(char c)
 	}
 }
 
-bool	ModeCommand::needsParameter(char c, char sign)
+bool	ModeCommand::needsParameter(char c, char sign) const
 {
 	if (c == 'o')
 		return (true);

@@ -6,6 +6,7 @@
 // ------------------------------------------------
 
 #include <string>
+#include <sstream>
 #include <cctype>
 
 // ------------------------------------------------
@@ -13,5 +14,6 @@
 // ------------------------------------------------
 
 std::string toLowerCase(const std::string& input);
+std::string	toString(int num);
 
 #endif

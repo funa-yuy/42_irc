@@ -7,7 +7,9 @@
 
 #include <iostream>
 #include <cctype>
+#include <vector>
 #include "Command.hpp"
+#include "Utils.hpp"
 
 // ------------------------------------------------
 // class
@@ -28,9 +30,9 @@ private:
 
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
-	void	buildChannelModeReply(Channel & ch, std::string & modes, std::vector<std::string> & params);
-	bool	isKnownMode(char c);
-	bool	needsParameter(char c, char sign);
+	void	buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
+	bool	isKnownMode(char c) const;
+	bool	needsParameter(char c, char sign) const;
 
 };
 
