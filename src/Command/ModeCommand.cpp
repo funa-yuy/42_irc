@@ -2,7 +2,7 @@
 
 static bool			isDigits(const std::string & s);
 static int			findFdByNickInChannel(Database & db, Channel & ch, const std::string & nick);
-static std::string	toString(int num);
+static std::string	uIntToString(unsigned int num);
 
 ModeCommand::ModeCommand() {}
 
@@ -278,7 +278,7 @@ static int	findFdByNickInChannel(Database & db, Channel & ch, const std::string 
 	return (-1);
 }
 
-static std::string	toString(int num)
+static std::string	uIntToString(unsigned int num)
 {
 	std::ostringstream oss;
 	oss << num;
