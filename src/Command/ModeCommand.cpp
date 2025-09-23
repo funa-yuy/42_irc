@@ -46,19 +46,8 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 
 	if (input.args.size() == 1)
 	{
-		if (!ch->isMember(input.client_fd))
+		if (!checkViewPermissions(*ch, *sender_client, input.client_fd, res, chName))
 		{
-			res.should_send = true;
-			res.reply = ":ft.irc 442 " + sender_client->getNickname() + " " + chName + " :You're not on that channel\r\n";
-			res.target_fds.push_back(input.client_fd);
-			responses.push_back(res);
-			return (responses);
-		}
-		if (!ch->isOperator(input.client_fd))
-		{
-			res.should_send = true;
-			res.reply = ":ft.irc 482 " + sender_client->getNickname() + " " + chName + " :You're not channel operator\r\n";
-			res.target_fds.push_back(input.client_fd);
 			responses.push_back(res);
 			return (responses);
 		}
@@ -224,6 +213,27 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 		}
 	}
 
+	return (true);
+}
+
+bool	ModeCommand::checkViewPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
+{
+	if (!ch.isMember(fd))
+	{
+		res.should_send = true;
+		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
+		res.target_fds.clear();
+		res.target_fds.push_back(fd);
+		return (false);
+	}
+	if (!ch.isOperator(fd))
+	{
+		res.should_send = true;
+		res.reply = ":ft.irc 482 " + client.getNickname() + " " + chName + " :You're not channel operator\r\n";
+		res.target_fds.clear();
+		res.target_fds.push_back(fd);
+		return (false);
+	}
 	return (true);
 }
 
