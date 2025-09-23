@@ -9,6 +9,7 @@
 #include <string>
 #include <set>
 #include <cctype>
+#include <ctime>
 #include "Client.hpp"
 #include "Utils.hpp"
 
@@ -37,6 +38,11 @@ class Channel {
 		void		setTopicRestricted(bool val);
 		std::string	getTopic() const;
 		void		setTopic(std::string);
+		void		clearTopic();
+		time_t		getTopicTime() const;
+		void		setTopicTime(time_t val);
+		int			getTopicWho() const;
+		void		setTopicWho(int fd);
 
 		bool		getInviteOnly() const;
 		void		setInviteOnly(bool val);
@@ -62,6 +68,8 @@ class Channel {
 		std::set<int>			_channelOperatorFds;
 		bool					_topicRestricted;
 		std::string				_topic;
+		time_t					_topicTime;
+		int						_topicWho;
 		bool					_inviteOnly;
 		std::set<int>			_inviteList;
 		bool					_hasKey;
