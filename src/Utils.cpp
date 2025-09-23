@@ -16,10 +16,3 @@ std::string toString(time_t value)
 	oss << static_cast<unsigned long>(value);
 	return oss.str();
 }
-
-std::string	toString(int num)
-{
-	std::ostringstream oss;
-	oss << num;
-	return (oss.str());
-}

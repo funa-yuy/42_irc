@@ -6,10 +6,7 @@
 // ------------------------------------------------
 
 #include <iostream>
-#include <cctype>
-#include <vector>
 #include "Command.hpp"
-#include "Utils.hpp"
 
 // ------------------------------------------------
 // class

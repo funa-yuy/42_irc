@@ -1,7 +1,8 @@
 #include "Command/ModeCommand.hpp"
 
-static bool	isDigits(const std::string & s);
-static int	findFdByNickInChannel(Database & db, Channel & ch, const std::string & nick);
+static bool			isDigits(const std::string & s);
+static int			findFdByNickInChannel(Database & db, Channel & ch, const std::string & nick);
+static std::string	toString(int num);
 
 ModeCommand::ModeCommand() {}
 
@@ -275,4 +276,11 @@ static int	findFdByNickInChannel(Database & db, Channel & ch, const std::string 
 			return (*it);
 	}
 	return (-1);
+}
+
+static std::string	toString(int num)
+{
+	std::ostringstream oss;
+	oss << num;
+	return (oss.str());
 }
