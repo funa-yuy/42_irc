@@ -6,6 +6,7 @@
 // ------------------------------------------------
 
 #include <iostream>
+#include <cctype>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -39,8 +40,7 @@ private:
 
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
-	bool	checkViewPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
-	bool	checkModifyPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
+	bool	checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
 	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params,
 								std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
 	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db,

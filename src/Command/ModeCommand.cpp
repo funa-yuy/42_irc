@@ -34,8 +34,8 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 		return (responses);
 	}
 
-	std::string	chName = input.args[0];
-	Channel *	ch = db.getChannel(chName);
+	const std::string & chName = input.args[0];
+	Channel * ch = db.getChannel(chName);
 	if (!ch)
 	{
 		responses.push_back(res);
@@ -46,7 +46,7 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 
 	if (input.args.size() == 1)
 	{
-		if (!checkViewPermissions(*ch, *sender_client, input.client_fd, res, chName))
+		if (!checkPermissions(*ch, *sender_client, input.client_fd, res, chName))
 		{
 			responses.push_back(res);
 			return (responses);
@@ -80,8 +80,8 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 		return (false);
 	}
 
-	std::string	chName = input.args[0];
-	Channel *	ch = db.getChannel(chName);
+	const std::string & chName = input.args[0];
+	Channel * ch = db.getChannel(chName);
 	if (!ch)
 	{
 		res.reply = ":ft.irc 403 " + client.getNickname() + " " + chName + " :No such channel\r\n";
@@ -93,7 +93,7 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 		return (true);
 
 	// 変更の権限チェック
-	if (!checkModifyPermissions(*ch, client, input.client_fd, res, chName))
+	if (!checkPermissions(*ch, client, input.client_fd, res, chName))
 		return (false);
 
 	// 構文解析と引数の数チェック
@@ -118,7 +118,7 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	return (true);
 }
 
-bool	ModeCommand::checkModifyPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
+bool	ModeCommand::checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
 {
 	if (!ch.isMember(fd))
 	{
@@ -153,14 +153,14 @@ bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::ve
 
 		if (sign == 0 || !isKnownMode(c))
 		{
-			res.reply = ":ft.irc 472 " + client.getNickname() + " " + std::string(1, c) + " :is unknown mode channel to me\r\n";
+			res.reply = ":ft.irc 472 " + client.getNickname() + " " + std::string(1, c) + " :is unknown mode char to me\r\n";
 			return (false);
 		}
 		if (needsParameter(c, sign))
 		{
 			if (paramIndex >= params.size())
 			{
-				res.reply = "ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+				res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 				return (false);
 			}
 			ops.push_back(ModeOp(sign, c, params[paramIndex++]));
@@ -202,7 +202,7 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 				int fd = findFdByNickInChannel(db, ch, op.param);
 				if (fd < 0)
 				{
-					res.reply = ":ft.irc 441 " + client.getNickname() + " " + op.param + " " + chName + " :Not on channel\r\n";
+					res.reply = ":ft.irc 441 " + client.getNickname() + " " + op.param + " " + chName + " :They aren't on that channel\r\n";
 					return (false);
 				}
 				break ;
@@ -213,27 +213,6 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 		}
 	}
 
-	return (true);
-}
-
-bool	ModeCommand::checkViewPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
-{
-	if (!ch.isMember(fd))
-	{
-		res.should_send = true;
-		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
-		res.target_fds.clear();
-		res.target_fds.push_back(fd);
-		return (false);
-	}
-	if (!ch.isOperator(fd))
-	{
-		res.should_send = true;
-		res.reply = ":ft.irc 482 " + client.getNickname() + " " + chName + " :You're not channel operator\r\n";
-		res.target_fds.clear();
-		res.target_fds.push_back(fd);
-		return (false);
-	}
 	return (true);
 }
 
