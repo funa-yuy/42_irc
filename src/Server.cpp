@@ -37,6 +37,7 @@ _last_ping(time(NULL)), _ping_interval(PING_INTERVAL), _timeout_ms(TIMEOUT_MS)
 		_cmd_map["PONG"] = &PongCommand::createPongCommand;
 		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 		_cmd_map["JOIN"] = &JoinCommand::createJoinCommand;
+		_cmd_map["TOPIC"] = &TopicCommand::createTopicCommand;
 	}
 }
 
