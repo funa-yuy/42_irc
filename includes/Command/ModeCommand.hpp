@@ -6,6 +6,10 @@
 // ------------------------------------------------
 
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include "Channel.hpp"
 #include "Command.hpp"
 
 // ------------------------------------------------
@@ -31,12 +35,12 @@ private:
 		char		mode;
 		std::string	param;
 		ModeOp(char s, char m, const std::string & p) : sign(s), mode(m), param(p) {}
-	}
+	};
 
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
-	bool	checkViewPermission(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
-	bool	checkModifyPermission(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
+	// bool	checkViewPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
+	bool	checkModifyPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
 	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params,
 								std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
 	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db,

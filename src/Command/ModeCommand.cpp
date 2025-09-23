@@ -129,24 +129,26 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	return (true);
 }
 
-bool	ModeCommand::checkModifyPermission(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
+bool	ModeCommand::checkModifyPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
 {
-	if (!ch->isMember(input.client_fd))
+	if (!ch.isMember(fd))
 	{
 		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
-		res.target_fds.push_back(input.client_fd);
+		res.target_fds.clear();
+		res.target_fds.push_back(fd);
 		return (false);
 	}
-	if (!ch->isOperator(input.client_fd))
+	if (!ch.isOperator(fd))
 	{
 		res.reply = ":ft.irc 482 " + client.getNickname() + " " + chName + " :You're not channel operator\r\n";
-		res.target_fds.push_back(input.client_fd);
+		res.target_fds.clear();
+		res.target_fds.push_back(fd);
 		return (false);
 	}
 	return (true);
 }
 
-bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::vecotr<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client)
+bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const
 {
 	char	sign = 0;
 	size_t	paramIndex = 0;
@@ -182,43 +184,43 @@ bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::ve
 	return (true);
 }
 
-bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & op, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const
+bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const
 {
 	for (size_t i = 0; i < ops.size(); ++i)
 	{
 		const ModeOp & op = ops[i];
 		switch (op.mode)
 		{
-		case 'l':
-			if (op.sign == '+')
-			{
-				if (!isDigits(op.param))
+			case 'l':
+				if (op.sign == '+')
+				{
+					if (!isDigits(op.param))
+					{
+						res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+						return (false);
+					}
+				}
+				break ;
+			case 'k':
+				if (op.param.empty())
 				{
 					res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 					return (false);
 				}
-			}
-			break ;
-		case 'k':
-			if (op.param.empty())
+				break ;
+			case 'o':
 			{
-				res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-				return (false);
+				int fd = findFdByNickInChannel(db, ch, op.param);
+				if (fd < 0)
+				{
+					res.reply = ":ft.irc 441 " + client.getNickname() + " " + op.param + " " + chName + " :Not on channel\r\n";
+					return (false);
+				}
+				break ;
 			}
-			break ;
-		case 'o':
-		{
-			int fd = findFdByNickInChannel(db, ch, op.param);
-			if (fd < 0)
-			{
-				res.reply = ":ft.irc 441 " + client.getNickname() + " " + op.param + " " + chName + " :Not on channel\r\n";
-				return (false);
-			}
-			break ;
-		}
-		
-		default:
-			break ;
+			
+			default:
+				break ;
 		}
 	}
 
