@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <cctype>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -45,6 +46,8 @@ private:
 								std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
 	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db,
 							const Client & client, const std::string & chName, t_response & res) const;
+	bool	applyOps(Channel & ch, Database & db, const std::vector<ModeOp> & ops,
+					std::string & outModes, std::vector<std::string> & outParams) const;
 
 	void	buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
 	bool	isKnownMode(char c) const;
