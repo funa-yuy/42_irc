@@ -222,7 +222,7 @@ void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes,
 	if (ch.getHasLimit())
 	{
 		modes.push_back('l');
-		params.push_back(toString(ch.getLimit()));
+		params.push_back(uIntToString(ch.getLimit()));
 	}
 }
 
