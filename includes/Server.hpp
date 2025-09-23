@@ -30,6 +30,7 @@
 #include "Command/PrivmsgCommand.hpp"
 #include "Command/JoinCommand.hpp"
 #include "Command/TopicCommand.hpp"
+#include "Command/ModeCommand.hpp"
 
 
 #include "PrintLog.hpp"

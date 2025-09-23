@@ -110,6 +110,12 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	std::vector<ModeOp> ops;
 	if (!parseModesAndParams(modeStr, params, ops, res, client))
 		return (false);
+	if (ops.empty())
+	{
+		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+		res.target_fds.push_back(input.client_fd);
+		return (false);
+	}
 
 	// 意味検証
 	if (!validateSemantic(ops, *ch, db, client, chName, res))
