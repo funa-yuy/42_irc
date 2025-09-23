@@ -103,6 +103,34 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	if (input.args.size() == 1)
 		return (true);
 
+	// 変更の権限チェック
+	if (!checkModifyPermissions(*ch, client, input.client_fd, res, chName))
+		return (false);
+
+	// 構文解析と引数の数チェック
+	const std::string &	modeStr = input.args[1];
+	if (modeStr.empty())
+	{
+		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+		res.target_fds.push_back(input.client_fd);
+		return (false);
+	}
+	std::vector<std::string> params;
+	if (input.args.size() > 2)
+		params.assign(input.args.begin() + 2, input.args.end());
+	std::vector<ModeOp> ops;
+	if (!parseModesAndParams(modeStr, params, ops, res, client))
+		return (false);
+
+	// 意味検証
+	if (!validateSemantic(ops, *ch, db, client, chName, res))
+		return (false);
+
+	return (true);
+}
+
+bool	ModeCommand::checkModifyPermission(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
+{
 	if (!ch->isMember(input.client_fd))
 	{
 		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
@@ -115,51 +143,14 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 		res.target_fds.push_back(input.client_fd);
 		return (false);
 	}
+	return (true);
+}
 
-	const std::string &	modeStr = input.args[1];
-	if (modeStr.empty())
-	{
-		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
-		return (false);
-	}
-
+bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::vecotr<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client)
+{
 	char	sign = 0;
-	size_t	needsParams = 0;
+	size_t	paramIndex = 0;
 
-	for (size_t i = 0; i < modeStr.size(); ++i)
-	{
-		char	c = modeStr[i];
-		if (c == '+' || c == '-')
-		{
-			sign = c;
-			continue ; 
-		}
-
-		if (sign == 0 || !isKnownMode(c))
-		{
-			res.reply = ":ft.irc 472 " + client.getNickname() + " " + std::string(1, c) + " :is unknown mode char to me\r\n";
-			res.target_fds.push_back(input.client_fd);
-			return (false);
-		}
-
-		if (needsParameter(c, sign))
-			++needsParams;
-	}
-
-	size_t	givenParams = 0;
-	if (input.args.size() > 2)
-		givenParams = input.args.size() - 2;
-
-	if (givenParams < needsParams)
-	{
-		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
-		return (false);
-	}
-
-	sign = 0;
-	size_t	paramIndex = 2;
 	for (size_t i = 0; i < modeStr.size(); ++i)
 	{
 		char c = modeStr[i];
@@ -169,36 +160,65 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 			continue ;
 		}
 
-		if (c == 'l' && sign == '+')
+		if (sign == 0 || !isKnownMode(c))
 		{
-			const std::string & limStr = input.args[paramIndex++];
-			if (!isDigits(limStr))
+			res.reply = ":ft.irc 472 " + client.getNickname() + " " + std::string(1, c) + " :is unknown mode channel to me\r\n";
+			return (false);
+		}
+		if (needsParameter(c, sign))
+		{
+			if (paramIndex >= params.size())
 			{
-				res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-				res.target_fds.push_back(input.client_fd);
+				res.reply = "ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 				return (false);
 			}
+			ops.push_back(ModeOp(sign, c, params[paramIndex++]));
 		}
-		else if (c == 'k')
+		else
 		{
-			const std::string & key = input.args[paramIndex++];
-			if (key.empty())
+			ops.push_back(ModeOp(sign, c, ""));
+		}
+	}
+	return (true);
+}
+
+bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & op, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const
+{
+	for (size_t i = 0; i < ops.size(); ++i)
+	{
+		const ModeOp & op = ops[i];
+		switch (op.mode)
+		{
+		case 'l':
+			if (op.sign == '+')
+			{
+				if (!isDigits(op.param))
+				{
+					res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+					return (false);
+				}
+			}
+			break ;
+		case 'k':
+			if (op.param.empty())
 			{
 				res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-				res.target_fds.push_back(input.client_fd);
 				return (false);
 			}
-		}
-		else if (c == 'o')
+			break ;
+		case 'o':
 		{
-			const std::string & nick = input.args[paramIndex++];
-			int fd = findFdByNickInChannel(db, *ch, nick);
+			int fd = findFdByNickInChannel(db, ch, op.param);
 			if (fd < 0)
 			{
-				res.reply = ":ft.irc 441 " + client.getNickname() + " " + nick + " " + chName + " :They aren't on that channel\r\n";
-				res.target_fds.push_back(input.client_fd);
+				res.reply = ":ft.irc 441 " + client.getNickname() + " " + op.param + " " + chName + " :Not on channel\r\n";
 				return (false);
 			}
+			break ;
+		}
+		
+		default:
+			break ;
 		}
 	}
 
