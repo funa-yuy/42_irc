@@ -30,6 +30,8 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 
 	if (!isValidCmd(input, res, *sender_client, db))
 	{
+		res.should_send = true;
+		res.target_fds.push_back(input.client_fd);
 		responses.push_back(res);
 		return (responses);
 	}
@@ -48,6 +50,8 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 	{
 		if (!checkPermissions(*ch, *sender_client, input.client_fd, res, chName))
 		{
+			res.should_send = true;
+			res.target_fds.push_back(input.client_fd);
 			responses.push_back(res);
 			return (responses);
 		}
@@ -83,7 +87,9 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 	std::vector<std::string> appliedParams;
 	if (!applyOps(*ch, db, ops, appliedModes, appliedParams))
 	{
-		res.should_send = false;
+		res.should_send = true;
+		res.target_fds.push_back(input.client_fd);
+		responses.push_back(res);
 		return (responses);
 	}
 
@@ -107,7 +113,6 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	if (input.args.empty())
 	{
 		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
 		return (false);
 	}
 
@@ -116,7 +121,6 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	if (!ch)
 	{
 		res.reply = ":ft.irc 403 " + client.getNickname() + " " + chName + " :No such channel\r\n";
-		res.target_fds.push_back(input.client_fd);
 		return (false);
 	}
 
@@ -132,7 +136,6 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	if (modeStr.empty())
 	{
 		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
 		return (false);
 	}
 	std::vector<std::string> params;
@@ -144,7 +147,6 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 	if (ops.empty())
 	{
 		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
 		return (false);
 	}
 
@@ -160,15 +162,11 @@ bool	ModeCommand::checkPermissions(Channel & ch, const Client & client, int fd, 
 	if (!ch.isMember(fd))
 	{
 		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
-		res.target_fds.clear();
-		res.target_fds.push_back(fd);
 		return (false);
 	}
 	if (!ch.isOperator(fd))
 	{
 		res.reply = ":ft.irc 482 " + client.getNickname() + " " + chName + " :You're not channel operator\r\n";
-		res.target_fds.clear();
-		res.target_fds.push_back(fd);
 		return (false);
 	}
 	return (true);
@@ -220,7 +218,7 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 			case 'l':
 				if (op.sign == '+')
 				{
-					if (!isDigits(op.param))
+					if (!isDigits(op.param) || op.param == "0")
 					{
 						res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 						return (false);
