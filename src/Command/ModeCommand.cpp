@@ -73,6 +73,8 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 	std::vector<ModeOp> ops;
 	if (!parseModesAndParams(input.args[1], params, ops, res, *sender_client))
 	{
+		res.should_send = true;
+		res.target_fds.push_back(input.client_fd);
 		responses.push_back(res);
 		return (responses);
 	}
