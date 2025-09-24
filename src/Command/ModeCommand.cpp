@@ -85,7 +85,8 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 		return (responses);
 	}
 
-	res.reply = ":" + sender_client->getNickname() + " MODE " + chName + " " + appliedModes;
+	res.should_send = true;
+	res.reply = ":" + sender_client->getNickname() + "!" + sender_client->getUsername() + "@ft.irc" + " MODE " + chName + " " + appliedModes;
 	for (size_t i = 0; i < appliedParams.size(); ++i)
 		res.reply += " " + appliedParams[i];
 	res.reply += "\r\n";
@@ -376,13 +377,13 @@ bool	ModeCommand::applyOps(Channel & ch, Database & db, const std::vector<ModeOp
 						ch.setLimit(lim);
 						changed = true;
 					}
-					else
+				}
+				else
+				{
+					if (ch.getHasLimit())
 					{
-						if (ch.getHasLimit())
-						{
-							ch.clearLimit();
-							changed = true;
-						}
+						ch.clearLimit();
+						changed = true;
 					}
 				}
 				break ;
@@ -398,13 +399,13 @@ bool	ModeCommand::applyOps(Channel & ch, Database & db, const std::vector<ModeOp
 							ch.setChannelOperatorFds(targetFd);
 							changed = true;
 						}
-						else
+					}
+					else
+					{
+						if (ch.isOperator(targetFd))
 						{
-							if (ch.isOperator(targetFd))
-							{
-								ch.removeChannelOperatorFd(targetFd);
-								changed = true;
-							}
+							ch.removeChannelOperatorFd(targetFd);
+							changed = true;
 						}
 					}
 				}
