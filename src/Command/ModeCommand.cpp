@@ -21,7 +21,7 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 	res.reply.clear();
 	res.target_fds.clear();
 
-	Client *	sender_client = db.getClient(input.client_fd);
+	Client * sender_client = db.getClient(input.client_fd);
 	if (!sender_client)
 	{
 		responses.push_back(res);
@@ -86,13 +86,13 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 std::vector<t_response>	ModeCommand::handleModeView(Client & sender, Channel & ch) const
 {
     std::vector<t_response> responses;
-    t_response res;
+    t_response 				res;
 
     res.is_success = true;
     res.should_send = false;
     res.should_disconnect = false;
 
-    const std::string& chName = ch.getName();
+    const std::string & chName = ch.getName();
 
 	if (!ch.isMember(sender.getFd()))
 	{
@@ -103,8 +103,8 @@ std::vector<t_response>	ModeCommand::handleModeView(Client & sender, Channel & c
 		return (responses);
 	}
 
-	std::string	modes;
-	std::vector<std::string> params;
+	std::string					modes;
+	std::vector<std::string>	params;
 	buildChannelModeReply(ch, modes, params);
 
 	res.should_send = true;
@@ -140,8 +140,8 @@ void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes,
 
 std::vector<t_response>	ModeCommand::handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const
 {
-    std::vector<t_response> responses;
-    t_response res;
+    std::vector<t_response>	responses;
+    t_response				res;
     res.is_success = true;
     res.should_send = false;
     res.should_disconnect = false;

@@ -42,15 +42,15 @@ private:
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
 	std::vector<t_response>	handleModeView(Client & sender, Channel & ch) const;
-	void					buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
+	void	buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
 
 	std::vector<t_response>	handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const;
-	bool					parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
-	bool					validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const;
-	bool					checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
+	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
+	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const;
+	bool	checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
 
-	bool					isKnownMode(char c) const;
-	bool					needsParameter(char c, char sign) const;
+	bool	isKnownMode(char c) const;
+	bool	needsParameter(char c, char sign) const;
 
 	bool	applyModes(Channel & ch, Database & db, const std::vector<ModeOp> & ops, std::string & outModes, std::vector<std::string> & outParams) const;
 
@@ -67,6 +67,5 @@ private:
 // ------------------------------------------------
 // function
 // ------------------------------------------------
-
 
 #endif
