@@ -42,12 +42,17 @@ private:
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
 	bool	checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
-	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params,
-								std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
-	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db,
-							const Client & client, const std::string & chName, t_response & res) const;
-	bool	applyOps(Channel & ch, Database & db, const std::vector<ModeOp> & ops,
-					std::string & outModes, std::vector<std::string> & outParams) const;
+	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
+	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const;
+	bool	applyOps(Channel & ch, Database & db, const std::vector<ModeOp> & ops, std::string & outModes, std::vector<std::string> & outParams) const;
+
+	bool	applyModeInviteOnly(Channel & ch, const ModeOp & op) const;
+	bool	applyModeTopicRestricted(Channel & ch, const ModeOp & op) const;
+	bool	applyModeKey(Channel & ch, const ModeOp & op) const;
+	bool	applyModeLimit(Channel & ch, const ModeOp & op) const;
+	bool	applyModeOperator(Channel & ch, Database & db, const ModeOp & op) const;
+
+	void	recordChange(const ModeOp & op, std::string & outMode, std::vector<std::string> & outParams, char & currentSign) const;
 
 	void	buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
 	bool	isKnownMode(char c) const;

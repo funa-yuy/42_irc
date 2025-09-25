@@ -85,6 +85,7 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 	}
 	if (ops.empty())
 	{
+		res.should_send = true;
 		res.reply = ":ft.irc 461 " + sender_client->getNickname() + " MODE :Not enough parameters\r\n";
 		res.target_fds.push_back(input.client_fd);
 		responses.push_back(res);
@@ -322,103 +323,20 @@ bool	ModeCommand::applyOps(Channel & ch, Database & db, const std::vector<ModeOp
 		switch (op.mode)
 		{
 			case 'i':
-				if (op.sign == '+')
-				{
-					if (!ch.getInviteOnly())
-					{
-						ch.setInviteOnly(true);
-						changed = true;
-					}
-				}
-				else
-				{
-					if (ch.getInviteOnly())
-					{
-						ch.setInviteOnly(false);
-						changed = true;
-					}
-				}
+				changed = applyModeInviteOnly(ch, op);
 				break ;
 			case 't':
-				if (op.sign == '+')
-				{
-					if (!ch.getTopicRestricted())
-					{
-						ch.setTopicRestricted(true);
-						changed = true;
-					}
-				}
-				else
-				{
-					if (ch.getTopicRestricted())
-					{
-						ch.setTopicRestricted(false);
-						changed = true;
-					}
-				}
+				changed = applyModeTopicRestricted(ch, op);
 				break ;
 			case 'k':
-				if (op.sign == '+')
-				{
-					if (!ch.getHasKey() || ch.getKey() != op.param)
-					{
-						ch.setKey(op.param);
-						changed = true;
-					}
-				}
-				else
-				{
-					if(ch.getHasKey())
-					{
-						ch.clearKey();
-						changed = true;
-					}
-				}
+				changed = applyModeKey(ch, op);
 				break ;
 			case 'l':
-				if (op.sign == '+')
-				{
-					unsigned int	lim = static_cast<unsigned int>(std::atoi(op.param.c_str()));
-					if (!ch.getHasLimit() || ch.getLimit() != lim)
-					{
-						ch.setLimit(lim);
-						changed = true;
-					}
-				}
-				else
-				{
-					if (ch.getHasLimit())
-					{
-						ch.clearLimit();
-						changed = true;
-					}
-				}
+				changed = applyModeLimit(ch, op);
 				break ;
 			case 'o':
-			{
-				int	targetFd = findFdByNickInChannel(db, ch, op.param);
-				if (targetFd >= 0)
-				{
-					if (op.sign == '+')
-					{
-						if (!ch.isOperator(targetFd))
-						{
-							ch.setChannelOperatorFds(targetFd);
-							changed = true;
-						}
-					}
-					else
-					{
-						if (ch.isOperator(targetFd))
-						{
-							ch.removeChannelOperatorFd(targetFd);
-							changed = true;
-						}
-					}
-				}
+				changed = applyModeOperator(ch, db, op);
 				break ;
-			}
-
 			default:
 				break ;
 		}
@@ -427,19 +345,135 @@ bool	ModeCommand::applyOps(Channel & ch, Database & db, const std::vector<ModeOp
 			continue ;
 
 		anyChanged = true;
-
-		if (currentSign != op.sign)
-		{
-			currentSign = op.sign;
-			outModes.push_back(currentSign);
-		}
-		outModes.push_back(op.mode);
-
-		if ((op.mode == 'k' && op.sign == '+') || op.mode == 'o' || (op.mode == 'l' && op.sign == '+'))
-			outParams.push_back(op.param);
+		recordChange(op, outModes, outParams, currentSign);
 	}
 
 	return (anyChanged);
+}
+
+bool	ModeCommand::applyModeInviteOnly(Channel & ch, const ModeOp & op) const
+{
+	if (op.sign == '+')
+	{
+		if (!ch.getInviteOnly())
+		{
+			ch.setInviteOnly(true);
+			return (true);
+		}
+	}
+	else
+	{
+		if (ch.getInviteOnly())
+		{
+			ch.setInviteOnly(false);
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool	ModeCommand::applyModeTopicRestricted(Channel & ch, const ModeOp & op) const
+{
+	if (op.sign == '+')
+	{
+		if (!ch.getTopicRestricted())
+		{
+			ch.setTopicRestricted(true);
+			return (true);
+		}
+	}
+	else
+	{
+		if (ch.getTopicRestricted())
+		{
+			ch.setTopicRestricted(false);
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool	ModeCommand::applyModeKey(Channel & ch, const ModeOp & op) const
+{
+	if (op.sign == '+')
+	{
+		if (!ch.getHasKey() || ch.getKey() != op.param)
+		{
+			ch.setKey(op.param);
+			return (true);
+		}
+	}
+	else
+	{
+		if(ch.getHasKey())
+		{
+			ch.clearKey();
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool	ModeCommand::applyModeLimit(Channel & ch, const ModeOp & op) const
+{
+	if (op.sign == '+')
+	{
+		unsigned int	lim = static_cast<unsigned int>(std::atoi(op.param.c_str()));
+		if (!ch.getHasLimit() || ch.getLimit() != lim)
+		{
+			ch.setLimit(lim);
+			return (true);
+		}
+	}
+	else
+	{
+		if (ch.getHasLimit())
+		{
+			ch.clearLimit();
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool	ModeCommand::applyModeOperator(Channel & ch, Database & db, const ModeOp & op) const
+{
+	int	targetFd = findFdByNickInChannel(db, ch, op.param);
+	if (targetFd >= 0)
+	{
+		if (op.sign == '+')
+		{
+			if (!ch.isOperator(targetFd))
+			{
+				ch.setChannelOperatorFds(targetFd);
+				return (true);
+			}
+		}
+		else
+		{
+			if (ch.isOperator(targetFd))
+			{
+				ch.removeChannelOperatorFd(targetFd);
+				return (true);
+			}
+		}
+	}
+	return (false);
+}
+
+void	ModeCommand::recordChange(const ModeOp & op, std::string & outModes, std::vector<std::string> & outParams, char & currentSign) const
+{
+	if (currentSign != op.sign)
+	{
+		currentSign = op.sign;
+		outModes.push_back(currentSign);
+	}
+	outModes.push_back(op.mode);
+
+	if ((op.mode == 'k' && op.sign == '+') || op.mode == 'o' || (op.mode == 'l' && op.sign == '+'))
+		outParams.push_back(op.param);
+
+	return ;
 }
 
 static bool	isDigits(const std::string & s)
