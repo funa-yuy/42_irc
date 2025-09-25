@@ -47,82 +47,9 @@ std::vector<t_response>	ModeCommand::execute(const t_parsed & input, Database & 
 	res.is_success = true;
 
 	if (input.args.size() == 1)
-	{
-		if (!ch->isMember(input.client_fd))
-		{
-			res.should_send = true;
-			res.reply = ":ft.irc 442 " + sender_client->getNickname() + " " + chName + " :You're not on that channel\r\n";
-			res.target_fds.push_back(input.client_fd);
-			responses.push_back(res);
-			return (responses);
-		}
-
-		std::string	modes;
-		std::vector<std::string> params;
-		buildChannelModeReply(*ch, modes, params);
-
-		res.should_send = true;
-		res.reply = ":ft.irc 324 " + sender_client->getNickname() + " " + chName + " " + modes;
-		for (size_t i = 0; i < params.size(); ++i)
-			res.reply += " " + params[i];
-		res.reply += "\r\n";
-		res.target_fds.push_back(input.client_fd);
-		responses.push_back(res);
-		return (responses);
-	}
-
-	std::vector<std::string> params;
-	if (input.args.size() > 2)
-		params.assign(input.args.begin() + 2, input.args.end());
-
-	std::vector<ModeOp> ops;
-	if (!parseModesAndParams(input.args[1], params, ops, res, *sender_client))
-	{
-		res.should_send = true;
-		res.target_fds.push_back(input.client_fd);
-		responses.push_back(res);
-		return (responses);
-	}
-	if (ops.empty())
-	{
-		res.should_send = true;
-		res.reply = ":ft.irc 461 " + sender_client->getNickname() + " MODE :Not enough parameters\r\n";
-		res.target_fds.push_back(input.client_fd);
-		responses.push_back(res);
-		return (responses);
-	}
-	if (!validateSemantic(ops, *ch, db, *sender_client, chName, res))
-	{
-		res.should_send = true;
-		res.target_fds.push_back(input.client_fd);
-		responses.push_back(res);
-		return (responses);
-	}
-
-	if (!checkPermissions(*ch, *sender_client, input.client_fd, res, chName))
-	{
-		res.should_send = true;
-		res.target_fds.push_back(input.client_fd);
-		responses.push_back(res);
-		return (responses);
-	}
-
-	std::string appliedModes;
-	std::vector<std::string> appliedParams;
-	if (!applyOps(*ch, db, ops, appliedModes, appliedParams))
-		return (responses);
-
-	res.should_send = true;
-	res.reply = ":" + sender_client->getNickname() + "!" + sender_client->getUsername() + "@ft.irc" + " MODE " + chName + " " + appliedModes;
-	for (size_t i = 0; i < appliedParams.size(); ++i)
-		res.reply += " " + appliedParams[i];
-	res.reply += "\r\n";
-	const std::set<int> & fds = ch->getClientFds();
-	for (std::set<int>::const_iterator it = fds.begin(); it != fds.end(); ++it)
-		res.target_fds.push_back(*it);
-	responses.push_back(res);
-
-	return (responses);
+		return (handleModeView(*sender_client, *ch));
+	else
+		return (handleModeChange(input, db, *sender_client, *ch));
 }
 
 bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const
@@ -145,31 +72,135 @@ bool	ModeCommand::isValidCmd(const t_parsed & input, t_response & res, Client & 
 
 	if (input.args.size() == 1)
 		return (true);
-		
-	// 構文解析と引数の数チェック
+
 	const std::string &	modeStr = input.args[1];
 	if (modeStr.empty())
 	{
 		res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 		return (false);
 	}
-		
+
 	return (true);
 }
 
-bool	ModeCommand::checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
+std::vector<t_response>	ModeCommand::handleModeView(Client & sender, Channel & ch) const
 {
-	if (!ch.isMember(fd))
+    std::vector<t_response> responses;
+    t_response res;
+
+    res.is_success = true;
+    res.should_send = false;
+    res.should_disconnect = false;
+
+    const std::string& chName = ch.getName();
+
+	if (!ch.isMember(sender.getFd()))
 	{
-		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
-		return (false);
+		res.should_send = true;
+		res.reply = ":ft.irc 442 " + sender.getNickname() + " " + chName + " :You're not on that channel\r\n";
+		res.target_fds.push_back(sender.getFd());
+		responses.push_back(res);
+		return (responses);
 	}
-	if (!ch.isOperator(fd))
+
+	std::string	modes;
+	std::vector<std::string> params;
+	buildChannelModeReply(ch, modes, params);
+
+	res.should_send = true;
+	res.reply = ":ft.irc 324 " + sender.getNickname() + " " + chName + " " + modes;
+	for (size_t i = 0; i < params.size(); ++i)
+		res.reply += " " + params[i];
+	res.reply += "\r\n";
+	res.target_fds.push_back(sender.getFd());
+	responses.push_back(res);
+	return (responses);
+}
+
+void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const
+{
+	modes.clear();
+	params.clear();
+	modes.push_back('+');
+	if (ch.getInviteOnly())
+		modes.push_back('i');
+	if (ch.getTopicRestricted())
+		modes.push_back('t');
+	if (ch.getHasKey())
 	{
-		res.reply = ":ft.irc 482 " + client.getNickname() + " " + chName + " :You're not channel operator\r\n";
-		return (false);
+		modes.push_back('k');
+		params.push_back(ch.getKey());
 	}
-	return (true);
+	if (ch.getHasLimit())
+	{
+		modes.push_back('l');
+		params.push_back(uIntToString(ch.getLimit()));
+	}
+}
+
+std::vector<t_response>	ModeCommand::handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const
+{
+    std::vector<t_response> responses;
+    t_response res;
+    res.is_success = true;
+    res.should_send = false;
+    res.should_disconnect = false;
+
+    const std::string& chName = ch.getName();
+
+	std::vector<std::string> params;
+	if (input.args.size() > 2)
+		params.assign(input.args.begin() + 2, input.args.end());
+
+	std::vector<ModeOp> ops;
+	if (!parseModesAndParams(input.args[1], params, ops, res, sender))
+	{
+		res.should_send = true;
+		res.target_fds.push_back(sender.getFd());
+		responses.push_back(res);
+		return (responses);
+	}
+	if (ops.empty())
+	{
+		res.should_send = true;
+		res.reply = ":ft.irc 461 " + sender.getNickname() + " MODE :Not enough parameters\r\n";
+		res.target_fds.push_back(sender.getFd());
+		responses.push_back(res);
+		return (responses);
+	}
+	if (!validateSemantic(ops, ch, db, sender, chName, res))
+	{
+		res.should_send = true;
+		res.target_fds.push_back(sender.getFd());
+		responses.push_back(res);
+		return (responses);
+	}
+
+	if (!checkPermissions(ch, sender, input.client_fd, res, chName))
+	{
+		res.should_send = true;
+		res.target_fds.push_back(sender.getFd());
+		responses.push_back(res);
+		return (responses);
+	}
+
+	std::string appliedModes;
+	std::vector<std::string> appliedParams;
+	if (!applyModes(ch, db, ops, appliedModes, appliedParams))
+		return (responses);
+
+	res.should_send = true;
+	res.reply = ":" + sender.getNickname() + "!" + sender.getUsername() + "@ft.irc" + " MODE " + chName + " " + appliedModes;
+	for (size_t i = 0; i < appliedParams.size(); ++i)
+		res.reply += " " + appliedParams[i];
+	res.reply += "\r\n";
+	const std::set<int> & fds = ch.getClientFds();
+	for (std::set<int>::const_iterator it = fds.begin(); it != fds.end(); ++it)
+		res.target_fds.push_back(*it);
+
+	responses.push_back(res);
+
+	return (responses);
 }
 
 bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const
@@ -206,6 +237,32 @@ bool	ModeCommand::parseModesAndParams(const std::string & modeStr, const std::ve
 		}
 	}
 	return (true);
+}
+
+bool	ModeCommand::isKnownMode(char c) const
+{
+	switch (c)
+	{
+		case 'i':
+		case 't':
+		case 'k':
+		case 'o':
+		case 'l':
+			return (true);
+		default:
+			return (false);
+	}
+}
+
+bool	ModeCommand::needsParameter(char c, char sign) const
+{
+	if (c == 'o')
+		return (true);
+	else if (c == 'k')
+		return (sign == '+');
+	else if (c == 'l')
+		return (sign == '+');
+	return (false);
 }
 
 bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const
@@ -259,55 +316,22 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 	return (true);
 }
 
-void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const
+bool	ModeCommand::checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const
 {
-	modes.clear();
-	params.clear();
-	modes.push_back('+');
-	if (ch.getInviteOnly())
-		modes.push_back('i');
-	if (ch.getTopicRestricted())
-		modes.push_back('t');
-	if (ch.getHasKey())
+	if (!ch.isMember(fd))
 	{
-		modes.push_back('k');
-		params.push_back(ch.getKey());
+		res.reply = ":ft.irc 442 " + client.getNickname() + " " + chName + " :You're not on that channel\r\n";
+		return (false);
 	}
-	if (ch.getHasLimit())
+	if (!ch.isOperator(fd))
 	{
-		modes.push_back('l');
-		params.push_back(uIntToString(ch.getLimit()));
+		res.reply = ":ft.irc 482 " + client.getNickname() + " " + chName + " :You're not channel operator\r\n";
+		return (false);
 	}
+	return (true);
 }
 
-bool	ModeCommand::isKnownMode(char c) const
-{
-	switch (c)
-	{
-		case 'i':
-		case 't':
-		case 'k':
-		case 'o':
-		case 'l':
-			return (true);
-		default:
-			return (false);
-	}
-}
-
-bool	ModeCommand::needsParameter(char c, char sign) const
-{
-	if (c == 'o')
-		return (true);
-	else if (c == 'k')
-		return (sign == '+');
-	else if (c == 'l')
-		return (sign == '+');
-	return (false);
-}
-
-bool	ModeCommand::applyOps(Channel & ch, Database & db, const std::vector<ModeOp> & ops,
-							std::string & outModes, std::vector<std::string> & outParams) const
+bool	ModeCommand::applyModes(Channel & ch, Database & db, const std::vector<ModeOp> & ops, std::string & outModes, std::vector<std::string> & outParams) const
 {
 	outModes.clear();
 	outParams.clear();
