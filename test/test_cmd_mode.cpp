@@ -87,7 +87,6 @@ static void test_view_err_not_member() {
     assert(res[0].should_send == true);
     assert(res[0].reply.find(" 442 user21 #view ") != std::string::npos);
 }
-
 static void test_view_err_not_operator() {
     Database db("password");
     ModeCommand mode;
@@ -109,9 +108,11 @@ static void test_view_err_not_operator() {
     args.push_back("#view2");
     std::vector<t_response> res = mode.execute(makeInput("MODE", mem_fd, args), db);
 
+    // 閲覧はメンバーなら許可され、324 が返る
     assert(res.size() == 1);
+    assert(res[0].is_success == true);
     assert(res[0].should_send == true);
-    assert(res[0].reply.find(" 482 mem31 #view2 ") != std::string::npos);
+    assert(res[0].reply.find(" 324 mem31 #view2 ") != std::string::npos);
 }
 
 static void test_err_no_args_461() {
@@ -246,14 +247,30 @@ static void test_modify_err_params_461_and_441() {
         assert(res[0].reply.find(" 461 op70 MODE ") != std::string::npos);
     }
 
-    // -k もキー必須 → 461
+    // -k はパラメータ不要に変更
+    // 1) キーが設定されている場合は解除され、MODE -k が通知される（パラメータ無し）
+    {
+        Channel* ch_ptr = db.getChannel(std::string("#roomy"));
+        ch_ptr->setKey("secret");
+
+        std::vector<std::string> args;
+        args.push_back("#roomy");
+        args.push_back("-k");
+        std::vector<t_response> res = mode.execute(makeInput("MODE", op_fd, args), db);
+
+        assert(res.size() == 1);
+        assert(res[0].should_send == true);
+        // 送信行に「 MODE #roomy -k」が含まれる（キーは付かない）
+        assert(res[0].reply.find(" MODE #roomy -k") != std::string::npos);
+    }
+
+    // 2) すでにキー未設定なら no-op（通知なし）
     {
         std::vector<std::string> args;
         args.push_back("#roomy");
         args.push_back("-k");
         std::vector<t_response> res = mode.execute(makeInput("MODE", op_fd, args), db);
-        assert(res.size() == 1);
-        assert(res[0].reply.find(" 461 op70 MODE ") != std::string::npos);
+        assert(res.size() == 0);
     }
 
     // +o 対象がチャンネル外 → 441
