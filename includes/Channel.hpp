@@ -29,6 +29,8 @@ class Channel {
 		void	addClientFd(int fd);
 		void	removeClientFd(int fd);
 
+		void	removeChannelOperatorFd(int fd);
+
 		bool	isMember(int fd);
 		bool	isOperator(int fd);
 

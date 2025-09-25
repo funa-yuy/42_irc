@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
+#    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/22 14:56:52 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/23 18:21:23 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,6 +45,7 @@ SRC					:= \
 					Command/PingCommand.cpp \
 					Command/PongCommand.cpp \
 					Command/TopicCommand.cpp \
+					Command/ModeCommand.cpp \
 					Utils.cpp \
 					PrintLog.cpp \
 
@@ -66,6 +67,7 @@ HEADERS				:= \
 					Command/PingCommand.hpp \
 					Command/PongCommand.hpp \
 					Command/TopicCommand.hpp \
+					Command/ModeCommand.hpp \
 					Utils.hpp \
 					PrintLog.hpp \
 
