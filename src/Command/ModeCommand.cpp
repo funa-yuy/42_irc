@@ -114,6 +114,16 @@ std::vector<t_response>	ModeCommand::handleModeView(Client & sender, Channel & c
 	res.reply += "\r\n";
 	res.target_fds.push_back(sender.getFd());
 	responses.push_back(res);
+
+	t_response	res2;
+	res2.is_success = true;
+	res2.should_send = true;
+	res2.should_disconnect = false;
+	std::string creationTime = toString(ch.getCreationTime());
+	res2.reply = "ft.irc 329 " + sender.getNickname() + " " + chName + " " + creationTime + "\r\n";
+	res2.target_fds.push_back(sender.getFd());
+	responses.push_back(res2);
+
 	return (responses);
 }
 
