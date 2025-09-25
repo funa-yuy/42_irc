@@ -360,7 +360,7 @@ bool	ModeCommand::isValidKey(const std::string & key) const
 	for (size_t i = 0; i < key.size(); ++i)
 	{
 		char c = static_cast<char>(key[i]);
-		if (c <= 32 || c == 127 || key[i] == ',')
+		if (c <= 32 || c == 127 || c == ',')
 			return (false);
 	}
 	return (true);
