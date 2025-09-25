@@ -322,6 +322,11 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 						res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 						return (false);
 					}
+					if (!isValidKey(op.param))
+					{
+						res.reply = ":ft.irc 696 " + client.getNickname() + " " + chName + " k " + op.param + " :Invalid mode parameter\r\n";
+						return (false);
+					}
 					if (ch.getHasKey())
 					{
 						res.reply = ":ft.irc 467 " + client.getNickname() + " " + chName + " :Channel key already set\r\n";
@@ -345,6 +350,19 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 		}
 	}
 
+	return (true);
+}
+
+bool	ModeCommand::isValidKey(const std::string & key) const
+{
+	if (key.empty() || key.size() > 32)
+		return (false);
+	for (size_t i = 0; i < key.size(); ++i)
+	{
+		char c = static_cast<char>(key[i]);
+		if (c <= 32 || c == 127 || key[i] == ',')
+			return (false);
+	}
 	return (true);
 }
 
