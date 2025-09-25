@@ -429,7 +429,7 @@ bool	ModeCommand::applyModeKey(Channel & ch, const ModeOp & op) const
 	}
 	else
 	{
-		if(ch.getHasKey())
+		if (ch.getHasKey())
 		{
 			ch.clearKey();
 			return (true);
