@@ -103,28 +103,33 @@ std::vector<t_response>	ModeCommand::handleModeView(Client & sender, Channel & c
 		return (responses);
 	}
 
+	responses.push_back(makeRplChannelModeIs(sender, ch));
+	responses.push_back(makeRplCreationTime(sender, ch));
+
+	return (responses);
+}
+
+t_response	ModeCommand::makeRplChannelModeIs(const Client & sender, const Channel & ch) const
+{
+	t_response	res;
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+
 	std::string					modes;
 	std::vector<std::string>	params;
 	buildChannelModeReply(ch, modes, params);
 
-	res.should_send = true;
-	res.reply = ":ft.irc 324 " + sender.getNickname() + " " + chName + " " + modes;
+	res.reply = ":ft.irc 324 " + sender.getNickname() + " " + ch.getName() + " " + modes;
 	for (size_t i = 0; i < params.size(); ++i)
 		res.reply += " " + params[i];
 	res.reply += "\r\n";
+
+	res.target_fds.resize(1);
 	res.target_fds.push_back(sender.getFd());
-	responses.push_back(res);
 
-	t_response	res2;
-	res2.is_success = true;
-	res2.should_send = true;
-	res2.should_disconnect = false;
-	std::string creationTime = toString(ch.getCreationTime());
-	res2.reply = "ft.irc 329 " + sender.getNickname() + " " + chName + " " + creationTime + "\r\n";
-	res2.target_fds.push_back(sender.getFd());
-	responses.push_back(res2);
-
-	return (responses);
+	return (res);
 }
 
 void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const
@@ -146,6 +151,23 @@ void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes,
 		modes.push_back('l');
 		params.push_back(uIntToString(ch.getLimit()));
 	}
+}
+
+t_response	ModeCommand::makeRplCreationTime(const Client & sender, const Channel & ch) const
+{
+	t_response	res;
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+
+	std::string	creationTime = toString(ch.getCreationTime());
+	res.reply = ":ft.irc 329 " + sender.getNickname() + " " + ch.getName() + " " + creationTime + "\r\n";
+
+	res.target_fds.resize(1);
+	res.target_fds.push_back(sender.getFd());
+
+	return (res);
 }
 
 std::vector<t_response>	ModeCommand::handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const

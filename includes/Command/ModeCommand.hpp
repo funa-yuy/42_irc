@@ -43,7 +43,9 @@ private:
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
 	std::vector<t_response>	handleModeView(Client & sender, Channel & ch) const;
-	void	buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
+	t_response	makeRplChannelModeIs(const Client & sender, const Channel & ch) const;
+	void		buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
+	t_response	makeRplCreationTime(const Client & sender, const Channel & ch) const;
 
 	std::vector<t_response>	handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const;
 	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
