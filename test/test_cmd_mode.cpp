@@ -27,16 +27,20 @@ static void test_view_success_minimal() {
     Channel ch("#room", op_fd);
     db.addChannel(ch);
 
-    // 閲覧: 324 が返る（デフォルトは +t のみ）
+    // 閲覧: 324 と 329 が返る（デフォルトは +t のみ）
     std::vector<std::string> args;
     args.push_back("#room");
     std::vector<t_response> res = mode.execute(makeInput("MODE", op_fd, args), db);
 
-    assert(res.size() == 1);
+    assert(res.size() == 2);
+    // 324
     assert(res[0].is_success == true);
     assert(res[0].should_send == true);
     assert(res[0].reply.find(" 324 op10 #room +t") != std::string::npos);
-    assert(res[0].target_fds.size() == 1 && res[0].target_fds[0] == op_fd);
+    // 329
+    assert(res[1].is_success == true);
+    assert(res[1].should_send == true);
+    assert(res[1].reply.find(" 329 op10 #room ") != std::string::npos);
 }
 
 static void test_view_success_with_k_l() {
@@ -56,11 +60,13 @@ static void test_view_success_with_k_l() {
     args.push_back("#room2");
     std::vector<t_response> res = mode.execute(makeInput("MODE", op_fd, args), db);
 
-    assert(res.size() == 1);
+    assert(res.size() == 2);
+    // +tkl とキー/リミット
     assert(res[0].is_success == true);
     assert(res[0].should_send == true);
-    // +tkl とキー/リミット
     assert(res[0].reply.find(" 324 op11 #room2 +tkl secret 50") != std::string::npos);
+    // 329
+    assert(res[1].reply.find(" 329 op11 #room2 ") != std::string::npos);
 }
 
 static void test_view_err_not_member() {
@@ -87,6 +93,7 @@ static void test_view_err_not_member() {
     assert(res[0].should_send == true);
     assert(res[0].reply.find(" 442 user21 #view ") != std::string::npos);
 }
+
 static void test_view_err_not_operator() {
     Database db("password");
     ModeCommand mode;
@@ -108,11 +115,12 @@ static void test_view_err_not_operator() {
     args.push_back("#view2");
     std::vector<t_response> res = mode.execute(makeInput("MODE", mem_fd, args), db);
 
-    // 閲覧はメンバーなら許可され、324 が返る
-    assert(res.size() == 1);
+    // 閲覧はメンバーなら許可され、324 と 329 が返る
+    assert(res.size() == 2);
     assert(res[0].is_success == true);
     assert(res[0].should_send == true);
     assert(res[0].reply.find(" 324 mem31 #view2 ") != std::string::npos);
+    assert(res[1].reply.find(" 329 mem31 #view2 ") != std::string::npos);
 }
 
 static void test_err_no_args_461() {
@@ -285,6 +293,26 @@ static void test_modify_err_params_461_and_441() {
     }
 }
 
+static void test_modify_err_invalid_key_696() {
+    Database db("password");
+    ModeCommand mode;
+
+    int op_fd = 75;
+    Client* op = db.addClient(op_fd);
+    op->setNickname("op75");
+    Channel ch("#kbad", op_fd);
+    db.addChannel(ch);
+
+    std::vector<std::string> args;
+    args.push_back("#kbad");
+    args.push_back("+k");
+    args.push_back("bad,key"); // カンマは不正
+    std::vector<t_response> res = mode.execute(makeInput("MODE", op_fd, args), db);
+
+    assert(res.size() == 1);
+    assert(res[0].reply.find(" 696 op75 #kbad k bad,key ") != std::string::npos);
+}
+
 int main() {
     test_view_success_minimal();
     test_view_success_with_k_l();
@@ -295,6 +323,7 @@ int main() {
     test_modify_err_permission_442_482();
     test_modify_err_unknown_mode_472();
     test_modify_err_params_461_and_441();
+    test_modify_err_invalid_key_696();
     std::cout << "MODE command tests: OK" << std::endl;
     return 0;
 }

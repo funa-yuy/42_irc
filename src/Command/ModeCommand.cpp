@@ -126,7 +126,7 @@ t_response	ModeCommand::makeRplChannelModeIs(const Client & sender, const Channe
 		res.reply += " " + params[i];
 	res.reply += "\r\n";
 
-	res.target_fds.resize(1);
+	res.target_fds.clear();
 	res.target_fds.push_back(sender.getFd());
 
 	return (res);
@@ -164,7 +164,7 @@ t_response	ModeCommand::makeRplCreationTime(const Client & sender, const Channel
 	std::string	creationTime = toString(ch.getCreationTime());
 	res.reply = ":ft.irc 329 " + sender.getNickname() + " " + ch.getName() + " " + creationTime + "\r\n";
 
-	res.target_fds.resize(1);
+	res.target_fds.clear();
 	res.target_fds.push_back(sender.getFd());
 
 	return (res);
