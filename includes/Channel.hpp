@@ -34,6 +34,8 @@ class Channel {
 		bool	isMember(int fd);
 		bool	isOperator(int fd);
 
+		time_t		getCreationTime() const;
+
 		bool		getTopicRestricted() const;
 		void		setTopicRestricted(bool val);
 		std::string	getTopic() const;
@@ -64,8 +66,11 @@ class Channel {
 
 	private:
 		std::string				_name;
+		time_t					_createdAt;
+
 		std::set<int>			_clientFds;
 		std::set<int>			_channelOperatorFds;
+
 		bool					_topicRestricted;
 		std::string				_topic;
 		time_t					_topicTime;
@@ -75,7 +80,7 @@ class Channel {
 		bool					_hasKey;
 		std::string				_key;
 		bool					_haslimit;
-		unsigned int				_limit;
+		unsigned int			_limit;
 };
 
 // ------------------------------------------------

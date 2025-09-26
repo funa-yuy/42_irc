@@ -1,7 +1,8 @@
 #include "Channel.hpp"
 
 Channel::Channel()
-: _topicRestricted(true)
+: _createdAt(time(NULL))
+, _topicRestricted(true)
 , _topic("")
 , _topicTime(0)
 , _topicWho(-1)
@@ -12,7 +13,8 @@ Channel::Channel()
 {}
 
 Channel::Channel(std::string name, int createdBy)
-: _topicRestricted(true)
+: _createdAt(time(NULL))
+, _topicRestricted(true)
 , _topic("")
 , _topicTime(0)
 , _topicWho(-1)
@@ -125,6 +127,11 @@ bool	Channel::isOperator(int fd)
 	if (it == _channelOperatorFds.end())
 		return (false);
 	return (true);
+}
+
+time_t	Channel::getCreationTime() const
+{
+	return (_createdAt);
 }
 
 bool	Channel::getInviteOnly() const

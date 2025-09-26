@@ -103,18 +103,33 @@ std::vector<t_response>	ModeCommand::handleModeView(Client & sender, Channel & c
 		return (responses);
 	}
 
+	responses.push_back(makeRplChannelModeIs(sender, ch));
+	responses.push_back(makeRplCreationTime(sender, ch));
+
+	return (responses);
+}
+
+t_response	ModeCommand::makeRplChannelModeIs(const Client & sender, const Channel & ch) const
+{
+	t_response	res;
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+
 	std::string					modes;
 	std::vector<std::string>	params;
 	buildChannelModeReply(ch, modes, params);
 
-	res.should_send = true;
-	res.reply = ":ft.irc 324 " + sender.getNickname() + " " + chName + " " + modes;
+	res.reply = ":ft.irc 324 " + sender.getNickname() + " " + ch.getName() + " " + modes;
 	for (size_t i = 0; i < params.size(); ++i)
 		res.reply += " " + params[i];
 	res.reply += "\r\n";
+
+	res.target_fds.clear();
 	res.target_fds.push_back(sender.getFd());
-	responses.push_back(res);
-	return (responses);
+
+	return (res);
 }
 
 void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const
@@ -136,6 +151,23 @@ void	ModeCommand::buildChannelModeReply(const Channel & ch, std::string & modes,
 		modes.push_back('l');
 		params.push_back(uIntToString(ch.getLimit()));
 	}
+}
+
+t_response	ModeCommand::makeRplCreationTime(const Client & sender, const Channel & ch) const
+{
+	t_response	res;
+
+	res.is_success = true;
+	res.should_send = true;
+	res.should_disconnect = false;
+
+	std::string	creationTime = toString(ch.getCreationTime());
+	res.reply = ":ft.irc 329 " + sender.getNickname() + " " + ch.getName() + " " + creationTime + "\r\n";
+
+	res.target_fds.clear();
+	res.target_fds.push_back(sender.getFd());
+
+	return (res);
 }
 
 std::vector<t_response>	ModeCommand::handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const
@@ -290,6 +322,11 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 						res.reply = ":ft.irc 461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 						return (false);
 					}
+					if (!isValidKey(op.param))
+					{
+						res.reply = ":ft.irc 696 " + client.getNickname() + " " + chName + " k " + op.param + " :Invalid mode parameter\r\n";
+						return (false);
+					}
 					if (ch.getHasKey())
 					{
 						res.reply = ":ft.irc 467 " + client.getNickname() + " " + chName + " :Channel key already set\r\n";
@@ -313,6 +350,19 @@ bool	ModeCommand::validateSemantic(const std::vector<ModeOp> & ops, Channel & ch
 		}
 	}
 
+	return (true);
+}
+
+bool	ModeCommand::isValidKey(const std::string & key) const
+{
+	if (key.empty() || key.size() > 32)
+		return (false);
+	for (size_t i = 0; i < key.size(); ++i)
+	{
+		char c = static_cast<char>(key[i]);
+		if (c <= 32 || c == 127 || c == ',')
+			return (false);
+	}
 	return (true);
 }
 
