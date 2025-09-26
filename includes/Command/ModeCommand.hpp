@@ -11,8 +11,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "Channel.hpp"
 #include "Command.hpp"
+#include "Channel.hpp"
+#include "Utils.hpp"
 
 // ------------------------------------------------
 // class
@@ -42,11 +43,14 @@ private:
 	bool	isValidCmd(const t_parsed & input, t_response & res, Client & client, Database & db) const;
 
 	std::vector<t_response>	handleModeView(Client & sender, Channel & ch) const;
-	void	buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
+	t_response	makeRplChannelModeIs(const Client & sender, const Channel & ch) const;
+	void		buildChannelModeReply(const Channel & ch, std::string & modes, std::vector<std::string> & params) const;
+	t_response	makeRplCreationTime(const Client & sender, const Channel & ch) const;
 
 	std::vector<t_response>	handleModeChange(const t_parsed & input, Database & db, Client & sender, Channel & ch) const;
 	bool	parseModesAndParams(const std::string & modeStr, const std::vector<std::string> & params, std::vector<ModeOp> & ops, t_response & res, const Client & client) const;
 	bool	validateSemantic(const std::vector<ModeOp> & ops, Channel & ch, Database & db, const Client & client, const std::string & chName, t_response & res) const;
+	bool	isValidKey(const std::string & key) const;
 	bool	checkPermissions(Channel & ch, const Client & client, int fd, t_response & res, const std::string & chName) const;
 
 	bool	isKnownMode(char c) const;
