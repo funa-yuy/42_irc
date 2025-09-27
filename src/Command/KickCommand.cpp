@@ -17,18 +17,6 @@ static void	set_err_res(t_response &res, const t_parsed& input, const std::strin
 	res.target_fds.push_back(input.client_fd);
 }
 
-static std::vector<std::string> split(const std::string& str, char delimiter)
-{
-	std::vector<std::string> tokens;
-	std::stringstream ss(str);
-	std::string token;
-	while (std::getline(ss, token, delimiter))
-	{
-		tokens.push_back(token);
-	}
-	return (tokens);
-}
-
 std::vector<s_kick_item>	KickCommand::parse_kick_args(const t_parsed& input) const
 {
 	std::vector<s_kick_item> items;

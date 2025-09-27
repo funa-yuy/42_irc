@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 #include "Command.hpp"
+#include "Utils.hpp"
 
 struct s_join_item {
 	std::string	channel;

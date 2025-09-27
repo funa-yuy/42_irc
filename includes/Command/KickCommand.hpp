@@ -1,13 +1,22 @@
 #ifndef KICKCOMMAND_HPP
 # define KICKCOMMAND_HPP
 
+// ------------------------------------------------
+// include
+// ------------------------------------------------
+
 #include "Command.hpp"
+#include "Utils.hpp"
 
 struct s_kick_item {
 	std::string	channel;
 	std::string	target;
 	std::string	comment;
 };
+
+// ------------------------------------------------
+// class
+// ------------------------------------------------
 
 class KickCommand : public Command
 {

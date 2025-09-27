@@ -8,17 +8,6 @@ Command*	JoinCommand::createJoinCommand() {
 	return (new JoinCommand());
 }
 
-static std::vector<std::string> split(const std::string& str, char delimiter) {
-	std::vector<std::string> tokens;
-	std::stringstream ss(str);
-	std::string token;
-
-	while (std::getline(ss, token, delimiter)) {
-		tokens.push_back(token);
-	}
-	return tokens;
-}
-
 std::vector<s_join_item> JoinCommand::parse_join_args(const t_parsed& input) const {
 	std::vector<s_join_item> res;
 	std::vector<std::string> channels;
