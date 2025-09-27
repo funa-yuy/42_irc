@@ -56,8 +56,10 @@ static void test_success_multi_targets() {
 	op->setNickname("op10");
 	op->setUsername("u10");
 
-	int v1_fd = 11; db.addClient(v1_fd)->setNickname("v1");
-	int v2_fd = 12; db.addClient(v2_fd)->setNickname("v2");
+	int v1_fd = 11;
+	db.addClient(v1_fd)->setNickname("v1");
+	int v2_fd = 12;
+	db.addClient(v2_fd)->setNickname("v2");
 
 	Channel ch("#multi", op_fd);
 	ch.addClientFd(v1_fd);
@@ -94,7 +96,7 @@ static void test_err_461_needmoreparams() {
 	assert(res[0].reply.find(" 461 ") != std::string::npos);
 }
 
-static void test_err_403_482_442_441() {
+static void test_err_403_no_such_channel() {
 	Database db("password");
 	KickCommand kick;
 
@@ -103,59 +105,80 @@ static void test_err_403_482_442_441() {
 	user->setNickname("u30");
 	user->setUsername("uu");
 
-	// 403: チャンネルなし
-	{
-		std::vector<std::string> args;
-		args.push_back("#nope");
-		args.push_back("someone");
-		std::vector<t_response> res = kick.execute(makeInput("KICK", fd, args), db);
-		assert(res.size() == 1);
-		assert(res[0].reply.find(" 403 u30 #nope ") != std::string::npos);
-	}
+	std::vector<std::string> args;
+	args.push_back("#nope");
+	args.push_back("someone");
+	std::vector<t_response> res = kick.execute(makeInput("KICK", fd, args), db);
+	assert(res.size() == 1);
+	assert(res[0].reply.find(" 403 u30 #nope ") != std::string::npos);
+}
 
-	// チャンネルを作成（fdがOP）だが被キック者は不在 → 441
+static void test_err_441_target_not_on_channel() {
+	Database db("password");
+	KickCommand kick;
+
+	int fd = 30;
+	db.addClient(fd)->setNickname("u30");
 	Channel ch("#x", fd);
 	db.addChannel(ch);
-	{
-		std::vector<std::string> args;
-		args.push_back("#x");
-		args.push_back("ghost");
-		std::vector<t_response> res = kick.execute(makeInput("KICK", fd, args), db);
-		assert(res.size() == 1);
-		assert(res[0].reply.find(" 441 u30 ghost #x ") != std::string::npos);
-	}
 
-	// チャンネルメンバーでないユーザーが実行→ 442
+	std::vector<std::string> args;
+	args.push_back("#x");
+	args.push_back("ghost");
+	std::vector<t_response> res = kick.execute(makeInput("KICK", fd, args), db);
+	assert(res.size() == 1);
+	assert(res[0].reply.find(" 441 u30 ghost #x ") != std::string::npos);
+}
+
+static void test_err_442_not_on_channel() {
+	Database db("password");
+	KickCommand kick;
+
+	int fd = 30;
+	db.addClient(fd)->setNickname("u30");
+	Channel ch("#x", fd);
+	db.addChannel(ch);
+
 	int outsider_fd = 32;
 	db.addClient(outsider_fd)->setNickname("u32");
-	{
-		std::vector<std::string> args;
-		args.push_back("#x");
-		args.push_back("u30");
-		std::vector<t_response> res = kick.execute(makeInput("KICK", outsider_fd, args), db);
-		assert(res.size() == 1);
-		assert(res[0].reply.find(" 442 u32 #x ") != std::string::npos);
-	}
 
-	// OPでないユーザが実行 → 482
-	int notop_fd = 31; db.addClient(notop_fd)->setNickname("u31");
+	std::vector<std::string> args;
+	args.push_back("#x");
+	args.push_back("u30");
+	std::vector<t_response> res = kick.execute(makeInput("KICK", outsider_fd, args), db);
+	assert(res.size() == 1);
+	assert(res[0].reply.find(" 442 u32 #x ") != std::string::npos);
+}
+
+static void test_err_482_not_channel_operator() {
+	Database db("password");
+	KickCommand kick;
+
+	int fd = 30;
+	db.addClient(fd)->setNickname("u30");
+	Channel ch("#x", fd);
+	db.addChannel(ch);
+
+	int notop_fd = 31;
+	db.addClient(notop_fd)->setNickname("u31");
 	db.getChannel(std::string("#x"))->addClientFd(notop_fd);
-	{
-		std::vector<std::string> args;
-		args.push_back("#x");
-		args.push_back("u30");
-		std::vector<t_response> res = kick.execute(makeInput("KICK", notop_fd, args), db);
-		assert(res.size() == 1);
-		assert(res[0].reply.find(" 482 u31 #x ") != std::string::npos);
-	}
 
+	std::vector<std::string> args;
+	args.push_back("#x");
+	args.push_back("u30");
+	std::vector<t_response> res = kick.execute(makeInput("KICK", notop_fd, args), db);
+	assert(res.size() == 1);
+	assert(res[0].reply.find(" 482 u31 #x ") != std::string::npos);
 }
 
 int main() {
 	test_success_single_target();
 	test_success_multi_targets();
-	test_err_461_needmoreparams();
-	test_err_403_482_442_441();
+	test_err_461_needmoreparams();//ERR_NEEDMOREPARAMS	461
+	test_err_403_no_such_channel();//ERR_NOSUCHCHANNEL	403
+	test_err_441_target_not_on_channel();//ERR_USERNOTINCHANNEL	441
+	test_err_442_not_on_channel();//ERR_NOTONCHANNEL	442
+	test_err_482_not_channel_operator();//ERR_CHANOPRIVSNEEDED	482
 	std::cout << "KICK command tests: OK" << std::endl;
 	return 0;
 }
