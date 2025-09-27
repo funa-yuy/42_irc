@@ -1,4 +1,5 @@
 #include "Command/KickCommand.hpp"
+#include <sstream>
 
 KickCommand::KickCommand() {}
 
@@ -16,12 +17,46 @@ static void	set_err_res(t_response &res, const t_parsed& input, const std::strin
 	res.target_fds.push_back(input.client_fd);
 }
 
-bool	KickCommand::isValidCmd(const t_parsed & input, t_response & res, Database & db) const
+static std::vector<std::string> split(const std::string& str, char delimiter)
+{
+	std::vector<std::string> tokens;
+	std::stringstream ss(str);
+	std::string token;
+	while (std::getline(ss, token, delimiter))
+	{
+		tokens.push_back(token);
+	}
+	return (tokens);
+}
+
+std::vector<s_kick_item>	KickCommand::parse_kick_args(const t_parsed& input) const
+{
+	std::vector<s_kick_item> items;
+	std::string chName = input.args[0];
+	std::string targetsCsv = input.args[1];
+	std::string comment;
+	if (input.args.size() >= 3)
+		comment = input.args[2];
+
+	std::vector<std::string> targets = split(targetsCsv, ',');
+	for (size_t i = 0; i < targets.size(); ++i)
+	{
+		s_kick_item it;
+		it.channel = chName;
+		it.target = targets[i];
+		it.comment = comment;
+		items.push_back(it);
+	}
+	return (items);
+}
+
+bool	KickCommand::isValidParamsSize(const t_parsed& input, t_response& res, Database& db) const
 {
 	Client *kicker = db.getClient(input.client_fd);
 	if (!kicker)
 	{
 		res.should_send = false;
+		res.should_disconnect = false;
 		return (false);
 	}
 	if (input.args.size() < 2)
@@ -29,8 +64,12 @@ bool	KickCommand::isValidCmd(const t_parsed & input, t_response & res, Database 
 		set_err_res(res, input, "461 " + kicker->getNickname() + " KICK :Not enough parameters");
 		return (false);
 	}
+	return (true);
+}
 
-	const std::string chName = input.args[0];
+bool	KickCommand::isValidCmd(const t_parsed & input, t_response & res, Database & db, const std::string& chName, const std::string& targetNick) const
+{
+	Client *kicker = db.getClient(input.client_fd);
 	Channel *ch = db.getChannel(chName);
 	if (!ch)
 	{
@@ -48,60 +87,77 @@ bool	KickCommand::isValidCmd(const t_parsed & input, t_response & res, Database 
 		return (false);
 	}
 
-	const std::string targetNick = input.args[1];
 	Client *target = db.getClient(const_cast<std::string&>(targetNick));
 	if (!target || !ch->isMember(target->getFd()))
 	{
 		set_err_res(res, input, "441 " + kicker->getNickname() + " " + targetNick + " " + chName + " :They aren't on that channel");
 		return (false);
 	}
-
 	res.is_success = true;
 	return (true);
 }
 
-t_response	KickCommand::makeKickBroadcast(const Client& kicker, const std::string& chName, const Client& target, const std::string& comment, const std::set<int>& clientFds) const
+t_response	KickCommand::makeKickBroadcast(const t_parsed& input, Database& db, const s_kick_item& item) const
 {
 	t_response res;
+	Client *kicker = db.getClient(input.client_fd);
+	Channel *ch = db.getChannel(item.channel);
+	Client *target = db.getClient(const_cast<std::string&>(item.target));
+	const std::set<int>& fds = ch->getClientFds();
+
 	res.is_success = true;
 	res.should_send = true;
 	res.should_disconnect = false;
-	std::string source = ":" + kicker.getNickname() + "!" + kicker.getUsername() + "@ft.irc";
-	std::string tail = comment.empty() ? "" : (" :" + comment);
-	res.reply = source + " KICK " + chName + " " + target.getNickname() + tail + "\r\n";
-	res.target_fds.assign(clientFds.begin(), clientFds.end());
+	std::string source = ":" + kicker->getNickname() + "!" + kicker->getUsername() + "@ft.irc";
+	std::string comment;
+	if (!item.comment.empty()) {
+		comment += ":";
+		comment += item.comment;
+	}
+	res.reply = source + " KICK " + item.channel + " " + target->getNickname() + comment + "\r\n";
+	res.target_fds.assign(fds.begin(), fds.end());
+	return (res);
+}
+
+void	KickCommand::updateDatabase(Database& db, const s_kick_item& item) const
+{
+	Channel *ch = db.getChannel(item.channel);
+	if (!ch)
+		return ;
+	Client *target = db.getClient(const_cast<std::string&>(item.target));
+	if (!target)
+		return ;
+	ch->removeClientFd(target->getFd());
+}
+
+t_response	KickCommand::executeKick(const t_parsed& input, Database& db, const s_kick_item& item) const
+{
+	t_response res;
+	if (!isValidCmd(input, res, db, item.channel, item.target))
+		return (res);
+	res = makeKickBroadcast(input, db, item);
+	updateDatabase(db, item);
 	return (res);
 }
 
 std::vector<t_response>	KickCommand::execute(const t_parsed& input, Database& db) const
 {
-	std::vector<t_response> responses;
+	std::vector<t_response> response_list;
 	t_response res;
-	res.is_success = false;
-	res.should_disconnect = false;
-	if (!isValidCmd(input, res, db))
+	if (!isValidParamsSize(input, res, db))
 	{
-		responses.push_back(res);
-		return (responses);
+		response_list.push_back(res);
+		return (response_list);
 	}
 
-	Client *kicker = db.getClient(input.client_fd);
-	const std::string chName = input.args[0];
-	const std::string targetNick = input.args[1];
-	std::string comment;
-	if (input.args.size() >= 3) comment = input.args[2];
+	std::vector<s_kick_item> items = parse_kick_args(input);
 
-	Channel *ch = db.getChannel(chName);
-	Client *target = db.getClient(const_cast<std::string&>(targetNick));
-	if (!kicker || !ch || !target)
-		return (responses);
+	for (size_t i = 0; i < items.size(); ++i)
+	{
+		response_list.push_back(executeKick(input, db, items[i]));
+	}
 
-	// remove and broadcast
-	const std::set<int>& fds = ch->getClientFds();
-	responses.push_back(makeKickBroadcast(*kicker, chName, *target, comment, fds));
-	ch->removeClientFd(target->getFd());
-
-	return (responses);
+	return (response_list);
 }
 
 

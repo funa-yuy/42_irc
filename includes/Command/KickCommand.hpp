@@ -3,6 +3,12 @@
 
 #include "Command.hpp"
 
+struct s_kick_item {
+	std::string	channel;
+	std::string	target;
+	std::string	comment;
+};
+
 class KickCommand : public Command
 {
 
@@ -15,10 +21,12 @@ public:
 	std::vector<t_response>	execute(const t_parsed& input, Database& db) const;
 
 private:
-
-	bool		isValidCmd(const t_parsed & input, t_response & res, Database & db) const;
-	t_response	makeKickBroadcast(const Client& kicker, const std::string& chName, const Client& target, const std::string& comment, const std::set<int>& clientFds) const;
+	std::vector<s_kick_item>	parse_kick_args(const t_parsed& input) const;
+	bool		isValidParamsSize(const t_parsed& input, t_response& res, Database& db) const;
+	bool		isValidCmd(const t_parsed & input, t_response & res, Database & db, const std::string& chName, const std::string& targetNick) const;
+	t_response	executeKick(const t_parsed& input, Database& db, const s_kick_item& item) const;
+	void		updateDatabase(Database& db, const s_kick_item& item) const;
+	t_response	makeKickBroadcast(const t_parsed& input, Database& db, const s_kick_item& item) const;
 };
 
 #endif
-

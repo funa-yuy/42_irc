@@ -31,6 +31,7 @@
 #include "Command/JoinCommand.hpp"
 #include "Command/TopicCommand.hpp"
 #include "Command/ModeCommand.hpp"
+#include "Command/KickCommand.hpp"
 
 
 #include "PrintLog.hpp"
