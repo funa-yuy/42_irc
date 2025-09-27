@@ -75,7 +75,7 @@ bool	KickCommand::isValidCmd(const t_parsed & input, t_response & res, Database 
 		return (false);
 	}
 
-	Client *target = db.getClient(const_cast<std::string&>(targetNick));
+	Client *target = db.getClient(targetNick);
 	if (!target || !ch->isMember(target->getFd()))
 	{
 		set_err_res(res, input, "441 " + kicker->getNickname() + " " + targetNick + " " + chName + " :They aren't on that channel");
@@ -90,7 +90,7 @@ t_response	KickCommand::makeKickBroadcast(const t_parsed& input, Database& db, c
 	t_response res;
 	Client *kicker = db.getClient(input.client_fd);
 	Channel *ch = db.getChannel(item.channel);
-	Client *target = db.getClient(const_cast<std::string&>(item.target));
+	Client *target = db.getClient(item.target);
 	const std::set<int>& fds = ch->getClientFds();
 
 	res.is_success = true;
@@ -112,7 +112,7 @@ void	KickCommand::updateDatabase(Database& db, const s_kick_item& item) const
 	Channel *ch = db.getChannel(item.channel);
 	if (!ch)
 		return ;
-	Client *target = db.getClient(const_cast<std::string&>(item.target));
+	Client *target = db.getClient(item.target);
 	if (!target)
 		return ;
 	ch->removeClientFd(target->getFd());

@@ -37,7 +37,7 @@ Client const *	Database::getClient(int fd) const
 	return (&it->second);
 }
 
-Client *	Database::getClient(std::string & nickname)
+Client *	Database::getClient(const std::string & nickname)
 {
 	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
@@ -47,7 +47,7 @@ Client *	Database::getClient(std::string & nickname)
 	return (NULL);
 }
 
-Client const *	Database::getClient(const std::string & nickname)
+Client const *	Database::getClient(const std::string & nickname) const
 {
 	for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
