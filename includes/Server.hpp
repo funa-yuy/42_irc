@@ -29,6 +29,7 @@
 #include "Command/PongCommand.hpp"
 #include "Command/PrivmsgCommand.hpp"
 #include "Command/JoinCommand.hpp"
+#include "Command/InviteCommand.hpp"
 #include "Command/TopicCommand.hpp"
 #include "Command/ModeCommand.hpp"
 #include "Command/KickCommand.hpp"

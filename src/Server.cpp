@@ -1,8 +1,12 @@
 #include "Server.hpp"
 
 Server::Server(int port, std::string const & password)
-: _port(port), _db(password),
-_last_ping(time(NULL)), _ping_interval(PING_INTERVAL), _timeout_ms(TIMEOUT_MS)
+:
+_port(port),
+_db(password),
+_last_ping(time(NULL)),
+_ping_interval(PING_INTERVAL),
+_timeout_ms(TIMEOUT_MS)
 {
 	_server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_server_fd < 0)
@@ -37,6 +41,7 @@ _last_ping(time(NULL)), _ping_interval(PING_INTERVAL), _timeout_ms(TIMEOUT_MS)
 		_cmd_map["PONG"] = &PongCommand::createPongCommand;
 		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 		_cmd_map["JOIN"] = &JoinCommand::createJoinCommand;
+		_cmd_map["INVITE"] = &InviteCommand::createInviteCommand;
 		_cmd_map["TOPIC"] = &TopicCommand::createTopicCommand;
 		_cmd_map["MODE"] = &ModeCommand::createModeCommand;
 		_cmd_map["KICK"] = &KickCommand::createKickCommand;
@@ -187,7 +192,6 @@ void	Server::handleClientInput(int fd)
 		}
 		else
 		{
-			// 知らないコマンド
 			std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
 			send(parsed.client_fd, unknown.c_str(), unknown.size(), 0);
 		}
@@ -211,8 +215,24 @@ void	Server::disconnectClient(int fd)
 		}
 	}
 
+	std::vector<std::string> names = _db.getAllChannelNames();
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		Channel * ch = _db.getChannel(names[i]);
+		if (!ch)
+			continue ;
+		if (ch->isInvited(fd))
+			ch->removeInvite(fd);
+		if (ch->isMember(fd))
+		{
+			ch->removeClientFd(fd);
+			if (ch->getClientFds().empty())
+				_db.removeChannel(names[i]);
+		}
+	}
+
 	_db.removeClient(fd);
-	// todo: チャンネルからも対象のクライアントを退出させるべき？
+
 	return ;
 }
 
