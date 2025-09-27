@@ -31,8 +31,8 @@ public:
 
 	Client *			getClient(int fd);
 	Client const *		getClient(int fd) const;
-	Client *			getClient(std::string & nickname);
-	Client const *		getClient(const std::string & nickname);
+	Client *			getClient(const std::string & nickname);
+	Client const *		getClient(const std::string & nickname) const;
 	Channel const *		getChannel(const std::string& name) const;
 	Channel *			getChannel(const std::string& name);
 	std::vector<std::string>	getAllChannelNames() const;

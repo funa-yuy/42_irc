@@ -1,8 +1,6 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
 
 #include "Database.hpp"
 #include "Command/TopicCommand.hpp"
