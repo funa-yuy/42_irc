@@ -69,7 +69,7 @@ t_response	QuitCommand::makeBroadcastQuit(std::string & msg, Client & sender, Da
 	return (broadcast);
 }
 
-t_response	QuitCommand::makeRplError(std::string & msg, Client & sender) const
+t_response	QuitCommand::makeRplError(const std::string & msg, Client & sender) const
 {
 	t_response	res;
 
