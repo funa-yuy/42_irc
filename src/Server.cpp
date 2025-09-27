@@ -221,8 +221,6 @@ void	Server::disconnectClient(int fd)
 			continue ;
 		if (ch->isInvited(fd))
 			ch->removeInvite(fd);
-		if (ch->isOperator(fd))
-			ch->removeChannelOperatorFd(fd);
 		if (ch->isMember(fd))
 		{
 			ch->removeClientFd(fd);

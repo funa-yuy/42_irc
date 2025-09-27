@@ -98,11 +98,8 @@ void Channel::setChannelOperatorFds(int fd)
 
 void	Channel::removeClientFd(int fd)
 {
-	std::set<int>::iterator it = _clientFds.find(fd);
-	if (it == _clientFds.end())
-		return ;
 	_channelOperatorFds.erase(fd);
-	_clientFds.erase(it);
+	_clientFds.erase(fd);
 }
 
 void	Channel::removeChannelOperatorFd(int fd)
