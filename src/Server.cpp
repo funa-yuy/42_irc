@@ -1,8 +1,12 @@
 #include "Server.hpp"
 
 Server::Server(int port, std::string const & password)
-: _port(port), _db(password),
-_last_ping(time(NULL)), _ping_interval(PING_INTERVAL), _timeout_ms(TIMEOUT_MS)
+:
+_port(port),
+_db(password),
+_last_ping(time(NULL)),
+_ping_interval(PING_INTERVAL),
+_timeout_ms(TIMEOUT_MS)
 {
 	_server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_server_fd < 0)
@@ -186,7 +190,6 @@ void	Server::handleClientInput(int fd)
 		}
 		else
 		{
-			// 知らないコマンド
 			std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
 			send(parsed.client_fd, unknown.c_str(), unknown.size(), 0);
 		}
@@ -216,6 +219,10 @@ void	Server::disconnectClient(int fd)
 		Channel * ch = _db.getChannel(names[i]);
 		if (!ch)
 			continue ;
+		if (ch->isInvited(fd))
+			ch->removeInvite(fd);
+		if (ch->isOperator(fd))
+			ch->removeChannelOperatorFd(fd);
 		if (ch->isMember(fd))
 		{
 			ch->removeClientFd(fd);
