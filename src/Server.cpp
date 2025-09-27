@@ -209,8 +209,22 @@ void	Server::disconnectClient(int fd)
 		}
 	}
 
+	std::vector<std::string> names = _db.getAllChannelNames();
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		Channel * ch = _db.getChannel(names[i]);
+		if (!ch)
+			continue ;
+		if (ch->isMember(fd))
+		{
+			ch->removeClientFd(fd);
+			if (ch->getClientFds().empty())
+				_db.removeChannel(names[i]);
+		}
+	}
+
 	_db.removeClient(fd);
-	// todo: チャンネルからも対象のクライアントを退出させるべき？
+
 	return ;
 }
 
