@@ -25,8 +25,8 @@ public:
 
 private:
 
-	t_response	makeBroadcastQuit(std::string & msg, Client & sender, Database & db) const;
-	t_response	makeRplError(std::string & msg, Client & sender) const;
+	t_response	makeBroadcastQuit(const std::string & msg, Client & sender, Database & db) const;
+	t_response	makeRplError(const std::string & msg, Client & sender) const;
 
 };
 
