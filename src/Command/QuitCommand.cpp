@@ -39,7 +39,7 @@ std::vector<t_response>	QuitCommand::execute(const t_parsed & input, Database & 
 	return (responses);
 }
 
-t_response	QuitCommand::makeBroadcastQuit(std::string & msg, Client & sender, Database & db) const
+t_response	QuitCommand::makeBroadcastQuit(const std::string & msg, Client & sender, Database & db) const
 {
 	t_response	broadcast;
 
