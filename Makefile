@@ -6,7 +6,7 @@
 #    By: keishii <keishii@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/23 18:21:23 by keishii          ###   ########.fr        #
+#    Updated: 2025/09/27 01:10:27 by keishii          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,6 +46,7 @@ SRC					:= \
 					Command/PongCommand.cpp \
 					Command/TopicCommand.cpp \
 					Command/ModeCommand.cpp \
+					Command/QuitCommand.cpp \
 					Utils.cpp \
 					PrintLog.cpp \
 
@@ -68,6 +69,7 @@ HEADERS				:= \
 					Command/PongCommand.hpp \
 					Command/TopicCommand.hpp \
 					Command/ModeCommand.hpp \
+					Command/QuitCommand.hpp \
 					Utils.hpp \
 					PrintLog.hpp \
 
