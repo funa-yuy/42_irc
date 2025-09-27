@@ -64,14 +64,14 @@ bool	KickCommand::isValidCmd(const t_parsed & input, t_response & res, Database 
 		set_err_res(res, input, "403 " + kicker->getNickname() + " " + chName + " :No such channel");
 		return (false);
 	}
-	if (!ch->isOperator(kicker->getFd()))
-	{
-		set_err_res(res, input, "482 " + kicker->getNickname() + " " + chName + " :You're not channel operator");
-		return (false);
-	}
 	if (!ch->isMember(kicker->getFd()))
 	{
 		set_err_res(res, input, "442 " + kicker->getNickname() + " " + chName + " :You're not on that channel");
+		return (false);
+	}
+	if (!ch->isOperator(kicker->getFd()))
+	{
+		set_err_res(res, input, "482 " + kicker->getNickname() + " " + chName + " :You're not channel operator");
 		return (false);
 	}
 
@@ -99,7 +99,7 @@ t_response	KickCommand::makeKickBroadcast(const t_parsed& input, Database& db, c
 	std::string source = ":" + kicker->getNickname() + "!" + kicker->getUsername() + "@ft.irc";
 	std::string comment;
 	if (!item.comment.empty()) {
-		comment += ":";
+		comment += " :";
 		comment += item.comment;
 	}
 	res.reply = source + " KICK " + item.channel + " " + target->getNickname() + comment + "\r\n";
