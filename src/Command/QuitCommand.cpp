@@ -27,18 +27,59 @@ std::vector<t_response>	QuitCommand::execute(const t_parsed & input, Database & 
 
 	res.is_success = true;
 	std::string	msg;
-	if (!input.args[1].empty())
-		msg = input.args[1];
+	if (input.args.size() > 0 && !input.args[0].empty())
+		msg = input.args[0];
 	else
-		msg = "Client Quit";
-	res.reply = ":" + sender->getNickname() + "@" + sender->getUsername() + "ft.irc QUIT :" + msg + "\r\n";
-	res.target_fds.push_back(input.client_fd);
-	responses.push_back(res);
+		msg = "Client quit";
+	
+	
+	responses.push_back(makeBroadcastQuit(msg, *sender, db));
+	responses.push_back(makeRplError(msg, *sender));
 
 	return (responses);
 }
 
-// bool	QuitCommand::isValidCmd(const t_parsed & input, t_response & res, Client & client) const
-// {
-// 	return (true);
-// }
+t_response	QuitCommand::makeBroadcastQuit(std::string & msg, Client & sender, Database & db) const
+{
+	t_response	broadcast;
+
+	broadcast.should_send = true;
+	broadcast.should_disconnect = false;
+
+	std::string	prefix = ":" + sender.getNickname() + "!" + sender.getUsername() + "@ft.irc";
+	broadcast.reply = prefix + " QUIT :" + msg + "\r\n";
+
+	std::set<int>				targets;
+	std::vector<std::string>	names = db.getAllChannelNames();
+
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		Channel * ch = db.getChannel(names[i]);
+		if (!ch)
+			continue ;
+		if (!ch->isMember(sender.getFd()))
+			continue ;
+		const std::set<int> & fds = ch->getClientFds();
+		targets.insert(fds.begin(), fds.end());
+	}
+	targets.erase(sender.getFd());
+	broadcast.target_fds.assign(targets.begin(), targets.end());
+
+	broadcast.is_success = true;
+	return (broadcast);
+}
+
+t_response	QuitCommand::makeRplError(std::string & msg, Client & sender) const
+{
+	t_response	res;
+
+	res.should_send = true;
+	res.should_disconnect = true;
+
+	res.reply = "ERROR :Closing Link: " + sender.getNickname() + " [Quit: " + msg + "]\r\n";
+	res.target_fds.clear();
+	res.target_fds.push_back(sender.getFd());
+
+	res.is_success = true;
+	return (res);
+}

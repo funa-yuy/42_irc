@@ -25,7 +25,8 @@ public:
 
 private:
 
-	// bool	isValidCmd(const t_parsed & input, t_response & res, Client & client) const;
+	t_response	makeBroadcastQuit(std::string & msg, Client & sender, Database & db) const;
+	t_response	makeRplError(std::string & msg, Client & sender) const;
 
 };
 
