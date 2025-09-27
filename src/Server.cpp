@@ -41,6 +41,7 @@ _timeout_ms(TIMEOUT_MS)
 		_cmd_map["PONG"] = &PongCommand::createPongCommand;
 		_cmd_map["PRIVMSG"] = &PrivmsgCommand::createPrivmsgCommand;
 		_cmd_map["JOIN"] = &JoinCommand::createJoinCommand;
+		_cmd_map["INVITE"] = &InviteCommand::createInviteCommand;
 		_cmd_map["TOPIC"] = &TopicCommand::createTopicCommand;
 		_cmd_map["MODE"] = &ModeCommand::createModeCommand;
 		_cmd_map["QUIT"] = &QuitCommand::createQuitCommand;
