@@ -32,7 +32,7 @@
 #include "Command/TopicCommand.hpp"
 #include "Command/ModeCommand.hpp"
 #include "Command/KickCommand.hpp"
-
+#include "Command/QuitCommand.hpp"
 
 #include "PrintLog.hpp"
 

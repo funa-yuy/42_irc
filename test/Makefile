@@ -6,7 +6,7 @@
 #    By: miyuu <miyuu@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/31 18:25:47 by miyuu             #+#    #+#              #
-#    Updated: 2025/09/27 16:41:33 by miyuu            ###   ########.fr        #
+#    Updated: 2025/09/27 17:58:00 by miyuu            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,6 +47,7 @@ SRC					:= \
 					Command/TopicCommand.cpp \
 					Command/ModeCommand.cpp \
 					Command/KickCommand.cpp \
+					Command/QuitCommand.cpp \
 					Utils.cpp \
 					PrintLog.cpp \
 
@@ -70,6 +71,7 @@ HEADERS				:= \
 					TopicCommand.hpp \
 					ModeCommand.hpp \
 					KickCommand.hpp \
+					QuitCommand.hpp \
 					Utils.hpp \
 					PrintLog.hpp \
 
