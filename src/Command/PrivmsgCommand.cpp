@@ -61,13 +61,10 @@ std::vector<int> PrivmsgCommand::get_fd_ByChannel(std::string	target, Database& 
 
 bool PrivmsgCommand::is_belong_channel(const t_parsed& input, Database& db) const
 {
-	std::vector<int> fds =  get_fd_ByChannel(input.args[0], db);
-	for (int i = 0; i < (int)fds.size();i++)
-	{
-		if (fds[i] == input.client_fd)
-			return (true);
-	}
-	return (false);
+	Channel * ch = db.getChannel(input.args[0]);
+	if (!ch)
+		return (false);
+	return ch->isMember(input.client_fd);
 }
 
 std::vector<int>	PrivmsgCommand::get_target_fd(std::string target, Database& db) const{
