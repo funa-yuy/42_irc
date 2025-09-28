@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <sys/poll.h>
 #include <ctime>
+#include <fcntl.h>
 
 #include "Parser.hpp"
 
@@ -79,6 +80,7 @@ private:
 	Command *	createCommandObj(std::string cmd_name);
 
 	void		sendResponses(const t_response & res);
+	bool		sendAllNonBlocking(int fd, const char * data, size_t len);
 	bool		tryRegister(Client & client);
 	void		sendWelcome(Client & client);
 
