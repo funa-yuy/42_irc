@@ -1,13 +1,14 @@
 #ifndef PARSER_HPP
- #define PARSER_HPP
+#define PARSER_HPP
 
- #include <string>
- #include <iostream>
- #include <sstream>
- #include <vector>
- #include "irc.hpp"
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include "irc.hpp"
 
- #define MAX_MSG_ARG 15
+#define MAX_MSG_ARG 15
+#define MAX_LINE_NOCRLF 510
 
 class Parser
 {

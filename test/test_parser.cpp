@@ -1,7 +1,8 @@
 # include "../includes/Server.hpp"
 # include "../includes/Parser.hpp"
-
 #include <cassert>
+#include <sstream>
+
 int main()
 {
 	Parser parser;
@@ -105,13 +106,60 @@ int main()
 		assert(result.args[i] == expect_v[i]);
 	expect_v.clear();
 
-	// TODO 以下のケースはどういったデータを返すべきか？
-	/*
-	// error
-	result = parser.exec("PRIVMSG B B B B B B B B B B B B B B B B:こんにちは\r\n", 4);
-	// PRIVMSGを使用してクライアントに通達（コマンドの処理はしない）
-	// 許容するか不明
-	result = parser.exec("PRIVMSG B :\r\n", 4);
-	*/
+	//引数が15個以上
+	{
+		std::stringstream ss;
+		ss << "CMD";
+		for (int i = 1; i <= 20; ++i) {
+			ss << " p" << i;
+		}
+		ss << "\r\n";
+		result = parser.exec(ss.str(), 4);
+		assert(result.cmd == "CMD");
+		assert((int)result.args.size() == 15);
+		for (int i = 0; i < 15; ++i) {
+			std::stringstream es;
+			es << "p" << (i + 1);
+			assert(result.args[i] == es.str());
+		}
+	}
+
+	// 512文字以上
+	{
+		const std::string prefix = "CMD ";
+		std::string big(600, 'x');
+		std::string line = prefix + big + " :こんにちわ\r\n";
+		result = parser.exec(line, 4);
+		assert(result.cmd == "CMD");
+		assert((int)result.args.size() == 1);
+		size_t expected = MAX_LINE_NOCRLF - prefix.size();
+		assert(result.args[0].size() == expected);
+		assert(result.args[0] == big.substr(0, expected));
+	}
+
+	//  512文字以上
+	{
+		const std::string prefix = "CMD B :";
+		std::string big(600, 'x');
+		std::string line = prefix + big + "\r\n";
+		result = parser.exec(line, 4);
+		assert(result.cmd == "CMD");
+		assert((int)result.args.size() == 2);
+		assert(result.args[0] == "B");
+		size_t expected = MAX_LINE_NOCRLF - prefix.size();
+		assert(result.args[1].size() == expected);
+		assert(result.args[1] == big.substr(0, expected));
+	}
+
+	//PRIVMSG
+	{
+		result = parser.exec("PRIVMSG 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15:こんにちは\r\n", 4);
+		assert(result.cmd == "PRIVMSG");
+		assert((int)result.args.size() == 2);
+		assert(result.args[0] == "0");
+		assert(result.args[1] == "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15:こんにちは");
+	}
+
+	std::cout << "parse tests: OK" << std::endl;
 	return (0);
 }

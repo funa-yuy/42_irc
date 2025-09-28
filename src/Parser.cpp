@@ -8,6 +8,10 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	// 末尾の CR/LF を除去
 	trimCRLF(line);
 
+	// 512バイト上限（CRLF込み）: 本体は最大510文字に制限
+	if (line.size() > MAX_LINE_NOCRLF)
+		line.erase(MAX_LINE_NOCRLF);
+
 	// 入力行が空白のみの場合、早期リターン
 	if (line.find_first_not_of(" \t") == std::string::npos)
 	{
@@ -49,9 +53,9 @@ t_parsed Parser::exec(std::string line, int client_fd)
 	if (!trailing.empty())
 		tokens.push_back(trailing);
 
-	// 引数上限チェック
+	// 引数上限チェック（最大15個に切り捨て）
 	if (tokens.size() > MAX_MSG_ARG)
-		std::cerr << "too many args" << std::endl;
+		tokens.resize(MAX_MSG_ARG);
 
 	parsed.args = tokens;
 
@@ -112,7 +116,7 @@ void	Parser::tokenize(std::string & s, std::vector<std::string> & tokens)
 void	Parser::toUpperCase(std::string & s)
 {
 	for (size_t i = 0; i < s.size(); ++i)
-		s[i] = std::toupper(s[i]);	
+		s[i] = std::toupper(s[i]);
 
 	return ;
 }
