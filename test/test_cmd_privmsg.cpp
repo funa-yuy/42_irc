@@ -34,7 +34,6 @@ static void test_success() {
 		const t_response & res = response_list[0];
 
 		std::string expected = ":funa!funauser@ft.irc PRIVMSG funa :Send message successfully 1.\r\n";
-		// ":" + nick + "!" + user + "@" + host + " PRIVMSG " + target + " :" + text + "\r\n"
 		assert(res.is_success == true);
 		assert(res.should_send == true);
 		assert(res.reply == expected);
@@ -222,8 +221,7 @@ static void test_channel_broadcast()
 	assert(result[0].reply == ":client1!@ft.irc PRIVMSG #test1 :only one\r\n");
 	assert(result[0].should_disconnect == false);
 	assert(result[0].should_send == true);
-	assert(result[0].target_fds.size() == 1);
-	assert(result[0].target_fds[0] == parse.client_fd);
+	assert(result[0].target_fds.size() == 0);
 	result.clear();
 	parse.args.clear();
 
@@ -241,9 +239,8 @@ static void test_channel_broadcast()
 	assert(result[0].reply == ":client1!@ft.irc PRIVMSG #test2 :member 2\r\n");
 	assert(result[0].should_disconnect == false);
 	assert(result[0].should_send == true);
-	assert(result[0].target_fds.size() == 2);
-	assert(result[0].target_fds[0] == parse.client_fd);
-	assert(result[0].target_fds[1] == 4);
+	assert(result[0].target_fds.size() == 1);
+	assert(result[0].target_fds[0] == 4);
 	result.clear();
 	parse.args.clear();
 
@@ -261,10 +258,9 @@ static void test_channel_broadcast()
 	assert(result[0].reply == ":client1!@ft.irc PRIVMSG #test3 :member 3 full!\r\n");
 	assert(result[0].should_disconnect == false);
 	assert(result[0].should_send == true);
-	assert(result[0].target_fds.size() == 3);
-	assert(result[0].target_fds[0] == parse.client_fd);
-	assert(result[0].target_fds[1] == 4);
-	assert(result[0].target_fds[2] == 5);
+	assert(result[0].target_fds.size() == 2);
+	assert(result[0].target_fds[0] == 4);
+	assert(result[0].target_fds[1] == 5);
 	result.clear();
 	parse.args.clear();
 
@@ -299,7 +295,6 @@ static void test_channel_broadcast()
 
 	assert(result.size() == 1);
 	assert(result[0].is_success == false);
-	// :ft.irc 401 :No such nick/channel\r\nではない？
 	assert(result[0].reply == ":ft.irc 401 noexist :No such nick/channel\r\n");
 	assert(result[0].should_disconnect == false);
 	assert(result[0].should_send == true);
