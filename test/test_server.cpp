@@ -85,19 +85,24 @@ static void test_delayed_pass(Server& srv, int port)
     close(fd);
 }
 
-// テスト 2: PASS 不一致 464 で切断
+// テスト 2: PASS 不一致 464
 static void test_wrong_pass(Server& srv, int port)
 {
     int fd = connect_client(port);
     send_line(fd, "PASS wrong");
     drive(srv, 150);
     std::string r = recv_nonblock(fd);
-    assert(contains(r, " 464 "));
-    // 切断確認
-    char c;
-    ssize_t n = recv(fd, &c, 1, 0);
-    assert(n <= 0);
-    close(fd);
+	assert(contains(r, " 464 "));
+
+	// 切断はしない: もう一度 PASS を送り直せる
+	send_line(fd, "PASS pw");
+	send_line(fd, "NICK user1");
+	send_line(fd, "USER u 0 * :real");
+	drive(srv, 200);
+	std::string r2 = recv_nonblock(fd);
+	// 登録完了(001)が返ることを確認
+	assert(contains(r2, " 001 "));
+	close(fd);
 }
 
 // テスト 3: 未登録 PRIVMSG で 451

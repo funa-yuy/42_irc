@@ -33,7 +33,6 @@ bool	is_validCmd(const t_parsed& input, t_response* res, Database& db) {
 	{
 		res->is_success = false;
 		res->should_send = true;
-		res->should_disconnect = true;
 		res->reply = ":ft.irc 464 " + sender_client->getNickname() + " PASS :Password incorrect\r\n";
 		res->target_fds.resize(1);
 		res->target_fds[0] = input.client_fd;
