@@ -25,6 +25,7 @@ static void test_pass_command_all() {
 		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
+		assert(res.should_disconnect == false);
 		assert(res.reply.find("461") != std::string::npos);
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
@@ -40,6 +41,7 @@ static void test_pass_command_all() {
 		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
+		assert(res.should_disconnect == false);
 		assert(res.reply.find("462") != std::string::npos);
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
@@ -54,6 +56,7 @@ static void test_pass_command_all() {
 		const t_response & res = response_list[0];
 		assert(res.is_success == false);
 		assert(res.should_send == true);
+		assert(res.should_disconnect == false);
 		assert(res.reply.find("464") != std::string::npos);
 		assert(res.target_fds.size() == 1 && res.target_fds[0] == fd);
 	}
