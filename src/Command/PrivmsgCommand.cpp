@@ -1,4 +1,5 @@
 #include "Command/PrivmsgCommand.hpp"
+#include <algorithm>
 
 PrivmsgCommand::PrivmsgCommand() {}
 
@@ -51,31 +52,10 @@ std::vector<int> PrivmsgCommand::get_fd_ByChannel(std::string	target, Database& 
 	std::vector<int>	fds;
 	std::string channelName;
 
-	// チャンネル名は以下で開始される[&, #, +, !]
-	// ！始まりの場合5文字の英数字 (A-Zまたは0-9) で構成
-
-	// いらないかも
-	// if (target[0] == '!' && target.size() == EXCLAMATION_CHANNEL_LEN)
-	// {
-	// 	for (int i = 1; i < EXCLAMATION_CHANNEL_LEN;i++)
-	// 	{
-	// 		if (!std::isalnum(target[i]))
-	// 			return (fds);
-	// 	}
-	// }
-	// else
-	// 	return (fds);
-
-	// target.erase(0, 1);
 	if (db.getChannel(target) == NULL)
 		return (fds);
 	const std::set<int>& clients = db.getChannel(target)->getClientFds();
-	std::set<int>::const_iterator it = clients.begin();
-	while (it != clients.end())
-	{
-		fds.push_back(*it);
-		it++;
-	}
+	fds.assign(clients.begin(), clients.end());
 	return (fds);
 }
 
@@ -134,6 +114,9 @@ std::vector<t_response>	PrivmsgCommand::execute(const t_parsed& input, Database&
 	std::string	text = input.args[1];
 
 	std::vector<int>	fds = get_target_fd(target, db);
+	if (is_channel(target)) {
+		fds.erase(std::remove(fds.begin(), fds.end(), input.client_fd), fds.end());
+	}
 
 	std::string line =	":" + nick + "!" + user + "@" + SERVER_NAME + " PRIVMSG " + target + " :" + text + "\r\n";
 
