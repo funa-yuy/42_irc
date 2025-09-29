@@ -73,10 +73,14 @@ void	Server::run(void)
 
 		for (ssize_t i = static_cast<ssize_t>(_poll_fds.size() - 1); i >= 0; --i)
 		{
-			if (_poll_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
+			if ((_poll_fds[i].revents & POLLNVAL) && _poll_fds[i].fd != _server_fd)
 			{
-				if (_poll_fds[i].fd != _server_fd)
-					disconnectClient(_poll_fds[i].fd);
+				disconnectClient(_poll_fds[i].fd);
+				continue ;
+			}
+			if ((_poll_fds[i].revents & POLLERR) && _poll_fds[i].fd != _server_fd)
+			{
+				disconnectClient(_poll_fds[i].fd);
 				continue ;
 			}
 			if (_poll_fds[i].revents & POLLIN)
@@ -85,6 +89,11 @@ void	Server::run(void)
 					acceptNewClient();
 				else
 					handleClientInput(_poll_fds[i].fd);
+			}
+			if ((_poll_fds[i].revents & POLLHUP) && _poll_fds[i].fd != _server_fd)
+			{
+				handleClientInput(_poll_fds[i].fd);
+				disconnectClient(_poll_fds[i].fd);
 			}
 		}
 
