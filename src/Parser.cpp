@@ -78,13 +78,6 @@ void	Parser::trimCRLF(std::string & s)
 
 void	Parser::extractTrailing(std::string & s, std::string & trailing)
 {
-	// size_t	sep = s.find(" :");
-	// if (sep != std::string::npos)
-	// {
-	// 	trailing = s.substr(sep + 2);
-	// 	s.erase(sep);
-	// }
-
 	for (size_t i = 0; i < s.size(); ++i)
 	{
 		if (s[i] == ':')
