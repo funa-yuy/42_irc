@@ -40,7 +40,9 @@
 #include "PrintLog.hpp"
 
 #define MAX_CLIENTS 10
-#define BUF_SIZE 512
+#define BUF_SIZE 1024
+#define MAX_LINE_TOTAL 512
+#define MAX_CLIENT_BUF 8192
 #define TIMEOUT_MS 50
 #define PING_INTERVAL 180
 

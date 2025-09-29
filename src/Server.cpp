@@ -71,15 +71,12 @@ void	Server::run(void)
 			break;
 		}
 
-		for (size_t i = 0; i < _poll_fds.size(); ++i)
+		for (ssize_t i = static_cast<ssize_t>(_poll_fds.size() - 1); i >= 0; --i)
 		{
 			if (_poll_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
 				if (_poll_fds[i].fd != _server_fd)
-				{
 					disconnectClient(_poll_fds[i].fd);
-					--i;
-				}
 				continue ;
 			}
 			if (_poll_fds[i].revents & POLLIN)
@@ -152,6 +149,13 @@ void	Server::handleClientInput(int fd)
 	}
 	if (!dataReceived)
 		return ;
+	
+	if (client->getBuffer().size() > MAX_CLIENT_BUF)
+	{
+		std::cerr << "recv buffer overflow, disconnect fd=" << fd << std::endl;
+		disconnectClient(fd);
+		return ;
+	}
 
 	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
 	extractClientBufferLine(fd, client->getBuffer());
@@ -198,10 +202,23 @@ void	Server::extractClientBufferLine(int fd, std::string & buffer)
 		size_t pos = buffer.find('\n');
 		if (pos == std::string::npos)
 			break ;
+		if (pos + 1 > MAX_LINE_TOTAL)
+		{
+			Client * client = _db.getClient(fd);
+			if (client)
+			{
+				std::string nick = displayNick(*client);
+				std::string too_long = ":ft.irc 417 " + nick + " :Input line too long\r\n";
+				sendAllNonBlocking(fd, too_long.c_str(), too_long.size());
+			}
+			buffer.erase(0, pos + 1);
+			continue ;
+		}
 		std::string msg = buffer.substr(0, pos + 1);
 		buffer.erase(0, pos + 1);
-		while (!msg.empty() && (msg.back() == '\n' || msg.back() == '\r'))
-			msg.pop_back();
+		while (!msg.empty()
+				&& (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r'))
+			msg.erase(msg.size() - 1, 1);
 		if (executeCmdLine(fd, msg))
 			return ;
 		if (_db.getClient(fd) == NULL)
@@ -390,17 +407,13 @@ void	Server::sendWelcome(Client & client)
 void	Server::sendPing(void)
 {
 	std::string	token = "Hey! Are you there?";
-	for
-	(
-		std::map<int, Client>::iterator it = _db.getAllClient().begin();
-		it != _db.getAllClient().end();
-		++it
-	)
+	for (std::map<int, Client>::iterator it = _db.getAllClient().begin(); it != _db.getAllClient().end(); ++it)
 	{
 		int	fd = it->first;
 		std::string	ping = "PING :" + token + "\r\n";
 		sendAllNonBlocking(fd, ping.c_str(), ping.size());
 		it->second.setLastPingToken(token);
+		it->second.setLastPingTime(time(NULL));
 	}
 	return ;
 }
@@ -466,15 +479,12 @@ bool	Server::step(int timeout_ms)
     if (ret == 0) // timeout
         return true;
 
-    for (size_t i = 0; i < _poll_fds.size(); ++i)
+    for (ssize_t i = static_cast<ssize_t>(_poll_fds.size()) - 1; i >= 0; --i)
     {
 		if (_poll_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 		{
 			if (_poll_fds[i].fd != _server_fd)
-			{
 				disconnectClient(_poll_fds[i].fd);
-				--i;
-			}
 			continue ;
 		}
         if (_poll_fds[i].revents & POLLIN)
