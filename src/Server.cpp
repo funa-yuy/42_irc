@@ -282,7 +282,7 @@ bool	Server::tryRegister(Client & client)
 
 void	Server::sendWelcome(Client & client)
 {
-	std::string nickname = displayNick(client);
+	std::string nickname = displayNickname(client);
 	std::string	username = displayUsername(client);
 	std::string	welcome;
 
