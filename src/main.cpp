@@ -8,10 +8,28 @@ int	main(int argc, char *argv[])
 		return (1);
 	}
 
-	int			port = atoi(argv[1]);
-	std::string	password = argv[2];
+	errno = 0;
+	char	*end = 0;
+	long	port = std::strtol(argv[1], &end, 10);
+	if (errno == ERANGE || end == argv[1] || *end != '\0')
+	{
+		std::cerr << "Error: invalid port number. Use 1 - 65535" << std::endl;
+		return (1);
+	}
+	if (port < 1 || port > 65535)
+	{
+		std::cerr << "Error: port out of range. Use 1-65535" << std::endl;
+		return (1);
+	}
 
-	Server	server(port, password);
+	std::string	password = argv[2];
+	if (password.empty())
+	{
+		std::cerr << "Error: password must not be empty" << std::endl;
+		return (1);
+	}
+
+	Server	server(static_cast<int>(port), password);
 	server.run();
 	return (0);
 }
