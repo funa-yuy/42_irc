@@ -85,8 +85,9 @@ private:
 	void		sendPing(void);
 	void		checkClientTimeout(void);
 
-	std::string	displayNick(const Client & client) const;
-	void		broadcast(int sender_fd, std::string const & msg);
+	std::string	displayNickname(const Client & client) const;
+	std::string	displayUsername(const Client & client) const;
+	std::string displayRealname(const Client & client) const;
 	void		exitError(std::string const & error_msg);
 
 };
