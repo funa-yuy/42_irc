@@ -213,8 +213,8 @@ void	Server::extractClientBufferLine(int fd, std::string & buffer)
 			Client * client = _db.getClient(fd);
 			if (client)
 			{
-				std::string nick = displayNick(*client);
-				std::string too_long = ":ft.irc 417 " + nick + " :Input line too long\r\n";
+				std::string nickname = displayNickname(*client);
+				std::string too_long = ":ft.irc 417 " + nickname + " :Input line too long\r\n";
 				sendAllNonBlocking(fd, too_long.c_str(), too_long.size());
 			}
 			buffer.erase(0, pos + 1);
@@ -285,7 +285,7 @@ bool	Server::executeCmdLine(int fd, const std::string & msg)
 	}
 	else
 	{
-		std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
+		std::string unknown = ":ft.irc 421 " + displayNickname(*client) + " " + parsed.cmd + " :Unknown command\r\n";
 		sendAllNonBlocking(parsed.client_fd, unknown.c_str(), unknown.size());
 	}
 	return (false);
@@ -360,9 +360,9 @@ bool	Server::tryRegister(Client & client)
 	client.setIsRegistered(true);
 
 	std::cout	<< "[REGISTERED] fd = " << client.getFd()
-	<< " nick = " << displayNick(client)
-	<< " user = " << client.getUsername()
-	<< " realname = " << client.getRealname()
+	<< " nick = " << displayNickname(client)
+	<< " user = " << displayUsername(client)
+	<< " realname = " << displayRealname(client)
 	<< std::endl;
 
 	sendWelcome(client);
@@ -396,11 +396,12 @@ bool	Server::sendAllNonBlocking(int fd, const char * data, size_t len)
 
 void	Server::sendWelcome(Client & client)
 {
-	std::string nickname = displayNick(client);
+	std::string nickname = displayNickname(client);
+	std::string	username = displayUsername(client);
 	std::string	welcome;
 
 	welcome = ":ft.irc 001 " + nickname + " :Welcome to the ft_irc Network "
-	+ nickname + "!" + client.getUsername() + "@ft.irc\r\n";
+	+ nickname + "!" + username + "@ft.irc\r\n";
 	welcome += ":ft.irc 002 " + nickname + " :Your host is ft.irc, running version 0.1\r\n";
 	welcome += ":ft.irc 003 " + nickname + " :This server was created 2025-08-26\r\n";
 	welcome += ":ft.irc 004 " + nickname + " ft.irc 0.1 o o\r\n";
@@ -445,26 +446,28 @@ void	Server::checkClientTimeout(void)
 	}
 }
 
-std::string	Server::displayNick(const Client & client) const
+std::string	Server::displayNickname(const Client & client) const
 {
 	std::string nick = client.getNickname();
 	if (nick.empty())
-		return "*";
-
+		return ("*");
 	return (nick);
 }
 
-void	Server::broadcast(int client_fd, std::string const & msg)
+std::string	Server::displayUsername(const Client & client) const
 {
-	for (size_t i = 1; i < _poll_fds.size(); ++i)
-	{
-		int fd = _poll_fds[i].fd;
-		if (fd != client_fd)
-			sendAllNonBlocking(fd, msg.c_str(), msg.size());
-	}
-	std::cout << "Broadcast from " << client_fd << ": " << msg;
+	std::string user = client.getUsername();
+	if (user.empty())
+		return ("*");
+	return (user);
+}
 
-	return ;
+std::string Server::displayRealname(const Client & client) const
+{
+	std::string real = client.getRealname();
+	if (real.empty())
+		return ("*");
+	return (real);
 }
 
 void	Server::exitError(std::string const & error_msg)

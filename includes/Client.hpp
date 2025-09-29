@@ -74,8 +74,6 @@ private:
 	time_t			_lastPingTime;
 	std::string		_lastPingToken;
 
-	//todo: 参加してるチャンネル名を保持する(?)
-
 };
 
 // ------------------------------------------------
