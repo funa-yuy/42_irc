@@ -13,6 +13,7 @@ _timeout_ms(TIMEOUT_MS)
 		exitError("socket: ");
 
 	fcntl(_server_fd, F_SETFL, O_NONBLOCK);
+	signal(SIGPIPE, SIG_IGN);
 
 	int	opt = 1;
 	setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -75,7 +76,10 @@ void	Server::run(void)
 			if (_poll_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
 				if (_poll_fds[i].fd != _server_fd)
+				{
 					disconnectClient(_poll_fds[i].fd);
+					--i;
+				}
 				continue ;
 			}
 			if (_poll_fds[i].revents & POLLIN)
@@ -119,10 +123,9 @@ void	Server::acceptNewClient(void)
 		if (!new_client)
 		{
 			close(client_fd);
-			return ;
+			continue ;
 		}
-	
-		new_client->setLastPingTime(time(NULL));
+
 		_poll_fds.push_back(new_client->getPfd());
 	
 		std::cout << "New client connected: " << new_client->getFd() << std::endl;
@@ -133,117 +136,136 @@ void	Server::acceptNewClient(void)
 
 void	Server::handleClientInput(int fd)
 {
+	Client * client = _db.getClient(fd);
+	if (!client)
+		return ;
+
+	bool	clientClosed = false;
+	bool	fatalError = false;
+
+	bool	dataReceived = readFromSocket(fd, client->getBuffer(), clientClosed, fatalError);
+
+	if (clientClosed || fatalError)
+	{
+		disconnectClient(fd);
+		return ;
+	}
+	if (!dataReceived)
+		return ;
+
+	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
+	extractClientBufferLine(fd, client->getBuffer());
+	std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;
+
+	return ;
+}
+
+bool	Server::readFromSocket(int fd, std::string & buffer, bool & clientClosed, bool & fatalError)
+{
+	clientClosed = false;
+	fatalError = false;
+
+	bool	dataReceived = false;
 	char	buf[BUF_SIZE];
-	int		n;
-	bool	got_any = false;
 
 	while (true)
 	{
-		n = recv(fd, buf, BUF_SIZE, 0);
+		int n = recv(fd, buf, sizeof(buf), 0);
 		if (n > 0)
 		{
-			got_any = true;
-			buf[n] = '\0';
-			Client * client = _db.getClient(fd);
-			if (!client)
-				return ;
-			std::string & clientBuffer = client->getBuffer();
-			clientBuffer.append(buf, n);
+			buffer.append(buf, n);
+			dataReceived = true;
 			continue ;
 		}
 		if (n == 0)
 		{
-			disconnectClient(fd);
-			return ;
+			clientClosed = true;
+			return (dataReceived);
 		}
 		if (errno == EINTR)
 			continue ;
 		else if (errno == EAGAIN || errno == EWOULDBLOCK)
-			break ;
-		disconnectClient(fd);
-		return ;
+			return (dataReceived);
+		fatalError = true;
+		return (dataReceived);
 	}
+}
 
-	if (!got_any)
-		return ;
-
-	std::cout << "\n \033[31m --- New data received --- \033[m" << std::endl;
-
-	// buf[n] = '\0';
-	Client *	client = _db.getClient(fd);
-	if (!client)
-		return ;
-
-	std::string &	clientBuffer = client->getBuffer();
-	// clientBuffer += buf;
-
-	size_t pos;
-	while ((pos = clientBuffer.find('\n')) != std::string::npos)
+void	Server::extractClientBufferLine(int fd, std::string & buffer)
+{
+	while (true)
 	{
-		std::string msg = clientBuffer.substr(0, pos + 1);
-		clientBuffer.erase(0, pos + 1);
-		while (!msg.empty() && (msg[msg.size() - 1] == '\n' || msg[msg.size() - 1] == '\r'))
-			msg.erase(msg.size() - 1);
+		size_t pos = buffer.find('\n');
+		if (pos == std::string::npos)
+			break ;
+		std::string msg = buffer.substr(0, pos + 1);
+		buffer.erase(0, pos + 1);
+		while (!msg.empty() && (msg.back() == '\n' || msg.back() == '\r'))
+			msg.pop_back();
+		if (executeCmdLine(fd, msg))
+			return ;
+		if (_db.getClient(fd) == NULL)
+			return ;
+	}
+}
 
-		t_parsed	parsed = Parser::exec(msg, fd);
-		if (parsed.cmd.empty())
-			continue ;
+bool	Server::executeCmdLine(int fd, const std::string & msg)
+{
+	t_parsed parsed = Parser::exec(msg, fd);
+	if (parsed.cmd.empty())
+		return (false);
+	Client * client = _db.getClient(fd);
+	if (!client)
+		return (true);
 
-		PrintLog printlog;
-		printlog.print_debug("INPUT LINE: " + msg);
-		printlog.print_debug("COMMAND: " + parsed.cmd);
-		for (int i = 0; i < (int)parsed.args.size(); ++i)
-		{
-			std::cerr << "[" << i << "] ";
-			printlog.print_debug("ARGUMENT: " + parsed.args[i]);
-		}
+	PrintLog printlog;
+	printlog.print_debug("INPUT LINE: " + msg);
+	printlog.print_debug("COMMAND: " + parsed.cmd);
+	for (int i = 0; i < (int)parsed.args.size(); ++i)
+	{
+		std::cerr << "[" << i << "]";
+		printlog.print_debug("ARGUMENTS: " + parsed.args[i]);
+	}
 
-		if (!client->getIsRegistered())
+	if (!client->getIsRegistered())
+	{
+		if (parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER"
+			&& parsed.cmd != "PONG" && parsed.cmd != "PING"
+			&& parsed.cmd != "QUIT" && parsed.cmd != "CAP")
 		{
-			if (parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER"
-				&& parsed.cmd != "PONG" && parsed.cmd != "PING"
-				&& parsed.cmd != "QUIT" && parsed.cmd != "CAP")
-			{
-				std::string not_registered = ":ft.irc 451 " + displayNick(*client) + " :You have not registered\r\n";
-				sendAllNonBlocking(parsed.client_fd, not_registered.c_str(), not_registered.size());
-				// send(parsed.client_fd, not_registered.c_str(), not_registered.size(), 0);
-				continue ;
-			}
-		}
-
-		Command * cmdObj = createCommandObj(parsed.cmd);
-		if (cmdObj)
-		{
-			std::vector<t_response> response_list = cmdObj->execute(parsed, _db);
-			bool should_break_outer = false;
-			for (size_t i = 0; i < response_list.size(); ++i)
-			{
-				const t_response & res = response_list[i];
-				if (res.should_disconnect)
-				{
-					sendResponses(res);
-					delete cmdObj;
-					disconnectClient(parsed.client_fd);
-					should_break_outer = true;
-					break;
-				}
-				sendResponses(res);
-			}
-			if (should_break_outer)
-				break ;
-			tryRegister(*client);
-			delete cmdObj;
-		}
-		else
-		{
-			std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
-			sendAllNonBlocking(parsed.client_fd, unknown.c_str(), unknown.size());
-			// send(parsed.client_fd, unknown.c_str(), unknown.size(), 0);
+			std::string not_registered = ":ft.irc 451 " + client->getNickname() + " :You have not registered\r\n";
+			sendAllNonBlocking(parsed.client_fd, not_registered.c_str(), not_registered.size());
+			return (false);
 		}
 	}
-	std::cout << "\033[31m --- Receiving ends --- \033[m" << std::endl;
 
-	return ;
+	Command * cmdObj = createCommandObj(parsed.cmd);
+	if (cmdObj)
+	{
+		std::vector<t_response> responses = cmdObj->execute(parsed, _db);
+		for (size_t i = 0; i < responses.size(); ++i)
+		{
+			const t_response & res = responses[i];
+			if (res.should_disconnect)
+			{
+				sendResponses(res);
+				delete cmdObj;
+				disconnectClient(parsed.client_fd);
+				return (true);
+			}
+			sendResponses(res);
+		}
+		client = _db.getClient(fd);
+		if (client)
+			tryRegister(*client);
+		delete cmdObj;
+	}
+	else
+	{
+		std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
+		sendAllNonBlocking(parsed.client_fd, unknown.c_str(), unknown.size());
+	}
+	return (false);
 }
 
 void	Server::disconnectClient(int fd)
@@ -301,7 +323,6 @@ void	Server::sendResponses(const t_response & res)
 		int fd = res.target_fds[i];
 		if (fd >= 0 && !res.reply.empty())
 			sendAllNonBlocking(fd, res.reply.c_str(), res.reply.size());
-		// send(fd, res.reply.c_str(), res.reply.size(), 0);
 	}
 
 	return ;
@@ -362,7 +383,6 @@ void	Server::sendWelcome(Client & client)
 	welcome += ":ft.irc 004 " + nickname + " ft.irc 0.1 o o\r\n";
 
 	sendAllNonBlocking(client.getFd(), welcome.c_str(), welcome.size());
-	// send(client.getFd(), welcome.c_str(), welcome.size(), 0);
 
 	return ;
 }
@@ -380,7 +400,6 @@ void	Server::sendPing(void)
 		int	fd = it->first;
 		std::string	ping = "PING :" + token + "\r\n";
 		sendAllNonBlocking(fd, ping.c_str(), ping.size());
-		// send(fd, ping.c_str(), ping.size(), 0);
 		it->second.setLastPingToken(token);
 	}
 	return ;
@@ -424,7 +443,6 @@ void	Server::broadcast(int client_fd, std::string const & msg)
 		int fd = _poll_fds[i].fd;
 		if (fd != client_fd)
 			sendAllNonBlocking(fd, msg.c_str(), msg.size());
-		// send(fd, msg.c_str(), msg.size(), 0);
 	}
 	std::cout << "Broadcast from " << client_fd << ": " << msg;
 
@@ -450,6 +468,15 @@ bool	Server::step(int timeout_ms)
 
     for (size_t i = 0; i < _poll_fds.size(); ++i)
     {
+		if (_poll_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
+		{
+			if (_poll_fds[i].fd != _server_fd)
+			{
+				disconnectClient(_poll_fds[i].fd);
+				--i;
+			}
+			continue ;
+		}
         if (_poll_fds[i].revents & POLLIN)
         {
             if (_poll_fds[i].fd == _server_fd)
