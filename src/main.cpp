@@ -13,7 +13,7 @@ int	main(int argc, char *argv[])
 	long	port = std::strtol(argv[1], &end, 10);
 	if (errno == ERANGE || end == argv[1] || *end != '\0')
 	{
-		std::cerr << "Error: invalid port number. Use 1 - 65535" << std::endl;
+		std::cerr << "Error: invalid port number. Use 1-65535" << std::endl;
 		return (1);
 	}
 	if (port < 1 || port > 65535)
