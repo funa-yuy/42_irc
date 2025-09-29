@@ -419,7 +419,6 @@ void	Server::sendPing(void)
 		std::string	ping = "PING :" + token + "\r\n";
 		sendAllNonBlocking(fd, ping.c_str(), ping.size());
 		it->second.setLastPingToken(token);
-		it->second.setLastPingTime(time(NULL));
 	}
 	return ;
 }
