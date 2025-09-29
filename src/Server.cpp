@@ -91,10 +91,7 @@ void	Server::run(void)
 					handleClientInput(_poll_fds[i].fd);
 			}
 			if ((_poll_fds[i].revents & POLLHUP) && _poll_fds[i].fd != _server_fd)
-			{
 				handleClientInput(_poll_fds[i].fd);
-				disconnectClient(_poll_fds[i].fd);
-			}
 		}
 
 		checkClientTimeout();
@@ -250,7 +247,7 @@ bool	Server::executeCmdLine(int fd, const std::string & msg)
 	for (int i = 0; i < (int)parsed.args.size(); ++i)
 	{
 		std::cerr << "[" << i << "]";
-		printlog.print_debug("ARGUMENTS: " + parsed.args[i]);
+		printlog.print_debug("ARGUMENT: " + parsed.args[i]);
 	}
 
 	if (!client->getIsRegistered())
