@@ -28,6 +28,11 @@ int	main(int argc, char *argv[])
 		std::cerr << "Error: password must not be empty" << std::endl;
 		return (1);
 	}
+	if (password.find_first_of(" \t\r\n\v\f") != std::string::npos)
+    {
+        std::cerr << "Error: password must not contain whitespace" << std::endl;
+        return (1);
+    }
 
 	Server	server(static_cast<int>(port), password);
 	server.run();
