@@ -276,14 +276,6 @@ bool	Server::executeCmdLine(int fd, const std::string & msg)
 				disconnectClient(parsed.client_fd);
 				return (true);
 			}
-			if (should_break_outer)
-				break ;
-			tryRegister(*client);
-			delete cmdObj;
-		}
-		else
-		{
-			std::string unknown = ":ft.irc 421 " + displayNickname(*client) + " " + parsed.cmd + " :Unknown command\r\n";
 			sendResponses(res);
 		}
 		client = _db.getClient(fd);
@@ -293,7 +285,7 @@ bool	Server::executeCmdLine(int fd, const std::string & msg)
 	}
 	else
 	{
-		std::string unknown = ":ft.irc 421 " + displayNick(*client) + " " + parsed.cmd + " :Unknown command\r\n";
+		std::string unknown = ":ft.irc 421 " + displayNickname(*client) + " " + parsed.cmd + " :Unknown command\r\n";
 		sendAllNonBlocking(parsed.client_fd, unknown.c_str(), unknown.size());
 	}
 	return (false);
