@@ -14,6 +14,8 @@
 #include <sys/socket.h>
 #include <sys/poll.h>
 #include <ctime>
+#include <fcntl.h>
+#include <signal.h>
 
 #include "Parser.hpp"
 
@@ -38,8 +40,10 @@
 #include "PrintLog.hpp"
 
 #define MAX_CLIENTS 10
-#define BUF_SIZE 512
-#define TIMEOUT_MS 0
+#define BUF_SIZE 1024
+#define MAX_LINE_TOTAL 512
+#define MAX_CLIENT_BUF 8192
+#define TIMEOUT_MS 50
 #define PING_INTERVAL 180
 
 class Server
@@ -73,12 +77,18 @@ private:
 	int			_timeout_ms;
 
 	void		acceptNewClient(void);
+
 	void		handleClientInput(int fd);
+	bool		readFromSocket(int fd, std::string & buffer, bool & closed, bool & fatalError);
+	void		extractClientBufferLine(int fd, std::string & buffer);
+	bool		executeCmdLine(int fd, const std::string & msg);
+
 	void		disconnectClient(int fd);
 
 	Command *	createCommandObj(std::string cmd_name);
 
 	void		sendResponses(const t_response & res);
+	bool		sendAllNonBlocking(int fd, const char * data, size_t len);
 	bool		tryRegister(Client & client);
 	void		sendWelcome(Client & client);
 
